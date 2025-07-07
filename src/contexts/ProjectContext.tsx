@@ -53,7 +53,7 @@ interface ProjectProviderProps {
 export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) => {
   const [etapas, setEtapas] = useState<Etapa[]>([
     {
-      id: '1',
+      id: 'etapa-1',
       nome: 'Alvenaria',
       dataInicio: '01/06/2024',
       prazoEstimado: '30',
@@ -61,12 +61,12 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       custo: 'R$ 87.000,00',
       status: 'andamento',
       tarefas: [
-        { id: '1', nome: 'Assentamento blocos' },
-        { id: '2', nome: 'Concretagem Colunas' }
+        { id: 'tarefa-1-1', nome: 'Assentamento blocos' },
+        { id: 'tarefa-1-2', nome: 'Concretagem Colunas' }
       ]
     },
     {
-      id: '2',
+      id: 'etapa-2',
       nome: 'Cobertura',
       dataInicio: '01/07/2024',
       prazoEstimado: '45',
@@ -74,13 +74,13 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       custo: 'R$ 120.000,00',
       status: 'proximo',
       tarefas: [
-        { id: '3', nome: 'Concretagem Laje' },
-        { id: '4', nome: 'Madeiramento' },
-        { id: '5', nome: 'Colocação Telhado' }
+        { id: 'tarefa-2-1', nome: 'Concretagem Laje' },
+        { id: 'tarefa-2-2', nome: 'Madeiramento' },
+        { id: 'tarefa-2-3', nome: 'Colocação Telhado' }
       ]
     },
     {
-      id: '3',
+      id: 'etapa-3',
       nome: 'Acabamento',
       dataInicio: '01/09/2024',
       prazoEstimado: '60',
@@ -88,26 +88,26 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       custo: 'R$ 200.000,00',
       status: 'proximo',
       tarefas: [
-        { id: '6', nome: 'Assentamento pisos' }
+        { id: 'tarefa-3-1', nome: 'Assentamento pisos' }
       ]
     }
   ]);
 
   const addEtapa = (newEtapa: NewEtapa) => {
-    const id = Date.now().toString();
+    const id = `etapa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const etapaWithIds: Etapa = {
       ...newEtapa,
       id,
       tarefas: newEtapa.tarefas.map((tarefa, index) => ({
         ...tarefa,
-        id: `${id}-${index}`
+        id: `tarefa-${id}-${index}-${Math.random().toString(36).substr(2, 9)}`
       }))
     };
     setEtapas(prev => [...prev, etapaWithIds]);
   };
 
   const addTarefa = (etapaId: string, newTarefa: Omit<Tarefa, 'id'>) => {
-    const id = Date.now().toString();
+    const id = `tarefa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setEtapas(prev => prev.map(etapa => 
       etapa.id === etapaId 
         ? { ...etapa, tarefas: [...etapa.tarefas, { ...newTarefa, id }] }

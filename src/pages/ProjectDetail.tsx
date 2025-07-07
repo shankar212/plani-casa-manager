@@ -3,10 +3,11 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 import { useState } from "react";
 import { useParams, NavLink } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
+import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -97,14 +98,10 @@ const ProjectDetail = () => {
                         {etapa.tarefas.map((tarefa) => (
                           <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
                             <span className="text-sm">{tarefa.nome}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteTarefa(etapa.id, tarefa.id)}
-                              className="p-1 h-auto text-red-600 hover:text-red-800"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
+                            <DeleteTarefaDialog
+                              tarefaName={tarefa.nome}
+                              onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                            />
                           </div>
                         ))}
                       </div>
@@ -132,14 +129,10 @@ const ProjectDetail = () => {
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-4 p-2 bg-blue-100 rounded flex justify-between items-center">
                           <span className="text-sm">{tarefa.nome}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteTarefa(etapa.id, tarefa.id)}
-                            className="p-1 h-auto text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                          <DeleteTarefaDialog
+                            tarefaName={tarefa.nome}
+                            onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                          />
                         </div>
                       ))}
                     </div>
@@ -166,14 +159,10 @@ const ProjectDetail = () => {
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
                           <span className="text-sm">{tarefa.nome}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteTarefa(etapa.id, tarefa.id)}
-                            className="p-1 h-auto text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                          <DeleteTarefaDialog
+                            tarefaName={tarefa.nome}
+                            onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                          />
                         </div>
                       ))}
                     </div>
