@@ -94,17 +94,17 @@ const ProjectLegal = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="space-y-4">
           {sectors.map((sector, index) => (
-            <Card key={index} className="p-4 min-h-[200px]">
-              <h3 className="font-semibold mb-4 text-center border-b pb-2">{sector}</h3>
+            <Card key={index} className="p-4 w-full">
+              <h3 className="font-semibold mb-4 border-b pb-2">{sector}</h3>
               
               {documents[sector] && documents[sector].length > 0 && (
                 <div className="mb-4 space-y-2">
                   {documents[sector].map((doc, docIndex) => (
                     <div key={docIndex} className="text-sm flex items-start">
                       <span className="w-2 h-2 bg-black rounded-full mr-2 mt-1.5 flex-shrink-0"></span>
-                      <span className="break-all">{doc}</span>
+                      <span className="truncate" title={doc}>{doc}</span>
                     </div>
                   ))}
                 </div>
@@ -113,7 +113,7 @@ const ProjectLegal = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="w-full"
+                className="w-fit"
                 onClick={() => handleAddDocument(sector)}
               >
                 <Plus className="w-4 h-4 mr-2" />
