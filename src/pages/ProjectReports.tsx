@@ -1,20 +1,17 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { useParams, NavLink } from "react-router-dom";
+import { useProject } from "@/contexts/ProjectContext";
 
 const ProjectReports = () => {
   const { id } = useParams();
+  const { etapas } = useProject();
 
   const reports = [
     { date: "15/01/2025", description: "Concluída a fundação do bloco A. Iniciados trabalhos de alvenaria." },
     { date: "14/01/2025", description: "Finalizada a instalação elétrica da subsolo. Testes iniciados." },
     { date: "13/01/2025", description: "Entrega de materiais para acabamento do bloco B." }
   ];
-
-  const photos = Array(16).fill(null).map((_, i) => ({
-    id: i + 1,
-    size: ["927kV", "235kB", "826kB", "1273kV"][i % 4]
-  }));
 
   return (
     <Layout>
@@ -119,14 +116,23 @@ const ProjectReports = () => {
           </Card>
         </div>
 
-        {/* Photo Report */}
+        {/* Photo Report by Etapa */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">relatório fotográfico</h2>
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
-            {photos.map((photo) => (
-              <div key={photo.id} className="aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center">
-                <div className="text-xs text-gray-500 mb-1">img</div>
-                <div className="text-xs text-gray-400">{photo.size}</div>
+          <div className="space-y-6">
+            {etapas.map((etapa) => (
+              <div key={etapa.id}>
+                <h3 className="font-medium mb-3">{etapa.nome}</h3>
+                <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
+                  {Array(8).fill(null).map((_, i) => (
+                    <div key={i} className="aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center">
+                      <div className="text-xs text-gray-500 mb-1">img</div>
+                      <div className="text-xs text-gray-400">
+                        {["927kV", "235kB", "826kB", "1273kV"][i % 4]}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

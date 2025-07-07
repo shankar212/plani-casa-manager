@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ProjectProvider } from "./contexts/ProjectContext";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import CreateProject from "./pages/CreateProject";
@@ -23,7 +24,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <ProjectProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/projetos" element={<Projects />} />
@@ -39,7 +41,8 @@ const App = () => (
           <Route path="/notificacoes" element={<div>Notificações em desenvolvimento</div>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </ProjectProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

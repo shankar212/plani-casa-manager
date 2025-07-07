@@ -1,18 +1,11 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { useParams, NavLink } from "react-router-dom";
+import { useProject } from "@/contexts/ProjectContext";
 
 const ProjectTechnical = () => {
   const { id } = useParams();
-
-  const schedule = [
-    { stage: "preparação do terreno", start: "12/05/2024", end: "31/05/2024", progress: "100%", cost: "R$ 55.000,00" },
-    { stage: "fundação", start: "01/06/2024", end: "30/06/2024", progress: "75%", cost: "R$ 87.000,00" },
-    { stage: "estrutura", start: "01/07/2024", end: "31/08/2024", progress: "50%", cost: "R$ 23.000,00" },
-    { stage: "alvenaria", start: "01/09/2024", end: "30/09/2024", progress: "25%", cost: "R$ 40.000,00" },
-    { stage: "instalações", start: "01/10/2024", end: "31/10/2024", progress: "10%", cost: "R$ 79.000,00" },
-    { stage: "alvenaria", start: "01/11/2024", end: "30/11/2025", progress: "0%", cost: "R$ 60.000,00" },
-  ];
+  const { etapas } = useProject();
 
   return (
     <Layout>
@@ -84,13 +77,13 @@ const ProjectTechnical = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {schedule.map((item, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="py-3">{item.stage}</td>
-                      <td className="py-3">{item.start}</td>
-                      <td className="py-3">{item.end}</td>
-                      <td className="py-3">{item.progress}</td>
-                      <td className="py-3">{item.cost}</td>
+                  {etapas.map((etapa) => (
+                    <tr key={etapa.id} className="border-b">
+                      <td className="py-3">{etapa.nome}</td>
+                      <td className="py-3">{etapa.dataInicio || '-'}</td>
+                      <td className="py-3">-</td>
+                      <td className="py-3">{etapa.progresso}</td>
+                      <td className="py-3">{etapa.custo || '-'}</td>
                     </tr>
                   ))}
                 </tbody>

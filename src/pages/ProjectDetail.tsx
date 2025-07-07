@@ -3,27 +3,21 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useParams, NavLink } from "react-router-dom";
+import { useProject } from "@/contexts/ProjectContext";
 
 const ProjectDetail = () => {
   const { id } = useParams();
+  const { getEtapasByStatus, deleteTarefa } = useProject();
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
   const [andamentoOpen, setAndamentoOpen] = useState(true);
   const [proximosOpen, setProximosOpen] = useState(true);
 
-  const finalizados: string[] = [];
-  const emAndamento = [
-    "Alvenaria: Assentamento blocos",
-    "Alvenaria: Concretagem Colunas"
-  ];
-  const proximos = [
-    "Cobertura: Concretagem Laje",
-    "Cobertura: Madeiramento",
-    "Cobertura: Colocação Telhado",
-    "Acabamento: Assentamento pisos"
-  ];
+  const finalizados = getEtapasByStatus('finalizado');
+  const emAndamento = getEtapasByStatus('andamento');
+  const proximos = getEtapasByStatus('proximo');
 
   return (
     <Layout>
@@ -95,9 +89,24 @@ const ProjectDetail = () => {
                   <p className="text-gray-500 text-center py-4">Nenhuma etapa finalizada ainda</p>
                 ) : (
                   <div className="space-y-2">
-                    {finalizados.map((item, index) => (
-                      <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                        {item}
+                    {finalizados.map((etapa) => (
+                      <div key={etapa.id} className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg font-medium">
+                          {etapa.nome}
+                        </div>
+                        {etapa.tarefas.map((tarefa) => (
+                          <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
+                            <span className="text-sm">{tarefa.nome}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteTarefa(etapa.id, tarefa.id)}
+                              className="p-1 h-auto text-red-600 hover:text-red-800"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>
@@ -115,9 +124,24 @@ const ProjectDetail = () => {
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-4">
                 <div className="space-y-2">
-                  {emAndamento.map((item, index) => (
-                    <div key={index} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      {item}
+                  {emAndamento.map((etapa) => (
+                    <div key={etapa.id} className="space-y-2">
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium">
+                        {etapa.nome}
+                      </div>
+                      {etapa.tarefas.map((tarefa) => (
+                        <div key={tarefa.id} className="ml-4 p-2 bg-blue-100 rounded flex justify-between items-center">
+                          <span className="text-sm">{tarefa.nome}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteTarefa(etapa.id, tarefa.id)}
+                            className="p-1 h-auto text-red-600 hover:text-red-800"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
@@ -134,9 +158,24 @@ const ProjectDetail = () => {
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-4">
                 <div className="space-y-2">
-                  {proximos.map((item, index) => (
-                    <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                      {item}
+                  {proximos.map((etapa) => (
+                    <div key={etapa.id} className="space-y-2">
+                      <div className="p-3 bg-gray-50 rounded-lg font-medium">
+                        {etapa.nome}
+                      </div>
+                      {etapa.tarefas.map((tarefa) => (
+                        <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
+                          <span className="text-sm">{tarefa.nome}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteTarefa(etapa.id, tarefa.id)}
+                            className="p-1 h-auto text-red-600 hover:text-red-800"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
@@ -149,7 +188,7 @@ const ProjectDetail = () => {
               className="w-full py-6 text-lg"
               onClick={() => window.location.href = `/projetos/${id}/adicionar-etapa`}
             >
-              Adicionar etapa
+              Adicionar Etapa/Tarefa
             </Button>
           </Card>
         </div>
