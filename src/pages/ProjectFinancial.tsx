@@ -19,7 +19,9 @@ const ProjectFinancial = () => {
     <Layout>
       <div className="p-8">
         <div className="mb-6">
-          <div className="text-sm text-gray-600 mb-2">projetos › apartamento hillrid</div>
+          <div className="text-sm text-gray-600 mb-2">
+            <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › apartamento hillrid
+          </div>
           <h1 className="text-2xl font-bold mb-4">apartamento hillrid</h1>
           
           <div className="flex space-x-4 border-b border-gray-200">
