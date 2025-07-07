@@ -1,17 +1,37 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { useParams, NavLink } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const ProjectLegal = () => {
   const { id } = useParams();
+  const { toast } = useToast();
 
-  const documents = [
-    { phase: "Pré-Projeto", items: ["Matrícula Terreno"] },
-    { phase: "Projeto", items: ["ART", "Projeto", "Memorial descritivo"] },
-    { phase: "Obras", items: ["SQPO", "CMO"] },
-    { phase: "Pós obra", items: ["CND", "Habite-se"] },
-    { phase: "Financiamento", items: ["Elem Construtivos", "Seguro RGPM"] }
+  const sectors = [
+    "Pré-Projeto",
+    "Projeto", 
+    "Obras",
+    "Pós obra",
+    "Financiamento"
   ];
+
+  const handleAddDocument = (sector: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        toast({
+          title: "Document uploaded",
+          description: `${file.name} added to ${sector} sector`,
+        });
+      }
+    };
+    input.click();
+  };
 
   return (
     <Layout>
@@ -68,17 +88,17 @@ const ProjectLegal = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {documents.map((phase, index) => (
-            <Card key={index} className="p-4">
-              <h3 className="font-semibold mb-3 text-center border-b pb-2">{phase.phase}</h3>
-              <ul className="space-y-2">
-                {phase.items.map((item, itemIndex) => (
-                  <li key={itemIndex} className="text-sm flex items-center">
-                    <span className="w-2 h-2 bg-black rounded-full mr-2"></span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          {sectors.map((sector, index) => (
+            <Card key={index} className="p-6 flex flex-col items-center justify-center min-h-[200px]">
+              <h3 className="font-semibold mb-4 text-center">{sector}</h3>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => handleAddDocument(sector)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add document
+              </Button>
             </Card>
           ))}
         </div>
