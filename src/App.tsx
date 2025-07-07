@@ -8,6 +8,10 @@ import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import CreateProject from "./pages/CreateProject";
 import ProjectDetail from "./pages/ProjectDetail";
+import ProjectFinancial from "./pages/ProjectFinancial";
+import ProjectTechnical from "./pages/ProjectTechnical";
+import ProjectLegal from "./pages/ProjectLegal";
+import ProjectReports from "./pages/ProjectReports";
 import DigitalWarehouse from "./pages/DigitalWarehouse";
 import NotFound from "./pages/NotFound";
 
@@ -24,6 +28,10 @@ const App = () => (
           <Route path="/projetos" element={<Projects />} />
           <Route path="/projetos/criar" element={<CreateProject />} />
           <Route path="/projetos/:id" element={<ProjectDetail />} />
+          <Route path="/projetos/:id/financeiro" element={<ProjectFinancial />} />
+          <Route path="/projetos/:id/tecnico" element={<ProjectTechnical />} />
+          <Route path="/projetos/:id/conformidade-legal" element={<ProjectLegal />} />
+          <Route path="/projetos/:id/relatorios" element={<ProjectReports />} />
           <Route path="/almoxarifado" element={<DigitalWarehouse />} />
           <Route path="/configuracoes" element={<div>Configurações em desenvolvimento</div>} />
           <Route path="/notificacoes" element={<div>Notificações em desenvolvimento</div>} />

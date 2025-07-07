@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 import { useState } from "react";
+import { useParams, NavLink } from "react-router-dom";
 
 const ProjectDetail = () => {
+  const { id } = useParams();
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
   const [andamentoOpen, setAndamentoOpen] = useState(true);
   const [proximosOpen, setProximosOpen] = useState(true);
@@ -31,11 +33,47 @@ const ProjectDetail = () => {
           <h1 className="text-2xl font-bold mb-4">apartamento hillrid</h1>
           
           <div className="flex space-x-4 border-b border-gray-200">
-            <button className="pb-2 px-1 border-b-2 border-black font-medium">gestão</button>
-            <button className="pb-2 px-1 text-gray-600 hover:text-black">financeiro</button>
-            <button className="pb-2 px-1 text-gray-600 hover:text-black">técnico</button>
-            <button className="pb-2 px-1 text-gray-600 hover:text-black">conformidade legal</button>
-            <button className="pb-2 px-1 text-gray-600 hover:text-black">relatórios e indicadores</button>
+            <NavLink 
+              to={`/projetos/${id}`} 
+              end
+              className={({ isActive }) => 
+                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+              }
+            >
+              gestão
+            </NavLink>
+            <NavLink 
+              to={`/projetos/${id}/financeiro`}
+              className={({ isActive }) => 
+                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+              }
+            >
+              financeiro
+            </NavLink>
+            <NavLink 
+              to={`/projetos/${id}/tecnico`}
+              className={({ isActive }) => 
+                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+              }
+            >
+              técnico
+            </NavLink>
+            <NavLink 
+              to={`/projetos/${id}/conformidade-legal`}
+              className={({ isActive }) => 
+                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+              }
+            >
+              conformidade legal
+            </NavLink>
+            <NavLink 
+              to={`/projetos/${id}/relatorios`}
+              className={({ isActive }) => 
+                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+              }
+            >
+              relatórios e indicadores
+            </NavLink>
           </div>
         </div>
 
