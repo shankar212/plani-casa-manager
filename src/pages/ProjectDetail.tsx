@@ -145,7 +145,10 @@ const ProjectDetail = () => {
           </Collapsible>
 
           <Card className="p-8">
-            <Button className="w-full py-6 text-lg">
+            <Button 
+              className="w-full py-6 text-lg"
+              onClick={() => window.location.href = `/projetos/${id}/adicionar-etapa`}
+            >
               Adicionar etapa
             </Button>
           </Card>
