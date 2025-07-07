@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search, Plus } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   const projects = [
     {
@@ -49,7 +51,11 @@ const Projects = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {projects.map((project) => (
-            <Card key={project.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+            <Card 
+              key={project.id} 
+              className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => navigate(`/projetos/${project.id}`)}
+            >
               <h3 className="font-medium mb-1">{project.name}</h3>
               <p className="text-sm text-gray-600">{project.date}</p>
             </Card>
