@@ -24,6 +24,15 @@ const AddStep = () => {
   const [estimatedDuration, setEstimatedDuration] = useState("");
   const [tarefas, setTarefas] = useState<string[]>(["", ""]);
 
+  const resetForm = () => {
+    setIsNewEtapa(false);
+    setSelectedEtapaId("");
+    setNewEtapaName("");
+    setStartDate("");
+    setEstimatedDuration("");
+    setTarefas(["", ""]);
+  };
+
   const handleSave = () => {
     if (isNewEtapa && newEtapaName.trim()) {
       // Create new etapa
@@ -52,6 +61,12 @@ const AddStep = () => {
         description: `${validTarefas.length} tarefa(s) adicionada(s) com sucesso!`
       });
     }
+    
+    // Reset form for next entry
+    resetForm();
+  };
+
+  const handleCancel = () => {
     navigate(`/projetos/${id}`);
   };
 
@@ -82,15 +97,18 @@ const AddStep = () => {
               <Label className="text-base font-medium">
                 Etapa
               </Label>
-              <Select onValueChange={(value) => {
-                if (value === "new") {
-                  setIsNewEtapa(true);
-                  setSelectedEtapaId("");
-                } else {
-                  setIsNewEtapa(false);
-                  setSelectedEtapaId(value);
-                }
-              }}>
+              <Select 
+                value={isNewEtapa ? "new" : selectedEtapaId} 
+                onValueChange={(value) => {
+                  if (value === "new") {
+                    setIsNewEtapa(true);
+                    setSelectedEtapaId("");
+                  } else {
+                    setIsNewEtapa(false);
+                    setSelectedEtapaId(value);
+                  }
+                }}
+              >
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione uma etapa ou crie nova" />
                 </SelectTrigger>
@@ -181,14 +199,23 @@ const AddStep = () => {
               </div>
             </div>
 
-            {/* Save Button */}
-            <Button 
-              onClick={handleSave}
-              className="w-full bg-black text-white hover:bg-gray-800 py-3 text-base"
-              disabled={(!isNewEtapa && !selectedEtapaId) || (isNewEtapa && !newEtapaName.trim())}
-            >
-              salvar dados
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex space-x-4">
+              <Button 
+                onClick={handleSave}
+                className="flex-1 bg-black text-white hover:bg-gray-800 py-3 text-base"
+                disabled={(!isNewEtapa && !selectedEtapaId) || (isNewEtapa && !newEtapaName.trim())}
+              >
+                salvar dados
+              </Button>
+              <Button 
+                onClick={handleCancel}
+                variant="outline"
+                className="flex-1 py-3 text-base"
+              >
+                voltar ao projeto
+              </Button>
+            </div>
           </div>
         </Card>
       </div>
