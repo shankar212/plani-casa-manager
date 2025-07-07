@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useParams, NavLink } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const ProjectLegal = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  
+  const [documents, setDocuments] = useState<Record<string, string[]>>({});
 
   const sectors = [
     "Pré-Projeto",
@@ -24,6 +27,10 @@ const ProjectLegal = () => {
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
+        setDocuments(prev => ({
+          ...prev,
+          [sector]: [...(prev[sector] || []), file.name]
+        }));
         toast({
           title: "Document uploaded",
           description: `${file.name} added to ${sector} sector`,
@@ -89,15 +96,28 @@ const ProjectLegal = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {sectors.map((sector, index) => (
-            <Card key={index} className="p-6 flex flex-col items-center justify-center min-h-[200px]">
-              <h3 className="font-semibold mb-4 text-center">{sector}</h3>
+            <Card key={index} className="p-4 min-h-[200px]">
+              <h3 className="font-semibold mb-4 text-center border-b pb-2">{sector}</h3>
+              
+              {documents[sector] && documents[sector].length > 0 && (
+                <div className="mb-4 space-y-2">
+                  {documents[sector].map((doc, docIndex) => (
+                    <div key={docIndex} className="text-sm flex items-start">
+                      <span className="w-2 h-2 bg-black rounded-full mr-2 mt-1.5 flex-shrink-0"></span>
+                      <span className="break-all">{doc}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
               <Button 
                 variant="outline" 
+                size="sm"
                 className="w-full"
                 onClick={() => handleAddDocument(sector)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add document
+                Adicionar Documento
               </Button>
             </Card>
           ))}
