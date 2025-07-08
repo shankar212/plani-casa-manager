@@ -32,6 +32,7 @@ interface ProjectContextType {
   addEtapa: (etapa: NewEtapa) => void;
   addTarefa: (etapaId: string, tarefa: Omit<Tarefa, 'id'>) => void;
   deleteTarefa: (etapaId: string, tarefaId: string) => void;
+  deleteEtapa: (etapaId: string) => void;
   updateEtapaStatus: (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => void;
   getEtapasByStatus: (status: 'finalizado' | 'andamento' | 'proximo') => Etapa[];
 }
@@ -123,6 +124,10 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
     ));
   };
 
+  const deleteEtapa = (etapaId: string) => {
+    setEtapas(prev => prev.filter(etapa => etapa.id !== etapaId));
+  };
+
   const updateEtapaStatus = (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => {
     setEtapas(prev => prev.map(etapa => 
       etapa.id === etapaId ? { ...etapa, status } : etapa
@@ -139,6 +144,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       addEtapa,
       addTarefa,
       deleteTarefa,
+      deleteEtapa,
       updateEtapaStatus,
       getEtapasByStatus
     }}>

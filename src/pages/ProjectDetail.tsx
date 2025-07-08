@@ -8,10 +8,11 @@ import { useState } from "react";
 import { useParams, NavLink } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
 import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
+import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
 
 const ProjectDetail = () => {
   const { id } = useParams();
-  const { getEtapasByStatus, deleteTarefa } = useProject();
+  const { getEtapasByStatus, deleteTarefa, deleteEtapa } = useProject();
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
   const [andamentoOpen, setAndamentoOpen] = useState(true);
   const [proximosOpen, setProximosOpen] = useState(true);
@@ -90,11 +91,15 @@ const ProjectDetail = () => {
                   <p className="text-gray-500 text-center py-4">Nenhuma etapa finalizada ainda</p>
                 ) : (
                   <div className="space-y-2">
-                    {finalizados.map((etapa) => (
-                      <div key={etapa.id} className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg font-medium">
-                          {etapa.nome}
-                        </div>
+                     {finalizados.map((etapa) => (
+                       <div key={etapa.id} className="space-y-2">
+                         <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
+                           <span>{etapa.nome}</span>
+                           <DeleteEtapaDialog
+                             etapaName={etapa.nome}
+                             onConfirm={() => deleteEtapa(etapa.id)}
+                           />
+                         </div>
                         {etapa.tarefas.map((tarefa) => (
                           <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
                             <span className="text-sm">{tarefa.nome}</span>
@@ -121,11 +126,15 @@ const ProjectDetail = () => {
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-4">
                 <div className="space-y-2">
-                  {emAndamento.map((etapa) => (
-                    <div key={etapa.id} className="space-y-2">
-                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium">
-                        {etapa.nome}
-                      </div>
+                   {emAndamento.map((etapa) => (
+                     <div key={etapa.id} className="space-y-2">
+                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium flex justify-between items-center">
+                         <span>{etapa.nome}</span>
+                         <DeleteEtapaDialog
+                           etapaName={etapa.nome}
+                           onConfirm={() => deleteEtapa(etapa.id)}
+                         />
+                       </div>
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-4 p-2 bg-blue-100 rounded flex justify-between items-center">
                           <span className="text-sm">{tarefa.nome}</span>
@@ -151,11 +160,15 @@ const ProjectDetail = () => {
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-4">
                 <div className="space-y-2">
-                  {proximos.map((etapa) => (
-                    <div key={etapa.id} className="space-y-2">
-                      <div className="p-3 bg-gray-50 rounded-lg font-medium">
-                        {etapa.nome}
-                      </div>
+                   {proximos.map((etapa) => (
+                     <div key={etapa.id} className="space-y-2">
+                       <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
+                         <span>{etapa.nome}</span>
+                         <DeleteEtapaDialog
+                           etapaName={etapa.nome}
+                           onConfirm={() => deleteEtapa(etapa.id)}
+                         />
+                       </div>
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
                           <span className="text-sm">{tarefa.nome}</span>
