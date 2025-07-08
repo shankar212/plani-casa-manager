@@ -14,6 +14,271 @@ export type Database = {
   }
   public: {
     Tables: {
+      legal_documents: {
+        Row: {
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          project_id: string | null
+          sector: string
+          uploaded_at: string | null
+        }
+        Insert: {
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          project_id?: string | null
+          sector: string
+          uploaded_at?: string | null
+        }
+        Update: {
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          project_id?: string | null
+          sector?: string
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_suppliers: {
+        Row: {
+          contact_info: Json | null
+          created_at: string | null
+          id: string
+          name: string
+          project_id: string | null
+          stage_id: string | null
+        }
+        Insert: {
+          contact_info?: Json | null
+          created_at?: string | null
+          id?: string
+          name: string
+          project_id?: string | null
+          stage_id?: string | null
+        }
+        Update: {
+          contact_info?: Json | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          project_id?: string | null
+          stage_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_suppliers_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_suppliers_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "project_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials_delivered: {
+        Row: {
+          created_at: string | null
+          delivery_date: string
+          id: string
+          invoice_number: string | null
+          material_name: string
+          project_id: string | null
+          quantity: number
+          stage_id: string | null
+          supplier_id: string | null
+          total_cost: number
+          unit: string
+          unit_cost: number
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_date: string
+          id?: string
+          invoice_number?: string | null
+          material_name: string
+          project_id?: string | null
+          quantity: number
+          stage_id?: string | null
+          supplier_id?: string | null
+          total_cost: number
+          unit: string
+          unit_cost: number
+        }
+        Update: {
+          created_at?: string | null
+          delivery_date?: string
+          id?: string
+          invoice_number?: string | null
+          material_name?: string
+          project_id?: string | null
+          quantity?: number
+          stage_id?: string | null
+          supplier_id?: string | null
+          total_cost?: number
+          unit?: string
+          unit_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_delivered_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materials_delivered_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "project_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materials_delivered_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "material_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials_requested: {
+        Row: {
+          estimated_total_cost: number | null
+          estimated_unit_cost: number | null
+          id: string
+          material_name: string
+          project_id: string | null
+          quantity: number
+          requested_at: string | null
+          stage_id: string | null
+          supplier_id: string | null
+          unit: string
+        }
+        Insert: {
+          estimated_total_cost?: number | null
+          estimated_unit_cost?: number | null
+          id?: string
+          material_name: string
+          project_id?: string | null
+          quantity: number
+          requested_at?: string | null
+          stage_id?: string | null
+          supplier_id?: string | null
+          unit: string
+        }
+        Update: {
+          estimated_total_cost?: number | null
+          estimated_unit_cost?: number | null
+          id?: string
+          material_name?: string
+          project_id?: string | null
+          quantity?: number
+          requested_at?: string | null
+          stage_id?: string | null
+          supplier_id?: string | null
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_requested_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materials_requested_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "project_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materials_requested_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "material_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials_used: {
+        Row: {
+          created_at: string | null
+          id: string
+          material_name: string
+          notes: string | null
+          project_id: string | null
+          quantity: number
+          stage_id: string | null
+          total_cost: number
+          unit: string
+          unit_cost: number
+          used_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          material_name: string
+          notes?: string | null
+          project_id?: string | null
+          quantity: number
+          stage_id?: string | null
+          total_cost: number
+          unit: string
+          unit_cost: number
+          used_date: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          material_name?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity?: number
+          stage_id?: string | null
+          total_cost?: number
+          unit?: string
+          unit_cost?: number
+          used_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_used_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materials_used_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "project_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_photos: {
         Row: {
           etapa_id: string
@@ -41,6 +306,187 @@ export type Database = {
         }
         Relationships: []
       }
+      project_stages: {
+        Row: {
+          actual_cost: number | null
+          created_at: string | null
+          description: string | null
+          estimated_cost: number | null
+          estimated_duration_days: number | null
+          id: string
+          name: string
+          progress_percentage: number | null
+          project_id: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["stage_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          estimated_cost?: number | null
+          estimated_duration_days?: number | null
+          id?: string
+          name: string
+          progress_percentage?: number | null
+          project_id?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["stage_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          actual_cost?: number | null
+          created_at?: string | null
+          description?: string | null
+          estimated_cost?: number | null
+          estimated_duration_days?: number | null
+          id?: string
+          name?: string
+          progress_percentage?: number | null
+          project_id?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["stage_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_stages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_tasks: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          stage_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          stage_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          stage_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_tasks_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "project_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          total_budget: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          total_budget?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      service_providers: {
+        Row: {
+          contract_date: string | null
+          contract_value: number
+          created_at: string | null
+          id: string
+          name: string
+          payment_status: string | null
+          project_id: string | null
+          service_type: string
+          stage_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          contract_date?: string | null
+          contract_value: number
+          created_at?: string | null
+          id?: string
+          name: string
+          payment_status?: string | null
+          project_id?: string | null
+          service_type: string
+          stage_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          contract_date?: string | null
+          contract_value?: number
+          created_at?: string | null
+          id?: string
+          name?: string
+          payment_status?: string | null
+          project_id?: string | null
+          service_type?: string
+          stage_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_providers_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_providers_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "project_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -49,7 +495,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      project_status:
+        | "Pré-projeto"
+        | "Projeto"
+        | "Obras"
+        | "Pós obra"
+        | "Financiamento"
+      stage_status: "finalizado" | "andamento" | "proximo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -176,6 +628,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      project_status: [
+        "Pré-projeto",
+        "Projeto",
+        "Obras",
+        "Pós obra",
+        "Financiamento",
+      ],
+      stage_status: ["finalizado", "andamento", "proximo"],
+    },
   },
 } as const
