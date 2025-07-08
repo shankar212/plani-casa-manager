@@ -94,187 +94,90 @@ export type Database = {
           },
         ]
       }
-      materials_delivered: {
+      materials: {
         Row: {
           created_at: string | null
-          delivery_date: string
-          id: string
-          invoice_number: string | null
-          material_name: string
-          project_id: string | null
-          quantity: number
-          stage_id: string | null
-          supplier_id: string | null
-          total_cost: number
-          unit: string
-          unit_cost: number
-        }
-        Insert: {
-          created_at?: string | null
-          delivery_date: string
-          id?: string
-          invoice_number?: string | null
-          material_name: string
-          project_id?: string | null
-          quantity: number
-          stage_id?: string | null
-          supplier_id?: string | null
-          total_cost: number
-          unit: string
-          unit_cost: number
-        }
-        Update: {
-          created_at?: string | null
-          delivery_date?: string
-          id?: string
-          invoice_number?: string | null
-          material_name?: string
-          project_id?: string | null
-          quantity?: number
-          stage_id?: string | null
-          supplier_id?: string | null
-          total_cost?: number
-          unit?: string
-          unit_cost?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "materials_delivered_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "materials_delivered_stage_id_fkey"
-            columns: ["stage_id"]
-            isOneToOne: false
-            referencedRelation: "project_stages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "materials_delivered_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "material_suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      materials_requested: {
-        Row: {
+          delivery_date: string | null
           estimated_total_cost: number | null
           estimated_unit_cost: number | null
           id: string
-          material_name: string
-          project_id: string | null
-          quantity: number
-          requested_at: string | null
-          stage_id: string | null
-          supplier_id: string | null
-          unit: string
-        }
-        Insert: {
-          estimated_total_cost?: number | null
-          estimated_unit_cost?: number | null
-          id?: string
-          material_name: string
-          project_id?: string | null
-          quantity: number
-          requested_at?: string | null
-          stage_id?: string | null
-          supplier_id?: string | null
-          unit: string
-        }
-        Update: {
-          estimated_total_cost?: number | null
-          estimated_unit_cost?: number | null
-          id?: string
-          material_name?: string
-          project_id?: string | null
-          quantity?: number
-          requested_at?: string | null
-          stage_id?: string | null
-          supplier_id?: string | null
-          unit?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "materials_requested_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "materials_requested_stage_id_fkey"
-            columns: ["stage_id"]
-            isOneToOne: false
-            referencedRelation: "project_stages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "materials_requested_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "material_suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      materials_used: {
-        Row: {
-          created_at: string | null
-          id: string
+          invoice_number: string | null
           material_name: string
           notes: string | null
           project_id: string | null
           quantity: number
+          requested_at: string | null
           stage_id: string | null
-          total_cost: number
+          status: Database["public"]["Enums"]["material_status"]
+          supplier_id: string | null
+          total_cost: number | null
           unit: string
-          unit_cost: number
-          used_date: string
+          unit_cost: number | null
+          updated_at: string | null
+          used_date: string | null
         }
         Insert: {
           created_at?: string | null
+          delivery_date?: string | null
+          estimated_total_cost?: number | null
+          estimated_unit_cost?: number | null
           id?: string
+          invoice_number?: string | null
           material_name: string
           notes?: string | null
           project_id?: string | null
           quantity: number
+          requested_at?: string | null
           stage_id?: string | null
-          total_cost: number
+          status?: Database["public"]["Enums"]["material_status"]
+          supplier_id?: string | null
+          total_cost?: number | null
           unit: string
-          unit_cost: number
-          used_date: string
+          unit_cost?: number | null
+          updated_at?: string | null
+          used_date?: string | null
         }
         Update: {
           created_at?: string | null
+          delivery_date?: string | null
+          estimated_total_cost?: number | null
+          estimated_unit_cost?: number | null
           id?: string
+          invoice_number?: string | null
           material_name?: string
           notes?: string | null
           project_id?: string | null
           quantity?: number
+          requested_at?: string | null
           stage_id?: string | null
-          total_cost?: number
+          status?: Database["public"]["Enums"]["material_status"]
+          supplier_id?: string | null
+          total_cost?: number | null
           unit?: string
-          unit_cost?: number
-          used_date?: string
+          unit_cost?: number | null
+          updated_at?: string | null
+          used_date?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "materials_used_project_id_fkey"
+            foreignKeyName: "materials_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "materials_used_stage_id_fkey"
+            foreignKeyName: "materials_stage_id_fkey"
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "project_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materials_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "material_suppliers"
             referencedColumns: ["id"]
           },
         ]
@@ -495,6 +398,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      material_status: "requested" | "delivered" | "used"
       project_status:
         | "Pré-projeto"
         | "Projeto"
@@ -629,6 +533,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      material_status: ["requested", "delivered", "used"],
       project_status: [
         "Pré-projeto",
         "Projeto",

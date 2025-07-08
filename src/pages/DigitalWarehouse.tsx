@@ -2,31 +2,60 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { Tables } from "@/integrations/supabase/types";
+
+type Material = Tables<"materials">;
 
 const DigitalWarehouse = () => {
-  const materials = [
-    { material: "cimento", quantidade: 100, unidade: "sacos" },
-    { material: "areia", quantidade: 50, unidade: "m³" },
-    { material: "brita", quantidade: 30, unidade: "m³" },
-    { material: "vergalhão", quantidade: 200, unidade: "barras" },
-    { material: "tijolo", quantidade: 5000, unidade: "unidades" }
-  ];
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const entregas = [
-    { material: "cimento", quantidade: 100, unidade: "sacos", data: "30/ago/24" },
-    { material: "areia", quantidade: 50, unidade: "m³", data: "25/set/24" },
-    { material: "brita", quantidade: 30, unidade: "m³", data: "28/set/24" },
-    { material: "vergalhão", quantidade: 200, unidade: "barras", data: "10/out/24" },
-    { material: "tijolo", quantidade: 5000, unidade: "unidades", data: "18/out/24" }
-  ];
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
 
-  const utilizados = [
-    { material: "cimento", quantidade: 100, unidade: "sacos" },
-    { material: "areia", quantidade: 50, unidade: "m³" },
-    { material: "brita", quantidade: 30, unidade: "m³" },
-    { material: "vergalhão", quantidade: 200, unidade: "barras" },
-    { material: "tijolo", quantidade: 5000, unidade: "unidades" }
-  ];
+  const fetchMaterials = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("materials")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setMaterials(data || []);
+    } catch (error) {
+      console.error("Error fetching materials:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("pt-BR");
+  };
+
+  const requestedMaterials = materials.filter(m => m.status === "requested");
+  const deliveredMaterials = materials.filter(m => m.status === "delivered");
+  const usedMaterials = materials.filter(m => m.status === "used");
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="p-8">
+          <div className="text-center">Carregando materiais...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -61,11 +90,11 @@ const DigitalWarehouse = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {materials.map((item, index) => (
+                    {requestedMaterials.map((item, index) => (
                       <tr key={index} className="border-b border-gray-100">
-                        <td className="py-3 px-4">{item.material}</td>
-                        <td className="py-3 px-4">{item.quantidade}</td>
-                        <td className="py-3 px-4">{item.unidade}</td>
+                        <td className="py-3 px-4">{item.material_name}</td>
+                        <td className="py-3 px-4">{item.quantity}</td>
+                        <td className="py-3 px-4">{item.unit}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -91,15 +120,19 @@ const DigitalWarehouse = () => {
                       <th className="text-left py-3 px-4">Quantidade</th>
                       <th className="text-left py-3 px-4">Unidade</th>
                       <th className="text-left py-3 px-4">Data</th>
+                      <th className="text-left py-3 px-4">Custo Unitário</th>
+                      <th className="text-left py-3 px-4">Custo Total</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {entregas.map((item, index) => (
+                    {deliveredMaterials.map((item, index) => (
                       <tr key={index} className="border-b border-gray-100">
-                        <td className="py-3 px-4">{item.material}</td>
-                        <td className="py-3 px-4">{item.quantidade}</td>
-                        <td className="py-3 px-4">{item.unidade}</td>
-                        <td className="py-3 px-4">{item.data}</td>
+                        <td className="py-3 px-4">{item.material_name}</td>
+                        <td className="py-3 px-4">{item.quantity}</td>
+                        <td className="py-3 px-4">{item.unit}</td>
+                        <td className="py-3 px-4">{item.delivery_date ? formatDate(item.delivery_date) : '-'}</td>
+                        <td className="py-3 px-4">{item.unit_cost ? formatCurrency(Number(item.unit_cost)) : '-'}</td>
+                        <td className="py-3 px-4">{item.total_cost ? formatCurrency(Number(item.total_cost)) : '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -124,14 +157,20 @@ const DigitalWarehouse = () => {
                       <th className="text-left py-3 px-4">Material</th>
                       <th className="text-left py-3 px-4">Quantidade</th>
                       <th className="text-left py-3 px-4">Unidade</th>
+                      <th className="text-left py-3 px-4">Data de Uso</th>
+                      <th className="text-left py-3 px-4">Custo Unitário</th>
+                      <th className="text-left py-3 px-4">Custo Total</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {utilizados.map((item, index) => (
+                    {usedMaterials.map((item, index) => (
                       <tr key={index} className="border-b border-gray-100">
-                        <td className="py-3 px-4">{item.material}</td>
-                        <td className="py-3 px-4">{item.quantidade}</td>
-                        <td className="py-3 px-4">{item.unidade}</td>
+                        <td className="py-3 px-4">{item.material_name}</td>
+                        <td className="py-3 px-4">{item.quantity}</td>
+                        <td className="py-3 px-4">{item.unit}</td>
+                        <td className="py-3 px-4">{item.used_date ? formatDate(item.used_date) : '-'}</td>
+                        <td className="py-3 px-4">{item.unit_cost ? formatCurrency(Number(item.unit_cost)) : '-'}</td>
+                        <td className="py-3 px-4">{item.total_cost ? formatCurrency(Number(item.total_cost)) : '-'}</td>
                       </tr>
                     ))}
                   </tbody>
