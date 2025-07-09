@@ -2,6 +2,7 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Tables } from "@/integrations/supabase/types";
@@ -66,40 +67,41 @@ const DigitalWarehouse = () => {
 
         <Tabs defaultValue="pedidos" className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="pedidos">Pedidos</TabsTrigger>
-            <TabsTrigger value="entregas">Entregas</TabsTrigger>
-            <TabsTrigger value="utilizados">Utilizados</TabsTrigger>
+            <TabsTrigger value="pedidos">Pedidos ({requestedMaterials.length})</TabsTrigger>
+            <TabsTrigger value="entregas">Entregas ({deliveredMaterials.length})</TabsTrigger>
+            <TabsTrigger value="utilizados">Utilizados ({usedMaterials.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="pedidos">
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Lista de materiais pedidos</h2>
-                <button className="p-2 text-gray-600 hover:text-black">
-                  ✏️
-                </button>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4">Material</th>
-                      <th className="text-left py-3 px-4">Quantidade</th>
-                      <th className="text-left py-3 px-4">Unidade</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {requestedMaterials.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-3 px-4">{item.material_name}</td>
-                        <td className="py-3 px-4">{item.quantity}</td>
-                        <td className="py-3 px-4">{item.unit}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Material</TableHead>
+                    <TableHead>Quantidade</TableHead>
+                    <TableHead>Unidade</TableHead>
+                    <TableHead>Custo Unit. Estimado</TableHead>
+                    <TableHead>Custo Total Estimado</TableHead>
+                    <TableHead>Data do Pedido</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {requestedMaterials.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.material_name}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{item.unit}</TableCell>
+                      <TableCell>{item.estimated_unit_cost ? formatCurrency(Number(item.estimated_unit_cost)) : '-'}</TableCell>
+                      <TableCell>{item.estimated_total_cost ? formatCurrency(Number(item.estimated_total_cost)) : '-'}</TableCell>
+                      <TableCell>{item.requested_at ? formatDate(item.requested_at) : '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </Card>
           </TabsContent>
 
@@ -107,37 +109,34 @@ const DigitalWarehouse = () => {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Lista de materiais entregues</h2>
-                <button className="p-2 text-gray-600 hover:text-black">
-                  ✏️
-                </button>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4">Material</th>
-                      <th className="text-left py-3 px-4">Quantidade</th>
-                      <th className="text-left py-3 px-4">Unidade</th>
-                      <th className="text-left py-3 px-4">Data</th>
-                      <th className="text-left py-3 px-4">Custo Unitário</th>
-                      <th className="text-left py-3 px-4">Custo Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {deliveredMaterials.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-3 px-4">{item.material_name}</td>
-                        <td className="py-3 px-4">{item.quantity}</td>
-                        <td className="py-3 px-4">{item.unit}</td>
-                        <td className="py-3 px-4">{item.delivery_date ? formatDate(item.delivery_date) : '-'}</td>
-                        <td className="py-3 px-4">{item.unit_cost ? formatCurrency(Number(item.unit_cost)) : '-'}</td>
-                        <td className="py-3 px-4">{item.total_cost ? formatCurrency(Number(item.total_cost)) : '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Material</TableHead>
+                    <TableHead>Quantidade</TableHead>
+                    <TableHead>Unidade</TableHead>
+                    <TableHead>Data de Entrega</TableHead>
+                    <TableHead>Custo Unitário</TableHead>
+                    <TableHead>Custo Total</TableHead>
+                    <TableHead>Nota Fiscal</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {deliveredMaterials.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.material_name}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{item.unit}</TableCell>
+                      <TableCell>{item.delivery_date ? formatDate(item.delivery_date) : '-'}</TableCell>
+                      <TableCell>{item.unit_cost ? formatCurrency(Number(item.unit_cost)) : '-'}</TableCell>
+                      <TableCell>{item.total_cost ? formatCurrency(Number(item.total_cost)) : '-'}</TableCell>
+                      <TableCell>{item.invoice_number || '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </Card>
           </TabsContent>
 
@@ -145,37 +144,34 @@ const DigitalWarehouse = () => {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Lista de materiais utilizados</h2>
-                <button className="p-2 text-gray-600 hover:text-black">
-                  ✏️
-                </button>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4">Material</th>
-                      <th className="text-left py-3 px-4">Quantidade</th>
-                      <th className="text-left py-3 px-4">Unidade</th>
-                      <th className="text-left py-3 px-4">Data de Uso</th>
-                      <th className="text-left py-3 px-4">Custo Unitário</th>
-                      <th className="text-left py-3 px-4">Custo Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {usedMaterials.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-3 px-4">{item.material_name}</td>
-                        <td className="py-3 px-4">{item.quantity}</td>
-                        <td className="py-3 px-4">{item.unit}</td>
-                        <td className="py-3 px-4">{item.used_date ? formatDate(item.used_date) : '-'}</td>
-                        <td className="py-3 px-4">{item.unit_cost ? formatCurrency(Number(item.unit_cost)) : '-'}</td>
-                        <td className="py-3 px-4">{item.total_cost ? formatCurrency(Number(item.total_cost)) : '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Material</TableHead>
+                    <TableHead>Quantidade</TableHead>
+                    <TableHead>Unidade</TableHead>
+                    <TableHead>Data de Uso</TableHead>
+                    <TableHead>Custo Unitário</TableHead>
+                    <TableHead>Custo Total</TableHead>
+                    <TableHead>Observações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {usedMaterials.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.material_name}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{item.unit}</TableCell>
+                      <TableCell>{item.used_date ? formatDate(item.used_date) : '-'}</TableCell>
+                      <TableCell>{item.unit_cost ? formatCurrency(Number(item.unit_cost)) : '-'}</TableCell>
+                      <TableCell>{item.total_cost ? formatCurrency(Number(item.total_cost)) : '-'}</TableCell>
+                      <TableCell>{item.notes || '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </Card>
           </TabsContent>
         </Tabs>
