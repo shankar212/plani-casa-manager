@@ -5,28 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Search, Plus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useProjects } from '@/hooks/useProjects';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const { projects, loading } = useProjects();
 
-  const projects = [
-    {
-      id: 1,
-      name: "apartamento hillrid",
-      date: "desde 01 de agosto de 2024"
-    },
-    {
-      id: 2,
-      name: "ulisses faria 970",
-      date: "desde 10 de dezembro de 2024"
-    },
-    {
-      id: 3,
-      name: "curitibapolloce",
-      date: "desde 01 de novembro de 2024"
-    }
-  ];
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Layout>
@@ -50,20 +39,44 @@ const Projects = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {projects.map((project) => (
-            <Card 
-              key={project.id} 
-              className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(`/projetos/${project.id}`)}
-            >
-              <h3 className="font-medium mb-1">{project.name}</h3>
-              <p className="text-sm text-gray-600">{project.date}</p>
-            </Card>
-          ))}
+          {loading ? (
+            // Loading skeletons
+            Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="p-4">
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2" />
+              </Card>
+            ))
+          ) : filteredProjects.length > 0 ? (
+            filteredProjects.map((project) => (
+              <Card 
+                key={project.id} 
+                className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigate(`/projetos/${project.id}`)}
+              >
+                <h3 className="font-medium mb-1">{project.name}</h3>
+                <p className="text-sm text-gray-600">
+                  desde {project.created_at ? new Date(project.created_at).toLocaleDateString('pt-BR') : 'Data não disponível'}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Status: {project.status}
+                </p>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-gray-500">
+                {searchTerm ? 'Nenhum projeto encontrado' : 'Nenhum projeto cadastrado'}
+              </p>
+            </div>
+          )}
         </div>
 
         <Card className="p-8">
-          <Button className="w-full py-6 text-lg">
+          <Button 
+            className="w-full py-6 text-lg"
+            onClick={() => navigate('/projetos/criar')}
+          >
             <Plus className="w-5 h-5 mr-2" />
             Criar novo projeto
           </Button>

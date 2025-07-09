@@ -10,12 +10,20 @@ import { Calendar } from "lucide-react";
 import { useProject } from "@/contexts/ProjectContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 const AddStep = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { etapas, addEtapa, addTarefa } = useProject();
+  const { etapas, addEtapa, addTarefa, setProjectId, projectId } = useProject();
+
+  // Set project ID in context when component mounts
+  useEffect(() => {
+    if (id && id !== projectId) {
+      setProjectId(id);
+    }
+  }, [id, projectId, setProjectId]);
   
   const [isNewEtapa, setIsNewEtapa] = useState(false);
   const [selectedEtapaId, setSelectedEtapaId] = useState<string>("");
@@ -33,7 +41,7 @@ const AddStep = () => {
     setTarefas(["", ""]);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (isNewEtapa && newEtapaName.trim()) {
       // Create new etapa
       const newEtapa = {
@@ -45,7 +53,7 @@ const AddStep = () => {
         status: "proximo" as const,
         tarefas: tarefas.filter(t => t.trim()).map(t => ({ nome: t.trim() }))
       };
-      addEtapa(newEtapa);
+      await addEtapa(newEtapa);
       toast({
         title: "Etapa criada",
         description: `Etapa "${newEtapaName}" criada com sucesso!`
@@ -53,9 +61,9 @@ const AddStep = () => {
     } else if (selectedEtapaId && !isNewEtapa) {
       // Add tarefas to existing etapa
       const validTarefas = tarefas.filter(t => t.trim());
-      validTarefas.forEach(tarefa => {
-        addTarefa(selectedEtapaId, { nome: tarefa.trim() });
-      });
+      for (const tarefa of validTarefas) {
+        await addTarefa(selectedEtapaId, { nome: tarefa.trim() });
+      }
       toast({
         title: "Tarefas adicionadas",
         description: `${validTarefas.length} tarefa(s) adicionada(s) com sucesso!`

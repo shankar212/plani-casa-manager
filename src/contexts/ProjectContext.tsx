@@ -1,9 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useProjectStages, useProjectTasks } from '@/hooks/useProjects';
+import type { ProjectStage, ProjectTask } from '@/hooks/useProjects';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Tarefa {
   id: string;
   nome: string;
   descricao?: string;
+  completed?: boolean;
 }
 
 export interface Etapa {
@@ -29,12 +33,16 @@ export interface NewEtapa {
 
 interface ProjectContextType {
   etapas: Etapa[];
-  addEtapa: (etapa: NewEtapa) => void;
-  addTarefa: (etapaId: string, tarefa: Omit<Tarefa, 'id'>) => void;
-  deleteTarefa: (etapaId: string, tarefaId: string) => void;
-  deleteEtapa: (etapaId: string) => void;
-  updateEtapaStatus: (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => void;
+  loading: boolean;
+  projectId: string | null;
+  setProjectId: (id: string | null) => void;
+  addEtapa: (etapa: NewEtapa) => Promise<void>;
+  addTarefa: (etapaId: string, tarefa: Omit<Tarefa, 'id'>) => Promise<void>;
+  deleteTarefa: (etapaId: string, tarefaId: string) => Promise<void>;
+  deleteEtapa: (etapaId: string) => Promise<void>;
+  updateEtapaStatus: (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => Promise<void>;
   getEtapasByStatus: (status: 'finalizado' | 'andamento' | 'proximo') => Etapa[];
+  refetch: () => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -52,86 +60,129 @@ interface ProjectProviderProps {
 }
 
 export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) => {
-  const [etapas, setEtapas] = useState<Etapa[]>([
-    {
-      id: 'etapa-1',
-      nome: 'Alvenaria',
-      dataInicio: '01/06/2024',
-      prazoEstimado: '30',
-      progresso: '75%',
-      custo: 'R$ 87.000,00',
-      status: 'andamento',
-      tarefas: [
-        { id: 'tarefa-1-1', nome: 'Assentamento blocos' },
-        { id: 'tarefa-1-2', nome: 'Concretagem Colunas' }
-      ]
-    },
-    {
-      id: 'etapa-2',
-      nome: 'Cobertura',
-      dataInicio: '01/07/2024',
-      prazoEstimado: '45',
-      progresso: '0%',
-      custo: 'R$ 120.000,00',
-      status: 'proximo',
-      tarefas: [
-        { id: 'tarefa-2-1', nome: 'Concretagem Laje' },
-        { id: 'tarefa-2-2', nome: 'Madeiramento' },
-        { id: 'tarefa-2-3', nome: 'Colocação Telhado' }
-      ]
-    },
-    {
-      id: 'etapa-3',
-      nome: 'Acabamento',
-      dataInicio: '01/09/2024',
-      prazoEstimado: '60',
-      progresso: '0%',
-      custo: 'R$ 200.000,00',
-      status: 'proximo',
-      tarefas: [
-        { id: 'tarefa-3-1', nome: 'Assentamento pisos' }
-      ]
-    }
-  ]);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [etapas, setEtapas] = useState<Etapa[]>([]);
+  const [allTasks, setAllTasks] = useState<{ [stageId: string]: ProjectTask[] }>({});
+  
+  const { stages, loading: stagesLoading, createStage, updateStage, deleteStage, refetch: refetchStages } = useProjectStages(projectId || undefined);
 
-  const addEtapa = (newEtapa: NewEtapa) => {
-    const id = `etapa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const etapaWithIds: Etapa = {
-      ...newEtapa,
-      id,
-      tarefas: newEtapa.tarefas.map((tarefa, index) => ({
-        ...tarefa,
-        id: `tarefa-${id}-${index}-${Math.random().toString(36).substr(2, 9)}`
-      }))
+  // Convert database stages to frontend format
+  useEffect(() => {
+    const convertedEtapas: Etapa[] = stages.map(stage => ({
+      id: stage.id,
+      nome: stage.name,
+      dataInicio: stage.start_date ? new Date(stage.start_date).toLocaleDateString('pt-BR') : undefined,
+      prazoEstimado: stage.estimated_duration_days?.toString(),
+      progresso: `${stage.progress_percentage || 0}%`,
+      custo: stage.estimated_cost ? `R$ ${stage.estimated_cost.toLocaleString('pt-BR')}` : undefined,
+      status: stage.status as 'finalizado' | 'andamento' | 'proximo',
+      tarefas: allTasks[stage.id] ? allTasks[stage.id].map(task => ({
+        id: task.id,
+        nome: task.name,
+        descricao: task.description || undefined,
+        completed: task.completed || false
+      })) : []
+    }));
+    setEtapas(convertedEtapas);
+  }, [stages, allTasks]);
+
+  // Fetch tasks for all stages
+  useEffect(() => {
+    const fetchAllTasks = async () => {
+      const tasksPromises = stages.map(async (stage) => {
+        const { data } = await supabase
+          .from('project_tasks')
+          .select('*')
+          .eq('stage_id', stage.id);
+        return { stageId: stage.id, tasks: data || [] };
+      });
+      
+      const results = await Promise.all(tasksPromises);
+      const tasksMap = results.reduce((acc, { stageId, tasks }) => {
+        acc[stageId] = tasks;
+        return acc;
+      }, {} as { [stageId: string]: ProjectTask[] });
+      
+      setAllTasks(tasksMap);
     };
-    setEtapas(prev => [...prev, etapaWithIds]);
+
+    if (stages.length > 0) {
+      fetchAllTasks();
+    }
+  }, [stages]);
+
+  const addEtapa = async (newEtapa: NewEtapa) => {
+    if (!projectId) return;
+    
+    const statusMap = {
+      'finalizado': 'finalizado' as const,
+      'andamento': 'andamento' as const, 
+      'proximo': 'proximo' as const
+    };
+
+    const stage = await createStage({
+      project_id: projectId,
+      name: newEtapa.nome,
+      description: undefined,
+      start_date: newEtapa.dataInicio ? new Date(newEtapa.dataInicio.split('/').reverse().join('-')).toISOString().split('T')[0] : null,
+      estimated_duration_days: newEtapa.prazoEstimado ? parseInt(newEtapa.prazoEstimado) : null,
+      progress_percentage: parseInt(newEtapa.progresso.replace('%', '')) || 0,
+      estimated_cost: newEtapa.custo ? parseFloat(newEtapa.custo.replace(/[R$\s.,]/g, '')) : null,
+      status: statusMap[newEtapa.status]
+    });
+
+    // Add tasks for the new stage
+    if (stage && newEtapa.tarefas.length > 0) {
+      const tasksPromises = newEtapa.tarefas.map(tarefa => 
+        supabase.from('project_tasks').insert({
+          stage_id: stage.id,
+          name: tarefa.nome,
+          description: tarefa.descricao || null,
+          completed: false
+        })
+      );
+      await Promise.all(tasksPromises);
+      refetchStages();
+    }
   };
 
-  const addTarefa = (etapaId: string, newTarefa: Omit<Tarefa, 'id'>) => {
-    const id = `tarefa-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    setEtapas(prev => prev.map(etapa => 
-      etapa.id === etapaId 
-        ? { ...etapa, tarefas: [...etapa.tarefas, { ...newTarefa, id }] }
-        : etapa
-    ));
+  const addTarefa = async (etapaId: string, newTarefa: Omit<Tarefa, 'id'>) => {
+    try {
+      await supabase.from('project_tasks').insert({
+        stage_id: etapaId,
+        name: newTarefa.nome,
+        description: newTarefa.descricao || null,
+        completed: false
+      });
+      refetchStages();
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
-  const deleteTarefa = (etapaId: string, tarefaId: string) => {
-    setEtapas(prev => prev.map(etapa => 
-      etapa.id === etapaId 
-        ? { ...etapa, tarefas: etapa.tarefas.filter(tarefa => tarefa.id !== tarefaId) }
-        : etapa
-    ));
+  const deleteTarefa = async (etapaId: string, tarefaId: string) => {
+    try {
+      await supabase.from('project_tasks').delete().eq('id', tarefaId);
+      refetchStages();
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
-  const deleteEtapa = (etapaId: string) => {
-    setEtapas(prev => prev.filter(etapa => etapa.id !== etapaId));
+  const deleteEtapa = async (etapaId: string) => {
+    try {
+      await deleteStage(etapaId);
+    } catch (error) {
+      console.error('Error deleting stage:', error);
+    }
   };
 
-  const updateEtapaStatus = (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => {
-    setEtapas(prev => prev.map(etapa => 
-      etapa.id === etapaId ? { ...etapa, status } : etapa
-    ));
+  const updateEtapaStatus = async (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => {
+    try {
+      await updateStage(etapaId, { status });
+    } catch (error) {
+      console.error('Error updating stage status:', error);
+    }
   };
 
   const getEtapasByStatus = (status: 'finalizado' | 'andamento' | 'proximo') => {
@@ -141,12 +192,16 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
   return (
     <ProjectContext.Provider value={{
       etapas,
+      loading: stagesLoading,
+      projectId,
+      setProjectId,
       addEtapa,
       addTarefa,
       deleteTarefa,
       deleteEtapa,
       updateEtapaStatus,
-      getEtapasByStatus
+      getEtapasByStatus,
+      refetch: refetchStages
     }}>
       {children}
     </ProjectContext.Provider>
