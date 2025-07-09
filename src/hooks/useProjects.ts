@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
@@ -123,7 +123,7 @@ export const useProjects = () => {
     fetchProjects();
   }, []);
 
-  const getProjectById = async (id: string) => {
+  const getProjectById = useCallback(async (id: string) => {
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -142,7 +142,7 @@ export const useProjects = () => {
       });
       throw error;
     }
-  };
+  }, [toast]);
 
   return {
     projects,
