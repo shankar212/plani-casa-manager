@@ -123,12 +123,34 @@ export const useProjects = () => {
     fetchProjects();
   }, []);
 
+  const getProjectById = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching project:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar o projeto",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
   return {
     projects,
     loading,
     createProject,
     updateProject,
     deleteProject,
+    getProjectById,
     refetch: fetchProjects
   };
 };

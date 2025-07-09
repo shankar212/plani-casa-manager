@@ -4,31 +4,76 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, NavLink } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
 import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
 import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
+import { useProjects } from "@/hooks/useProjects";
+import type { Project } from "@/hooks/useProjects";
 
 const ProjectDetail = () => {
   const { id } = useParams();
-  const { getEtapasByStatus, deleteTarefa, deleteEtapa } = useProject();
+  const { getEtapasByStatus, deleteTarefa, deleteEtapa, setProjectId, loading } = useProject();
+  const { getProjectById } = useProjects();
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
   const [andamentoOpen, setAndamentoOpen] = useState(true);
   const [proximosOpen, setProximosOpen] = useState(true);
+  const [project, setProject] = useState<Project | null>(null);
+  const [projectLoading, setProjectLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      setProjectId(id);
+      
+      const fetchProject = async () => {
+        try {
+          setProjectLoading(true);
+          const projectData = await getProjectById(id);
+          setProject(projectData);
+        } catch (error) {
+          console.error('Error fetching project:', error);
+        } finally {
+          setProjectLoading(false);
+        }
+      };
+      
+      fetchProject();
+    }
+  }, [id, setProjectId, getProjectById]);
 
   const finalizados = getEtapasByStatus('finalizado');
   const emAndamento = getEtapasByStatus('andamento');
   const proximos = getEtapasByStatus('proximo');
+
+  if (projectLoading || loading) {
+    return (
+      <Layout>
+        <div className="p-8">
+          <div className="text-center">Carregando projeto...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!project) {
+    return (
+      <Layout>
+        <div className="p-8">
+          <div className="text-center">Projeto não encontrado</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="p-8">
         <div className="mb-6">
           <div className="text-sm text-gray-600 mb-2">
-            <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › apartamento hillrid
+            <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {project.name}
           </div>
-          <h1 className="text-2xl font-bold mb-4">apartamento hillrid</h1>
+          <h1 className="text-2xl font-bold mb-4">{project.name}</h1>
           
           <div className="flex space-x-4 border-b border-gray-200">
             <NavLink 
