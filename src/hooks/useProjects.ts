@@ -161,7 +161,11 @@ export const useProjectStages = (projectId?: string) => {
   const { toast } = useToast();
 
   const fetchStages = async () => {
-    if (!projectId) return;
+    if (!projectId) {
+      setLoading(false);
+      setStages([]);
+      return;
+    }
     
     try {
       setLoading(true);
@@ -287,7 +291,11 @@ export const useProjectTasks = (stageId?: string) => {
   const { toast } = useToast();
 
   const fetchTasks = async () => {
-    if (!stageId) return;
+    if (!stageId) {
+      setLoading(false);
+      setTasks([]);
+      return;
+    }
     
     try {
       setLoading(true);
