@@ -9,12 +9,13 @@ import { useParams, NavLink } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
 import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
 import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
+import { ChangeStatusDialog } from "@/components/ChangeStatusDialog";
 import { useProjects } from "@/hooks/useProjects";
 import type { Project } from "@/hooks/useProjects";
 
 const ProjectDetail = () => {
   const { id } = useParams();
-  const { getEtapasByStatus, deleteTarefa, deleteEtapa, setProjectId, loading } = useProject();
+  const { getEtapasByStatus, deleteTarefa, deleteEtapa, updateEtapaStatus, setProjectId, loading } = useProject();
   const { getProjectById } = useProjects();
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
   const [andamentoOpen, setAndamentoOpen] = useState(true);
@@ -138,13 +139,21 @@ const ProjectDetail = () => {
                   <div className="space-y-2">
                      {finalizados.map((etapa) => (
                        <div key={etapa.id} className="space-y-2">
-                         <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
-                           <span>{etapa.nome}</span>
-                           <DeleteEtapaDialog
-                             etapaName={etapa.nome}
-                             onConfirm={() => deleteEtapa(etapa.id)}
-                           />
-                         </div>
+                          <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
+                            <span>{etapa.nome}</span>
+                            <div className="flex items-center gap-2">
+                              <ChangeStatusDialog
+                                etapaName={etapa.nome}
+                                currentStatus="finalizado"
+                                targetStatus="andamento"
+                                onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
+                              />
+                              <DeleteEtapaDialog
+                                etapaName={etapa.nome}
+                                onConfirm={() => deleteEtapa(etapa.id)}
+                              />
+                            </div>
+                          </div>
                         {etapa.tarefas.map((tarefa) => (
                           <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
                             <span className="text-sm">{tarefa.nome}</span>
@@ -173,13 +182,27 @@ const ProjectDetail = () => {
                 <div className="space-y-2">
                    {emAndamento.map((etapa) => (
                      <div key={etapa.id} className="space-y-2">
-                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium flex justify-between items-center">
-                         <span>{etapa.nome}</span>
-                         <DeleteEtapaDialog
-                           etapaName={etapa.nome}
-                           onConfirm={() => deleteEtapa(etapa.id)}
-                         />
-                       </div>
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium flex justify-between items-center">
+                          <span>{etapa.nome}</span>
+                          <div className="flex items-center gap-2">
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="andamento"
+                              targetStatus="finalizado"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'finalizado')}
+                            />
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="andamento"
+                              targetStatus="proximo"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'proximo')}
+                            />
+                            <DeleteEtapaDialog
+                              etapaName={etapa.nome}
+                              onConfirm={() => deleteEtapa(etapa.id)}
+                            />
+                          </div>
+                        </div>
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-4 p-2 bg-blue-100 rounded flex justify-between items-center">
                           <span className="text-sm">{tarefa.nome}</span>
@@ -207,13 +230,21 @@ const ProjectDetail = () => {
                 <div className="space-y-2">
                    {proximos.map((etapa) => (
                      <div key={etapa.id} className="space-y-2">
-                       <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
-                         <span>{etapa.nome}</span>
-                         <DeleteEtapaDialog
-                           etapaName={etapa.nome}
-                           onConfirm={() => deleteEtapa(etapa.id)}
-                         />
-                       </div>
+                        <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
+                          <span>{etapa.nome}</span>
+                          <div className="flex items-center gap-2">
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="proximo"
+                              targetStatus="andamento"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
+                            />
+                            <DeleteEtapaDialog
+                              etapaName={etapa.nome}
+                              onConfirm={() => deleteEtapa(etapa.id)}
+                            />
+                          </div>
+                        </div>
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
                           <span className="text-sm">{tarefa.nome}</span>
