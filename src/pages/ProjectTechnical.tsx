@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TechnicalDocumentUpload } from "@/components/TechnicalDocumentUpload";
 import { PDFViewer } from "@/components/PDFViewer";
+import { calculateEndDate } from "@/lib/dateUtils";
 
 interface TechnicalDocument {
   id: string;
@@ -141,7 +142,7 @@ const ProjectTechnical = () => {
                     <tr key={etapa.id} className="border-b">
                       <td className="py-3">{etapa.nome}</td>
                       <td className="py-3">{etapa.dataInicio || '-'}</td>
-                      <td className="py-3">-</td>
+                      <td className="py-3">{calculateEndDate(etapa.dataInicio, etapa.prazoEstimado)}</td>
                       <td className="py-3">{etapa.progresso}</td>
                       <td className="py-3">{etapa.custo || '-'}</td>
                     </tr>
