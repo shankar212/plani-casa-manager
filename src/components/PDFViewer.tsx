@@ -1,27 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-
-// Set up PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface PDFViewerProps {
   filePath: string;
 }
 
 export const PDFViewer = ({ filePath }: PDFViewerProps) => {
-  const [numPages, setNumPages] = useState<number>(0);
-  const [pageNumber, setPageNumber] = useState<number>(1);
-  const [scale, setScale] = useState<number>(1.0);
   const [pdfUrl, setPdfUrl] = useState<string>("");
-
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-  };
+  const [loading, setLoading] = useState(true);
 
   const getPdfUrl = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase.storage
         .from('technical-documents')
@@ -31,6 +22,8 @@ export const PDFViewer = ({ filePath }: PDFViewerProps) => {
       setPdfUrl(data.signedUrl);
     } catch (error) {
       console.error('Error getting PDF URL:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,10 +34,30 @@ export const PDFViewer = ({ filePath }: PDFViewerProps) => {
     }
   }, [filePath]);
 
-  if (!pdfUrl) {
+  const handleDownload = async () => {
+    if (!pdfUrl) return;
+    
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = 'document.pdf';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64 bg-muted rounded-lg">
         <p className="text-muted-foreground">Carregando PDF...</p>
+      </div>
+    );
+  }
+
+  if (!pdfUrl) {
+    return (
+      <div className="flex items-center justify-center h-64 bg-muted rounded-lg">
+        <p className="text-muted-foreground">Erro ao carregar PDF</p>
       </div>
     );
   }
@@ -54,59 +67,36 @@ export const PDFViewer = ({ filePath }: PDFViewerProps) => {
       {/* Controls */}
       <div className="flex items-center justify-between bg-muted p-2 rounded">
         <div className="flex items-center space-x-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
-            disabled={pageNumber <= 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm">
-            {pageNumber} de {numPages}
-          </span>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
-            disabled={pageNumber >= numPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <span className="text-sm font-medium">Documento PDF</span>
         </div>
         
         <div className="flex items-center space-x-2">
           <Button
             size="sm"
             variant="outline"
-            onClick={() => setScale(prev => Math.max(prev - 0.2, 0.5))}
+            onClick={handleDownload}
           >
-            <ZoomOut className="h-4 w-4" />
+            <Download className="h-4 w-4 mr-2" />
+            Baixar
           </Button>
-          <span className="text-sm">{Math.round(scale * 100)}%</span>
           <Button
             size="sm"
             variant="outline"
-            onClick={() => setScale(prev => Math.min(prev + 0.2, 2))}
+            onClick={() => window.open(pdfUrl, '_blank')}
           >
-            <ZoomIn className="h-4 w-4" />
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Abrir
           </Button>
         </div>
       </div>
 
-      {/* PDF Document */}
-      <div className="border rounded-lg overflow-auto max-h-96">
-        <Document
-          file={pdfUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          className="flex justify-center"
-        >
-          <Page 
-            pageNumber={pageNumber} 
-            scale={scale}
-            className="shadow-lg"
-          />
-        </Document>
+      {/* PDF Embed */}
+      <div className="border rounded-lg overflow-hidden bg-white">
+        <iframe
+          src={pdfUrl}
+          className="w-full h-96"
+          title="PDF Viewer"
+        />
       </div>
     </div>
   );
