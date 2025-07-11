@@ -85,15 +85,22 @@ const ProjectLegal = () => {
     const selectedCount = selectedDocuments.size;
     const newDocuments = { ...documents };
     
-    selectedDocuments.forEach(docKey => {
-      const [sector, indexStr] = docKey.split('-');
-      const index = parseInt(indexStr);
-      if (newDocuments[sector]) {
-        newDocuments[sector] = newDocuments[sector].filter((_, i) => i !== index);
+    // Sort selected docs by index in descending order to avoid index shifting issues
+    const sortedSelected = Array.from(selectedDocuments)
+      .map(docKey => {
+        const [sector, indexStr] = docKey.split('-');
+        return { sector, index: parseInt(indexStr), key: docKey };
+      })
+      .sort((a, b) => b.index - a.index);
+    
+    // Remove documents starting from highest index
+    sortedSelected.forEach(({ sector, index }) => {
+      if (newDocuments[sector] && newDocuments[sector][index]) {
+        newDocuments[sector].splice(index, 1);
       }
     });
 
-    // Reindex remaining documents to maintain consistency
+    // Clean up empty sectors
     Object.keys(newDocuments).forEach(sector => {
       if (newDocuments[sector]?.length === 0) {
         delete newDocuments[sector];

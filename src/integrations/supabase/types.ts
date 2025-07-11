@@ -390,6 +390,42 @@ export type Database = {
           },
         ]
       }
+      technical_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          project_id: string
+          updated_at: string
+          uploaded_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          project_id: string
+          updated_at?: string
+          uploaded_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          project_id?: string
+          updated_at?: string
+          uploaded_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

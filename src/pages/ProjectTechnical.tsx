@@ -2,10 +2,70 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { useParams, NavLink } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { TechnicalDocumentUpload } from "@/components/TechnicalDocumentUpload";
+import { PDFViewer } from "@/components/PDFViewer";
+
+interface TechnicalDocument {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  uploaded_at: string;
+}
 
 const ProjectTechnical = () => {
   const { id } = useParams();
   const { etapas } = useProject();
+  const [activeTab, setActiveTab] = useState("estrutural");
+  const [documents, setDocuments] = useState<Record<string, TechnicalDocument | null>>({});
+
+  const documentTypes = [
+    { key: "estrutural", label: "estrutural" },
+    { key: "hidrossanitario", label: "hidrossanitário" },
+    { key: "eletrico", label: "elétrico" },
+    { key: "arquitetonico", label: "arquitetônico" }
+  ];
+
+  useEffect(() => {
+    if (id) {
+      loadDocuments();
+    }
+  }, [id]);
+
+  const loadDocuments = async () => {
+    if (!id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('technical_documents')
+        .select('*')
+        .eq('project_id', id);
+
+      if (error) throw error;
+
+      const docsMap: Record<string, TechnicalDocument | null> = {};
+      documentTypes.forEach(type => {
+        docsMap[type.key] = null;
+      });
+
+      data?.forEach(doc => {
+        docsMap[doc.document_type] = doc;
+      });
+
+      setDocuments(docsMap);
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    }
+  };
+
+  const handleDocumentChange = (documentType: string, document: TechnicalDocument | null) => {
+    setDocuments(prev => ({
+      ...prev,
+      [documentType]: document
+    }));
+  };
 
   return (
     <Layout>
@@ -94,14 +154,40 @@ const ProjectTechnical = () => {
           {/* Technical Plans and Projects */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">plantas e projetos técnicos</h2>
-            <div className="flex space-x-2 mb-4">
-              <button className="px-3 py-1 bg-gray-100 rounded text-sm">estrutural</button>
-              <button className="px-3 py-1 text-gray-600 text-sm">hidrossanitário</button>
-              <button className="px-3 py-1 text-gray-600 text-sm">elétrico</button>
-              <button className="px-3 py-1 text-gray-600 text-sm">arquitetônico</button>
+            
+            {/* Tab Navigation */}
+            <div className="flex space-x-2 mb-6">
+              {documentTypes.map(type => (
+                <button
+                  key={type.key}
+                  onClick={() => setActiveTab(type.key)}
+                  className={`px-3 py-1 rounded text-sm transition-colors ${
+                    activeTab === type.key 
+                      ? "bg-primary text-primary-foreground" 
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
             </div>
-            <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-              <span className="text-gray-500">Visualizador PDF</span>
+
+            {/* Document Upload/Management */}
+            <div className="space-y-6">
+              <TechnicalDocumentUpload
+                projectId={id!}
+                documentType={activeTab}
+                document={documents[activeTab]}
+                onDocumentChange={(doc) => handleDocumentChange(activeTab, doc)}
+              />
+
+              {/* PDF Preview */}
+              {documents[activeTab] && (
+                <div>
+                  <h3 className="font-medium mb-3">Visualização do Documento</h3>
+                  <PDFViewer filePath={documents[activeTab]!.file_path} />
+                </div>
+              )}
             </div>
           </Card>
         </div>
