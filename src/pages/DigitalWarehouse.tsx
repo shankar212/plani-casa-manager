@@ -3,26 +3,64 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Tables } from "@/integrations/supabase/types";
 
-type Material = Tables<"materials">;
+type Material = Tables<"materials"> & {
+  projects?: { name: string } | null;
+};
+interface ProjectOption {
+  id: string;
+  name: string;
+}
 
 const DigitalWarehouse = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchProjects();
     fetchMaterials();
   }, []);
 
-  const fetchMaterials = async () => {
+  useEffect(() => {
+    fetchMaterials();
+  }, [selectedProject]);
+
+  const fetchProjects = async () => {
     try {
       const { data, error } = await supabase
+        .from("projects")
+        .select("id, name")
+        .order("name");
+
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  const fetchMaterials = async () => {
+    try {
+      let query = supabase
         .from("materials")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select(`
+          *,
+          projects:project_id (name)
+        `);
+
+      if (selectedProject === "none") {
+        query = query.is("project_id", null);
+      } else if (selectedProject !== "all") {
+        query = query.eq("project_id", selectedProject);
+      }
+
+      const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) throw error;
       setMaterials(data || []);
@@ -61,8 +99,25 @@ const DigitalWarehouse = () => {
   return (
     <Layout>
       <div className="p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-4">Dashboard de gestão</h1>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Dashboard de gestão</h1>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Filtrar por projeto:</span>
+            <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Selecione um projeto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Projetos</SelectItem>
+                <SelectItem value="none">Sem Projeto</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <Tabs defaultValue="pedidos" className="w-full">
@@ -82,6 +137,7 @@ const DigitalWarehouse = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Material</TableHead>
+                    <TableHead>Projeto</TableHead>
                     <TableHead>Quantidade</TableHead>
                     <TableHead>Unidade</TableHead>
                     <TableHead>Custo Unit. Estimado</TableHead>
@@ -93,6 +149,7 @@ const DigitalWarehouse = () => {
                   {requestedMaterials.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.material_name}</TableCell>
+                      <TableCell>{item.projects?.name || "Sem Projeto"}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell>{item.estimated_unit_cost ? formatCurrency(Number(item.estimated_unit_cost)) : '-'}</TableCell>
@@ -115,6 +172,7 @@ const DigitalWarehouse = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Material</TableHead>
+                    <TableHead>Projeto</TableHead>
                     <TableHead>Quantidade</TableHead>
                     <TableHead>Unidade</TableHead>
                     <TableHead>Data de Entrega</TableHead>
@@ -127,6 +185,7 @@ const DigitalWarehouse = () => {
                   {deliveredMaterials.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.material_name}</TableCell>
+                      <TableCell>{item.projects?.name || "Sem Projeto"}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell>{item.delivery_date ? formatDate(item.delivery_date) : '-'}</TableCell>
@@ -150,6 +209,7 @@ const DigitalWarehouse = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Material</TableHead>
+                    <TableHead>Projeto</TableHead>
                     <TableHead>Quantidade</TableHead>
                     <TableHead>Unidade</TableHead>
                     <TableHead>Data de Uso</TableHead>
@@ -162,6 +222,7 @@ const DigitalWarehouse = () => {
                   {usedMaterials.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.material_name}</TableCell>
+                      <TableCell>{item.projects?.name || "Sem Projeto"}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell>{item.used_date ? formatDate(item.used_date) : '-'}</TableCell>
