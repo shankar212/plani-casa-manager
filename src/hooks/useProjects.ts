@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type Project = Tables<'projects'>;
@@ -14,6 +15,7 @@ export const useProjects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchProjects = async () => {
     try {
@@ -39,9 +41,18 @@ export const useProjects = () => {
 
   const createProject = async (project: NewProject) => {
     try {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const projectWithUserId = {
+        ...project,
+        user_id: user.id,
+      };
+
       const { data, error } = await supabase
         .from('projects')
-        .insert([project])
+        .insert([projectWithUserId])
         .select()
         .single();
 

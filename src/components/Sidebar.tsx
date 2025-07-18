@@ -1,8 +1,11 @@
 
-import { Home, Search, Settings, Bell, Folder, Archive } from "lucide-react";
+import { Home, Search, Settings, Bell, Folder, Archive, LogOut, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
@@ -14,6 +17,7 @@ const navigationItems = [
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <div className={cn(
@@ -59,6 +63,28 @@ export const Sidebar = () => {
             </NavLink>
           ))}
         </nav>
+        
+        <Separator className="my-4" />
+        
+        {/* User info and logout */}
+        <div className="space-y-2">
+          <div className="flex items-center p-3 text-sm text-muted-foreground">
+            <User className="w-4 h-4 mr-3" />
+            {!collapsed && (
+              <div className="truncate">
+                {user?.email}
+              </div>
+            )}
+          </div>
+          <Button
+            onClick={signOut}
+            variant="ghost"
+            className="w-full justify-start p-3 h-auto hover:bg-gray-100"
+          >
+            <LogOut className="w-4 h-4 mr-3" />
+            {!collapsed && <span>Sair</span>}
+          </Button>
+        </div>
       </div>
       
       <button

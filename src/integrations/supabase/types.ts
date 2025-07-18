@@ -220,6 +220,30 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          company_name: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       project_photos: {
         Row: {
           etapa_id: string
@@ -349,6 +373,7 @@ export type Database = {
           status: Database["public"]["Enums"]["project_status"]
           total_budget: number | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -360,6 +385,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["project_status"]
           total_budget?: number | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -371,6 +397,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["project_status"]
           total_budget?: number | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
