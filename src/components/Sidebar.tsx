@@ -17,7 +17,12 @@ const navigationItems = [
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
+
+  // Don't render anything if auth is still loading
+  if (loading) {
+    return null;
+  }
 
   return (
     <div className={cn(
