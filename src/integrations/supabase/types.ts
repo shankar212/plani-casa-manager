@@ -115,6 +115,7 @@ export type Database = {
           unit_cost: number | null
           updated_at: string | null
           used_date: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -136,6 +137,7 @@ export type Database = {
           unit_cost?: number | null
           updated_at?: string | null
           used_date?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -157,6 +159,7 @@ export type Database = {
           unit_cost?: number | null
           updated_at?: string | null
           used_date?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {

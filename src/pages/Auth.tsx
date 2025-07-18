@@ -6,16 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Building2, Eye, EyeOff } from 'lucide-react';
 
 const Auth = () => {
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, signIn, signUp, loading, resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Redirect if already authenticated
   if (user) {
@@ -50,6 +54,18 @@ const Auth = () => {
       setError(error);
     }
     setIsSubmitting(false);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsResetting(true);
+
+    const { error } = await resetPassword(resetEmail);
+    if (!error) {
+      setIsResetDialogOpen(false);
+      setResetEmail('');
+    }
+    setIsResetting(false);
   };
 
   if (loading) {
@@ -129,6 +145,44 @@ const Auth = () => {
                 >
                   {isSubmitting ? "Entrando..." : "Entrar"}
                 </Button>
+                
+                <div className="text-center">
+                  <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="link" className="text-sm">
+                        Esqueci minha senha
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Recuperar Senha</DialogTitle>
+                        <DialogDescription>
+                          Digite seu email para receber um link de recuperação de senha.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleResetPassword} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="reset-email">Email</Label>
+                          <Input
+                            id="reset-email"
+                            type="email"
+                            placeholder="seu@email.com"
+                            value={resetEmail}
+                            onChange={(e) => setResetEmail(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <Button 
+                          type="submit" 
+                          className="w-full" 
+                          disabled={isResetting || !resetEmail}
+                        >
+                          {isResetting ? "Enviando..." : "Enviar Email de Recuperação"}
+                        </Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </form>
             </TabsContent>
             

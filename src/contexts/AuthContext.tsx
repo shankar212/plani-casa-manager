@@ -10,6 +10,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -137,6 +138,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/auth`;
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+
+      if (error) {
+        let errorMessage = 'Erro ao enviar email de recuperação';
+        if (error.message.includes('User not found')) {
+          errorMessage = 'Email não encontrado';
+        }
+        return { error: errorMessage };
+      }
+
+      toast({
+        title: "Email enviado!",
+        description: "Verifique sua caixa de entrada para redefinir sua senha",
+      });
+
+      return {};
+    } catch (error) {
+      return { error: 'Erro inesperado ao enviar email de recuperação' };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -144,6 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signUp,
     signOut,
+    resetPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
