@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EditableCell } from './EditableCell';
 import { useMaterials, Material, NewMaterial } from '@/hooks/useMaterials';
 import { useProjects } from '@/hooks/useProjects';
-import { Plus, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -22,18 +22,12 @@ export const EditableMaterialsTable: React.FC = () => {
   const { projects } = useProjects();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
 
   const projectOptions = [
     { value: '', label: 'Sem Projeto' },
     ...projects.map(p => ({ value: p.id, label: p.name }))
   ];
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
 
   const calculateUnitCost = (totalCost: number, quantity: number) => {
     return quantity > 0 ? totalCost / quantity : 0;
@@ -60,24 +54,35 @@ export const EditableMaterialsTable: React.FC = () => {
     }
   };
 
-  const handleAddNewMaterial = async () => {
+  const handleNewRowEdit = async (field: keyof NewMaterial, value: string | number) => {
+    if (isCreatingNew) return; // Prevent multiple simultaneous creations
+    
+    setIsCreatingNew(true);
+    
     const newMaterial: NewMaterial = {
-      material_name: 'Novo Material',
-      quantity: 1,
-      unit: 'un',
-      status: 'requested',
-      estimated_total_cost: 0,
+      material_name: field === 'material_name' ? String(value) : 'Novo Material',
+      quantity: field === 'quantity' ? Number(value) : 1,
+      unit: field === 'unit' ? String(value) : 'un',
+      status: field === 'status' ? value as any : 'requested',
+      estimated_total_cost: field === 'estimated_total_cost' ? Number(value) : 0,
       estimated_unit_cost: 0,
-      project_id: null,
+      project_id: field === 'project_id' ? (value ? String(value) : null) : null,
       stage_id: null,
       supplier_id: null,
       user_id: null, // Will be set by the hook
     };
 
+    // Calculate unit cost if both total cost and quantity are available
+    if (newMaterial.estimated_total_cost && newMaterial.quantity) {
+      newMaterial.estimated_unit_cost = calculateUnitCost(newMaterial.estimated_total_cost, newMaterial.quantity);
+    }
+
     try {
       await createMaterial(newMaterial);
     } catch (error) {
       console.error('Error creating material:', error);
+    } finally {
+      setIsCreatingNew(false);
     }
   };
 
@@ -107,10 +112,6 @@ export const EditableMaterialsTable: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Almoxarifado Digital</h2>
-          <Button onClick={handleAddNewMaterial} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Adicionar Material
-          </Button>
         </div>
 
         <div className="border rounded-lg overflow-hidden">
@@ -200,6 +201,74 @@ export const EditableMaterialsTable: React.FC = () => {
                   </TableCell>
                 </TableRow>
               ))}
+              
+              {/* New material row - always at the bottom */}
+              <TableRow className="bg-muted/20">
+                <TableCell className="p-0">
+                  <EditableCell
+                    value=""
+                    onSave={(value) => handleNewRowEdit('material_name', value)}
+                    placeholder="Clique para adicionar material..."
+                    className="italic text-muted-foreground"
+                  />
+                </TableCell>
+                <TableCell className="p-0">
+                  <EditableCell
+                    value=""
+                    onSave={(value) => handleNewRowEdit('project_id', value)}
+                    type="select"
+                    options={projectOptions}
+                    className="italic text-muted-foreground"
+                  />
+                </TableCell>
+                <TableCell className="p-0">
+                  <EditableCell
+                    value=""
+                    onSave={(value) => handleNewRowEdit('quantity', value)}
+                    type="number"
+                    placeholder="0"
+                    className="italic text-muted-foreground"
+                  />
+                </TableCell>
+                <TableCell className="p-0">
+                  <EditableCell
+                    value=""
+                    onSave={(value) => handleNewRowEdit('unit', value)}
+                    placeholder="un"
+                    className="italic text-muted-foreground"
+                  />
+                </TableCell>
+                <TableCell className="p-0">
+                  <EditableCell
+                    value=""
+                    onSave={(value) => handleNewRowEdit('estimated_total_cost', value)}
+                    type="number"
+                    placeholder="0.00"
+                    className="italic text-muted-foreground"
+                  />
+                </TableCell>
+                <TableCell className="p-0">
+                  <div className="p-2 text-sm text-muted-foreground italic bg-muted/30">
+                    -
+                  </div>
+                </TableCell>
+                <TableCell className="p-0">
+                  <EditableCell
+                    value=""
+                    onSave={(value) => handleNewRowEdit('status', value)}
+                    type="select"
+                    options={[
+                      { value: 'requested', label: 'Solicitado' },
+                      { value: 'delivered', label: 'Entregue' },
+                      { value: 'used', label: 'Utilizado' },
+                    ]}
+                    className="italic text-muted-foreground"
+                  />
+                </TableCell>
+                <TableCell className="p-2">
+                  <div className="h-8 w-8"></div>
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </div>
