@@ -17,6 +17,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 
+// Local interface for the new row data (all strings from inputs)
+interface NewRowData {
+  material_name: string;
+  quantity: string;
+  unit: string;
+  estimated_total_cost: string;
+  status: string;
+  project_id: string;
+}
+
 export const EditableMaterialsTable: React.FC = () => {
   const { materials, loading, createMaterial, updateMaterial, deleteMaterial, refetch } = useMaterials();
   const { projects } = useProjects();
@@ -24,13 +34,13 @@ export const EditableMaterialsTable: React.FC = () => {
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   
-  // Local state for new row data
-  const [newRowData, setNewRowData] = useState<Partial<NewMaterial>>({
+  // Local state for new row data - all strings from form inputs
+  const [newRowData, setNewRowData] = useState<NewRowData>({
     material_name: '',
     quantity: '',
     unit: '',
     estimated_total_cost: '',
-    status: '',
+    status: 'requested',
     project_id: ''
   });
 
@@ -87,11 +97,11 @@ export const EditableMaterialsTable: React.FC = () => {
     }
   };
 
-  const handleNewRowChange = (field: keyof NewMaterial, value: string | number | null) => {
+  const handleNewRowChange = (field: keyof NewRowData, value: string | number | null) => {
     console.log('Updating new row field:', field, 'with value:', value);
     setNewRowData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value?.toString() || ''
     }));
   };
 
@@ -107,14 +117,19 @@ export const EditableMaterialsTable: React.FC = () => {
     setIsCreatingNew(true);
     
     try {
+      // Convert string values to proper types for database
+      const quantity = Number(newRowData.quantity) || 1;
+      const estimatedTotalCost = Number(newRowData.estimated_total_cost) || 0;
+      const status = (newRowData.status as 'requested' | 'delivered' | 'used') || 'requested';
+      
       const newMaterial: NewMaterial = {
-        material_name: newRowData.material_name.toString().trim() || 'Novo Material',
-        quantity: Number(newRowData.quantity) || 1,
-        unit: newRowData.unit?.toString() || 'un',
-        status: newRowData.status?.toString() || 'requested',
-        estimated_total_cost: Number(newRowData.estimated_total_cost) || 0,
+        material_name: newRowData.material_name.trim() || 'Novo Material',
+        quantity: quantity,
+        unit: newRowData.unit || 'un',
+        status: status,
+        estimated_total_cost: estimatedTotalCost,
         estimated_unit_cost: 0,
-        project_id: newRowData.project_id?.toString() || null,
+        project_id: newRowData.project_id || null,
         stage_id: null,
         supplier_id: null,
         user_id: null,
@@ -135,7 +150,7 @@ export const EditableMaterialsTable: React.FC = () => {
         quantity: '',
         unit: '',
         estimated_total_cost: '',
-        status: '',
+        status: 'requested',
         project_id: ''
       });
       
@@ -270,7 +285,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-0"
-                    value={newRowData.material_name || ""}
+                    value={newRowData.material_name}
                     onSave={(value) => handleNewRowChange('material_name', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 0, direction)}
                     placeholder="Clique para adicionar material..."
@@ -281,7 +296,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-1"
-                    value={newRowData.project_id || ""}
+                    value={newRowData.project_id}
                     onSave={(value) => handleNewRowChange('project_id', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
                     type="select"
@@ -293,7 +308,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-2"
-                    value={newRowData.quantity || ""}
+                    value={newRowData.quantity}
                     onSave={(value) => handleNewRowChange('quantity', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
                     type="number"
@@ -305,7 +320,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-3"
-                    value={newRowData.unit || ""}
+                    value={newRowData.unit}
                     onSave={(value) => handleNewRowChange('unit', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
                     placeholder="un"
@@ -316,7 +331,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-4"
-                    value={newRowData.estimated_total_cost || ""}
+                    value={newRowData.estimated_total_cost}
                     onSave={(value) => handleNewRowChange('estimated_total_cost', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
                     type="number"
@@ -333,7 +348,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-6"
-                    value={newRowData.status || ""}
+                    value={newRowData.status}
                     onSave={(value) => handleNewRowChange('status', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
                     type="select"
