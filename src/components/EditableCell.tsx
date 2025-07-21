@@ -15,6 +15,7 @@ interface EditableCellProps {
   className?: string;
   disabled?: boolean;
   tabIndex?: number;
+  isNewRow?: boolean;
 }
 
 export const EditableCell: React.FC<EditableCellProps> = ({
@@ -27,7 +28,8 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   placeholder,
   className,
   disabled = false,
-  tabIndex = 0
+  tabIndex = 0,
+  isNewRow = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value?.toString() || '');
@@ -71,14 +73,18 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       handleCancel();
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      // For existing materials, save on Tab
-      // For new row, just navigate without saving
-      const isNewRow = id?.startsWith('cell-0-');
-      if (!isNewRow) {
+      
+      if (isNewRow) {
+        // For new row, just navigate without saving
+        if (onNavigate) {
+          onNavigate(e.shiftKey ? 'prev' : 'next');
+        }
+      } else {
+        // For existing materials, save on Tab
         handleSave();
-      }
-      if (onNavigate) {
-        onNavigate(e.shiftKey ? 'prev' : 'next');
+        if (onNavigate) {
+          onNavigate(e.shiftKey ? 'prev' : 'next');
+        }
       }
     } else if (e.key === 'ArrowDown' && !isEditing) {
       e.preventDefault();
@@ -96,8 +102,14 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   const getDisplayValue = () => {
     if (type === 'select' && options.length > 0) {
       const option = options.find(opt => opt.value === value);
-      return option ? option.label : placeholder || '-';
+      return option ? option.label : (value || placeholder || '-');
     }
+    
+    // For new row, show the actual entered value or placeholder
+    if (isNewRow) {
+      return value?.toString() || placeholder || '';
+    }
+    
     return value?.toString() || placeholder || '-';
   };
 
@@ -120,7 +132,11 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           value={editValue} 
           onValueChange={(val) => {
             setEditValue(val);
-            onSave(val === '' ? null : val);
+            if (isNewRow) {
+              onSave(val === '' ? null : val);
+            } else {
+              onSave(val === '' ? null : val);
+            }
             setIsEditing(false);
           }}
         >
@@ -148,13 +164,14 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
         onBlur={() => {
-          // Only save on blur for existing materials, not new row
-          const isNewRow = id?.startsWith('cell-0-');
-          if (!isNewRow) {
-            handleSave();
+          if (isNewRow) {
+            // For new row, save the value to local state but don't create material
+            onSave(editValue || null);
           } else {
-            setIsEditing(false);
+            // For existing materials, save to database
+            handleSave();
           }
+          setIsEditing(false);
         }}
         onKeyDown={handleKeyDown}
         className="h-8 text-sm"
@@ -169,6 +186,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       id={id}
       className={cn(
         "p-2 text-sm cursor-pointer hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring",
+        isNewRow && "italic text-muted-foreground",
         className
       )}
       onClick={() => setIsEditing(true)}
