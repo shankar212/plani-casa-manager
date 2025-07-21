@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EditableCell } from './EditableCell';
 import { useMaterials, Material, NewMaterial } from '@/hooks/useMaterials';
 import { useProjects } from '@/hooks/useProjects';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +24,7 @@ export const EditableMaterialsTable: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [pendingNewRow, setPendingNewRow] = useState<Partial<NewMaterial> | null>(null);
 
   // Set up real-time subscription for materials
   useEffect(() => {
@@ -78,20 +79,67 @@ export const EditableMaterialsTable: React.FC = () => {
     }
   };
 
-  const handleNewRowEdit = async (field: keyof NewMaterial, value: string | number | null) => {
+  const handleCreateNewMaterial = async () => {
     if (isCreatingNew) return;
     
     setIsCreatingNew(true);
     
     try {
       const newMaterial: NewMaterial = {
-        material_name: field === 'material_name' ? String(value) : 'Novo Material',
-        quantity: field === 'quantity' ? Number(value) : 1,
-        unit: field === 'unit' ? String(value) : 'un',
-        status: field === 'status' ? value as any : 'requested',
-        estimated_total_cost: field === 'estimated_total_cost' ? Number(value) : 0,
+        material_name: 'Novo Material',
+        quantity: 1,
+        unit: 'un',
+        status: 'requested',
+        estimated_total_cost: 0,
         estimated_unit_cost: 0,
-        project_id: field === 'project_id' ? (value ? String(value) : null) : null,
+        project_id: null,
+        stage_id: null,
+        supplier_id: null,
+        user_id: null,
+      };
+
+      console.log('Creating new material:', newMaterial);
+      const createdMaterial = await createMaterial(newMaterial);
+      console.log('Material created successfully:', createdMaterial);
+      
+      // Focus on the first cell of the new material
+      setTimeout(() => {
+        const newCellId = `cell-0-0`;
+        const newCell = document.getElementById(newCellId);
+        if (newCell) {
+          newCell.focus();
+          newCell.click();
+        }
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error creating material:', error);
+    } finally {
+      setIsCreatingNew(false);
+    }
+  };
+
+  const handleNewRowEdit = (field: keyof NewMaterial, value: string | number | null) => {
+    setPendingNewRow(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleNewRowSave = async () => {
+    if (!pendingNewRow || isCreatingNew) return;
+    
+    setIsCreatingNew(true);
+    
+    try {
+      const newMaterial: NewMaterial = {
+        material_name: pendingNewRow.material_name || 'Novo Material',
+        quantity: pendingNewRow.quantity || 1,
+        unit: pendingNewRow.unit || 'un',
+        status: pendingNewRow.status || 'requested',
+        estimated_total_cost: pendingNewRow.estimated_total_cost || 0,
+        estimated_unit_cost: 0,
+        project_id: pendingNewRow.project_id || null,
         stage_id: null,
         supplier_id: null,
         user_id: null,
@@ -106,10 +154,8 @@ export const EditableMaterialsTable: React.FC = () => {
       const createdMaterial = await createMaterial(newMaterial);
       console.log('Material created successfully:', createdMaterial);
       
-      // Force refetch to ensure the new material appears
-      setTimeout(() => {
-        refetch();
-      }, 100);
+      // Clear pending new row
+      setPendingNewRow(null);
       
     } catch (error) {
       console.error('Error creating material:', error);
@@ -181,6 +227,14 @@ export const EditableMaterialsTable: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Almoxarifado Digital</h2>
+          <Button 
+            onClick={handleCreateNewMaterial}
+            disabled={isCreatingNew}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {isCreatingNew ? 'Criando...' : 'Criar Novo Material'}
+          </Button>
         </div>
 
         <div className="border rounded-lg overflow-hidden">
@@ -293,91 +347,107 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableRow>
               ))}
               
-              {/* New material row - always at the bottom */}
-              <TableRow className="bg-muted/20">
-                <TableCell className="p-0">
-                  <EditableCell
-                    id={`cell-${materials.length}-0`}
-                    value=""
-                    onSave={(value) => handleNewRowEdit('material_name', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 0, direction)}
-                    placeholder="Clique para adicionar material..."
-                    className="italic text-muted-foreground"
-                    tabIndex={1}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id={`cell-${materials.length}-1`}
-                    value=""
-                    onSave={(value) => handleNewRowEdit('project_id', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 1, direction)}
-                    type="select"
-                    options={projectOptions}
-                    className="italic text-muted-foreground"
-                    tabIndex={1}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id={`cell-${materials.length}-2`}
-                    value=""
-                    onSave={(value) => handleNewRowEdit('quantity', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 2, direction)}
-                    type="number"
-                    placeholder="0"
-                    className="italic text-muted-foreground"
-                    tabIndex={1}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id={`cell-${materials.length}-3`}
-                    value=""
-                    onSave={(value) => handleNewRowEdit('unit', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 3, direction)}
-                    placeholder="un"
-                    className="italic text-muted-foreground"
-                    tabIndex={1}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id={`cell-${materials.length}-4`}
-                    value=""
-                    onSave={(value) => handleNewRowEdit('estimated_total_cost', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 4, direction)}
-                    type="number"
-                    placeholder="0.00"
-                    className="italic text-muted-foreground"
-                    tabIndex={1}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
-                    -
-                  </div>
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id={`cell-${materials.length}-6`}
-                    value=""
-                    onSave={(value) => handleNewRowEdit('status', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 6, direction)}
-                    type="select"
-                    options={[
-                      { value: 'requested', label: 'Solicitado' },
-                      { value: 'delivered', label: 'Entregue' },
-                      { value: 'used', label: 'Utilizado' },
-                    ]}
-                    className="italic text-muted-foreground"
-                    tabIndex={1}
-                  />
-                </TableCell>
-                <TableCell className="p-2">
-                  <div className="h-8 w-8" tabIndex={-1}></div>
-                </TableCell>
-              </TableRow>
+              {/* Quick add row - only shows when there's pending data */}
+              {pendingNewRow && (
+                <TableRow className="bg-muted/20 border-2 border-dashed border-primary/30">
+                  <TableCell className="p-0">
+                    <EditableCell
+                      id={`cell-new-0`}
+                      value={pendingNewRow.material_name || ''}
+                      onSave={(value) => {
+                        handleNewRowEdit('material_name', value);
+                        if (value) handleNewRowSave();
+                      }}
+                      placeholder="Nome do material..."
+                      className="italic text-muted-foreground"
+                      tabIndex={1}
+                    />
+                  </TableCell>
+                  <TableCell className="p-0">
+                    <EditableCell
+                      id={`cell-new-1`}
+                      value={pendingNewRow.project_id || ''}
+                      onSave={(value) => handleNewRowEdit('project_id', value)}
+                      type="select"
+                      options={projectOptions}
+                      className="italic text-muted-foreground"
+                      tabIndex={1}
+                    />
+                  </TableCell>
+                  <TableCell className="p-0">
+                    <EditableCell
+                      id={`cell-new-2`}
+                      value={pendingNewRow.quantity || ''}
+                      onSave={(value) => handleNewRowEdit('quantity', value)}
+                      type="number"
+                      placeholder="0"
+                      className="italic text-muted-foreground"
+                      tabIndex={1}
+                    />
+                  </TableCell>
+                  <TableCell className="p-0">
+                    <EditableCell
+                      id={`cell-new-3`}
+                      value={pendingNewRow.unit || ''}
+                      onSave={(value) => handleNewRowEdit('unit', value)}
+                      placeholder="un"
+                      className="italic text-muted-foreground"
+                      tabIndex={1}
+                    />
+                  </TableCell>
+                  <TableCell className="p-0">
+                    <EditableCell
+                      id={`cell-new-4`}
+                      value={pendingNewRow.estimated_total_cost || ''}
+                      onSave={(value) => handleNewRowEdit('estimated_total_cost', value)}
+                      type="number"
+                      placeholder="0.00"
+                      className="italic text-muted-foreground"
+                      tabIndex={1}
+                    />
+                  </TableCell>
+                  <TableCell className="p-0">
+                    <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
+                      -
+                    </div>
+                  </TableCell>
+                  <TableCell className="p-0">
+                    <EditableCell
+                      id={`cell-new-6`}
+                      value={pendingNewRow.status || ''}
+                      onSave={(value) => handleNewRowEdit('status', value)}
+                      type="select"
+                      options={[
+                        { value: 'requested', label: 'Solicitado' },
+                        { value: 'delivered', label: 'Entregue' },
+                        { value: 'used', label: 'Utilizado' },
+                      ]}
+                      className="italic text-muted-foreground"
+                      tabIndex={1}
+                    />
+                  </TableCell>
+                  <TableCell className="p-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleNewRowSave}
+                      className="h-8 w-8 p-0 text-primary hover:text-primary"
+                      tabIndex={-1}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )}
+              
+              {/* Add new row trigger - always at the bottom */}
+              {!pendingNewRow && (
+                <TableRow className="bg-muted/10 hover:bg-muted/20 cursor-pointer" onClick={() => setPendingNewRow({})}>
+                  <TableCell colSpan={8} className="p-4 text-center text-muted-foreground italic">
+                    + Clique aqui para adicionar um novo material
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -396,7 +466,7 @@ export const EditableMaterialsTable: React.FC = () => {
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Excluir
             </AlertDialogAction>
-          </AlertDialogFooter>
+            </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
