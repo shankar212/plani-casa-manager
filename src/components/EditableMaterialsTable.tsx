@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -137,6 +136,7 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up') => {
     const totalCells = 7; // Number of editable cells per row
+    const totalRows = materials.length + 1; // +1 for the new material row at index 0
     let newRowIndex = currentRowIndex;
     let newCellIndex = currentCellIndex;
 
@@ -146,6 +146,9 @@ export const EditableMaterialsTable: React.FC = () => {
         if (newCellIndex >= totalCells) {
           newCellIndex = 0;
           newRowIndex++;
+          if (newRowIndex >= totalRows) {
+            newRowIndex = 0; // Wrap to first row
+          }
         }
         break;
       case 'prev':
@@ -153,14 +156,32 @@ export const EditableMaterialsTable: React.FC = () => {
         if (newCellIndex < 0) {
           newCellIndex = totalCells - 1;
           newRowIndex--;
+          if (newRowIndex < 0) {
+            newRowIndex = totalRows - 1; // Wrap to last row
+          }
         }
         break;
       case 'down':
         newRowIndex++;
+        if (newRowIndex >= totalRows) {
+          newRowIndex = 0; // Wrap to first row
+        }
         break;
       case 'up':
         newRowIndex--;
+        if (newRowIndex < 0) {
+          newRowIndex = totalRows - 1; // Wrap to last row
+        }
         break;
+    }
+
+    // Skip disabled cells (unit cost column at index 5)
+    if (newCellIndex === 5) {
+      if (direction === 'next') {
+        newCellIndex = 6;
+      } else if (direction === 'prev') {
+        newCellIndex = 4;
+      }
     }
 
     // Focus the new cell
@@ -198,109 +219,14 @@ export const EditableMaterialsTable: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {materials.map((material, rowIndex) => (
-                <TableRow key={material.id}>
-                  <TableCell className="p-0">
-                    <EditableCell
-                      id={`cell-${rowIndex}-0`}
-                      value={material.material_name}
-                      onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
-                      onNavigate={(direction) => handleCellNavigation(rowIndex, 0, direction)}
-                      placeholder="Nome do material"
-                      tabIndex={1}
-                    />
-                  </TableCell>
-                  <TableCell className="p-0">
-                    <EditableCell
-                      id={`cell-${rowIndex}-1`}
-                      value={material.project_id || null}
-                      onSave={(value) => handleUpdateField(material.id, 'project_id', value)}
-                      onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
-                      type="select"
-                      options={projectOptions}
-                      tabIndex={1}
-                    />
-                  </TableCell>
-                  <TableCell className="p-0">
-                    <EditableCell
-                      id={`cell-${rowIndex}-2`}
-                      value={material.quantity}
-                      onSave={(value) => handleUpdateField(material.id, 'quantity', value)}
-                      onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
-                      type="number"
-                      placeholder="0"
-                      tabIndex={1}
-                    />
-                  </TableCell>
-                  <TableCell className="p-0">
-                    <EditableCell
-                      id={`cell-${rowIndex}-3`}
-                      value={material.unit}
-                      onSave={(value) => handleUpdateField(material.id, 'unit', value)}
-                      onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
-                      placeholder="un"
-                      tabIndex={1}
-                    />
-                  </TableCell>
-                  <TableCell className="p-0">
-                    <EditableCell
-                      id={`cell-${rowIndex}-4`}
-                      value={material.estimated_total_cost}
-                      onSave={(value) => handleUpdateField(material.id, 'estimated_total_cost', value)}
-                      onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
-                      type="number"
-                      placeholder="0.00"
-                      tabIndex={1}
-                    />
-                  </TableCell>
-                  <TableCell className="p-0">
-                    <EditableCell
-                      id={`cell-${rowIndex}-5`}
-                      value={material.estimated_unit_cost}
-                      onSave={() => {}}
-                      onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
-                      disabled={true}
-                      className="bg-muted/30"
-                      tabIndex={-1}
-                    />
-                  </TableCell>
-                  <TableCell className="p-0">
-                    <EditableCell
-                      id={`cell-${rowIndex}-6`}
-                      value={material.status}
-                      onSave={(value) => handleUpdateField(material.id, 'status', value)}
-                      onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
-                      type="select"
-                      options={[
-                        { value: 'requested', label: 'Solicitado' },
-                        { value: 'delivered', label: 'Entregue' },
-                        { value: 'used', label: 'Utilizado' },
-                      ]}
-                      tabIndex={1}
-                    />
-                  </TableCell>
-                  <TableCell className="p-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteMaterial(material.id)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      tabIndex={-1}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              
-              {/* New material row - always at the bottom */}
+              {/* New material row - now at the top (index 0) */}
               <TableRow className="bg-muted/20">
                 <TableCell className="p-0">
                   <EditableCell
-                    id={`cell-${materials.length}-0`}
+                    id="cell-0-0"
                     value=""
                     onSave={(value) => handleNewRowEdit('material_name', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 0, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 0, direction)}
                     placeholder="Clique para adicionar material..."
                     className="italic text-muted-foreground"
                     tabIndex={1}
@@ -308,10 +234,10 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id={`cell-${materials.length}-1`}
+                    id="cell-0-1"
                     value=""
                     onSave={(value) => handleNewRowEdit('project_id', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 1, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
                     type="select"
                     options={projectOptions}
                     className="italic text-muted-foreground"
@@ -320,10 +246,10 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id={`cell-${materials.length}-2`}
+                    id="cell-0-2"
                     value=""
                     onSave={(value) => handleNewRowEdit('quantity', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 2, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
                     type="number"
                     placeholder="0"
                     className="italic text-muted-foreground"
@@ -332,10 +258,10 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id={`cell-${materials.length}-3`}
+                    id="cell-0-3"
                     value=""
                     onSave={(value) => handleNewRowEdit('unit', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 3, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
                     placeholder="un"
                     className="italic text-muted-foreground"
                     tabIndex={1}
@@ -343,10 +269,10 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id={`cell-${materials.length}-4`}
+                    id="cell-0-4"
                     value=""
                     onSave={(value) => handleNewRowEdit('estimated_total_cost', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 4, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
                     type="number"
                     placeholder="0.00"
                     className="italic text-muted-foreground"
@@ -360,10 +286,10 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id={`cell-${materials.length}-6`}
+                    id="cell-0-6"
                     value=""
                     onSave={(value) => handleNewRowEdit('status', value)}
-                    onNavigate={(direction) => handleCellNavigation(materials.length, 6, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
                     type="select"
                     options={[
                       { value: 'requested', label: 'Solicitado' },
@@ -378,6 +304,105 @@ export const EditableMaterialsTable: React.FC = () => {
                   <div className="h-8 w-8" tabIndex={-1}></div>
                 </TableCell>
               </TableRow>
+
+              {/* Existing materials - now starting from index 1 */}
+              {materials.map((material, materialIndex) => {
+                const rowIndex = materialIndex + 1; // +1 because new material row is at index 0
+                return (
+                  <TableRow key={material.id}>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-0`}
+                        value={material.material_name}
+                        onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 0, direction)}
+                        placeholder="Nome do material"
+                        tabIndex={1}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-1`}
+                        value={material.project_id || null}
+                        onSave={(value) => handleUpdateField(material.id, 'project_id', value)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
+                        type="select"
+                        options={projectOptions}
+                        tabIndex={1}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-2`}
+                        value={material.quantity}
+                        onSave={(value) => handleUpdateField(material.id, 'quantity', value)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
+                        type="number"
+                        placeholder="0"
+                        tabIndex={1}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-3`}
+                        value={material.unit}
+                        onSave={(value) => handleUpdateField(material.id, 'unit', value)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
+                        placeholder="un"
+                        tabIndex={1}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-4`}
+                        value={material.estimated_total_cost}
+                        onSave={(value) => handleUpdateField(material.id, 'estimated_total_cost', value)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
+                        type="number"
+                        placeholder="0.00"
+                        tabIndex={1}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-5`}
+                        value={material.estimated_unit_cost}
+                        onSave={() => {}}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
+                        disabled={true}
+                        className="bg-muted/30"
+                        tabIndex={-1}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-6`}
+                        value={material.status}
+                        onSave={(value) => handleUpdateField(material.id, 'status', value)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
+                        type="select"
+                        options={[
+                          { value: 'requested', label: 'Solicitado' },
+                          { value: 'delivered', label: 'Entregue' },
+                          { value: 'used', label: 'Utilizado' },
+                        ]}
+                        tabIndex={1}
+                      />
+                    </TableCell>
+                    <TableCell className="p-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteMaterial(material.id)}
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        tabIndex={-1}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
