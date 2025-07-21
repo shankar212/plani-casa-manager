@@ -67,6 +67,11 @@ export const EditableMaterialsTable: React.FC = () => {
     };
   }, [refetch]);
 
+  // Force initial refetch on component mount to ensure fresh data
+  useEffect(() => {
+    refetch();
+  }, []);
+
   const projectOptions = [
     { value: null, label: 'Sem Projeto' },
     ...projects.map(p => ({ value: p.id, label: p.name }))
