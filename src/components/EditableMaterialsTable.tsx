@@ -120,7 +120,7 @@ export const EditableMaterialsTable: React.FC = () => {
       // Convert string values to proper types for database
       const quantity = Number(newRowData.quantity) || 1;
       const estimatedTotalCost = Number(newRowData.estimated_total_cost) || 0;
-      const status = (newRowData.status as 'requested' | 'delivered' | 'used') || 'requested';
+      const status = (newRowData.status as 'requested' | 'delivered') || 'requested';
       
       const newMaterial: NewMaterial = {
         material_name: newRowData.material_name.trim() || 'Novo Material',
@@ -361,8 +361,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     type="select"
                     options={[
                       { value: 'requested', label: 'Solicitado' },
-                      { value: 'delivered', label: 'Entregue' },
-                      { value: 'used', label: 'Utilizado' },
+                      { value: 'delivered', label: 'Entregue' }
                     ]}
                     isNewRow={true}
                     tabIndex={1}
@@ -460,8 +459,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         type="select"
                         options={[
                           { value: 'requested', label: 'Solicitado' },
-                          { value: 'delivered', label: 'Entregue' },
-                          { value: 'used', label: 'Utilizado' },
+                          { value: 'delivered', label: 'Entregue' }
                         ]}
                         tabIndex={1}
                       />
