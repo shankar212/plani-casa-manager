@@ -184,6 +184,8 @@ export const EditableMaterialsTable: React.FC = () => {
   };
 
   const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up') => {
+    console.log('Navigation called:', { currentRowIndex, currentCellIndex, direction });
+    
     const totalCells = 7; // Number of editable cells per row
     const totalRows = materials.length + 1; // +1 for the new material row at index 0
     let newRowIndex = currentRowIndex;
@@ -245,12 +247,17 @@ export const EditableMaterialsTable: React.FC = () => {
       }
     }
 
+    console.log('Focusing new cell:', { newRowIndex, newCellIndex });
+
     // Focus the new cell
     const newCellId = `cell-${newRowIndex}-${newCellIndex}`;
     const newCell = document.getElementById(newCellId);
     if (newCell) {
       newCell.focus();
       newCell.click();
+      console.log('Successfully focused cell:', newCellId);
+    } else {
+      console.log('Could not find cell:', newCellId);
     }
   };
 

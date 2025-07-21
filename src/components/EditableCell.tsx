@@ -62,10 +62,13 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    console.log('Key pressed:', e.key, 'Cell ID:', id, 'Is editing:', isEditing);
+    
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSave();
       if (onNavigate) {
+        console.log('Navigating down from Enter');
         onNavigate('down');
       }
     } else if (e.key === 'Escape') {
@@ -73,19 +76,29 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       handleCancel();
     } else if (e.key === 'Tab') {
       e.preventDefault();
+      console.log('Tab pressed, Shift key:', e.shiftKey);
       
+      // Always save current value when pressing Tab
       if (isNewRow) {
-        // For new row, just navigate without saving
-        if (onNavigate) {
-          onNavigate(e.shiftKey ? 'prev' : 'next');
+        // For new row, save to local state
+        if (type === 'number') {
+          const numValue = parseFloat(editValue);
+          onSave(isNaN(numValue) ? 0 : numValue);
+        } else {
+          onSave(editValue || null);
         }
       } else {
-        // For existing materials, save on Tab
+        // For existing materials, save to database
         handleSave();
-        if (onNavigate) {
-          onNavigate(e.shiftKey ? 'prev' : 'next');
-        }
       }
+      
+      if (onNavigate) {
+        const direction = e.shiftKey ? 'prev' : 'next';
+        console.log('Navigating:', direction);
+        onNavigate(direction);
+      }
+      
+      setIsEditing(false);
     } else if (e.key === 'ArrowDown' && !isEditing) {
       e.preventDefault();
       if (onNavigate) {
@@ -131,6 +144,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         <Select 
           value={editValue} 
           onValueChange={(val) => {
+            console.log('Select value changed:', val);
             setEditValue(val);
             if (isNewRow) {
               onSave(val === '' ? null : val);
@@ -138,6 +152,11 @@ export const EditableCell: React.FC<EditableCellProps> = ({
               onSave(val === '' ? null : val);
             }
             setIsEditing(false);
+            
+            // Auto-navigate to next cell after select
+            if (onNavigate) {
+              setTimeout(() => onNavigate('next'), 100);
+            }
           }}
         >
           <SelectTrigger className="h-8 text-sm">
@@ -164,6 +183,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
         onBlur={() => {
+          console.log('Input blur, isNewRow:', isNewRow);
           if (isNewRow) {
             // For new row, save the value to local state but don't create material
             onSave(editValue || null);
@@ -189,7 +209,10 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         isNewRow && "italic text-muted-foreground",
         className
       )}
-      onClick={() => setIsEditing(true)}
+      onClick={() => {
+        console.log('Cell clicked:', id);
+        setIsEditing(true);
+      }}
       onKeyDown={handleKeyDown}
       tabIndex={tabIndex}
     >
