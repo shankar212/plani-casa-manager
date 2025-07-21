@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -23,6 +24,9 @@ export const EditableMaterialsTable: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
+  
+  // Local state for new row data
+  const [newRowData, setNewRowData] = useState<Partial<NewMaterial>>({});
 
   // Set up real-time subscription for materials
   useEffect(() => {
@@ -77,20 +81,27 @@ export const EditableMaterialsTable: React.FC = () => {
     }
   };
 
-  const handleNewRowEdit = async (field: keyof NewMaterial, value: string | number | null) => {
+  const handleNewRowChange = (field: keyof NewMaterial, value: string | number | null) => {
+    setNewRowData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const createNewMaterial = async () => {
     if (isCreatingNew) return;
     
     setIsCreatingNew(true);
     
     try {
       const newMaterial: NewMaterial = {
-        material_name: field === 'material_name' ? String(value) : 'Novo Material',
-        quantity: field === 'quantity' ? Number(value) : 1,
-        unit: field === 'unit' ? String(value) : 'un',
-        status: field === 'status' ? value as any : 'requested',
-        estimated_total_cost: field === 'estimated_total_cost' ? Number(value) : 0,
+        material_name: newRowData.material_name || 'Novo Material',
+        quantity: newRowData.quantity || 1,
+        unit: newRowData.unit || 'un',
+        status: newRowData.status || 'requested',
+        estimated_total_cost: newRowData.estimated_total_cost || 0,
         estimated_unit_cost: 0,
-        project_id: field === 'project_id' ? (value ? String(value) : null) : null,
+        project_id: newRowData.project_id || null,
         stage_id: null,
         supplier_id: null,
         user_id: null,
@@ -104,6 +115,9 @@ export const EditableMaterialsTable: React.FC = () => {
       console.log('Creating new material:', newMaterial);
       const createdMaterial = await createMaterial(newMaterial);
       console.log('Material created successfully:', createdMaterial);
+      
+      // Clear the new row data
+      setNewRowData({});
       
       // Force refetch to ensure the new material appears
       setTimeout(() => {
@@ -134,11 +148,17 @@ export const EditableMaterialsTable: React.FC = () => {
     setMaterialToDelete(null);
   };
 
-  const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up') => {
+  const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up', shouldCreateMaterial = false) => {
     const totalCells = 7; // Number of editable cells per row
     const totalRows = materials.length + 1; // +1 for the new material row at index 0
     let newRowIndex = currentRowIndex;
     let newCellIndex = currentCellIndex;
+
+    // If we should create material (Tab from last cell of new row), do it now
+    if (shouldCreateMaterial && currentRowIndex === 0) {
+      createNewMaterial();
+      return;
+    }
 
     switch (direction) {
       case 'next':
@@ -219,14 +239,20 @@ export const EditableMaterialsTable: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {/* New material row - now at the top (index 0) */}
+              {/* New material row - at the top (index 0) */}
               <TableRow className="bg-muted/20">
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-0"
-                    value=""
-                    onSave={(value) => handleNewRowEdit('material_name', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 0, direction)}
+                    value={newRowData.material_name || ""}
+                    onSave={(value) => handleNewRowChange('material_name', value)}
+                    onNavigate={(direction) => {
+                      if (direction === 'down') {
+                        createNewMaterial();
+                      } else {
+                        handleCellNavigation(0, 0, direction);
+                      }
+                    }}
                     placeholder="Clique para adicionar material..."
                     className="italic text-muted-foreground"
                     tabIndex={1}
@@ -235,9 +261,15 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-1"
-                    value=""
-                    onSave={(value) => handleNewRowEdit('project_id', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
+                    value={newRowData.project_id || ""}
+                    onSave={(value) => handleNewRowChange('project_id', value)}
+                    onNavigate={(direction) => {
+                      if (direction === 'down') {
+                        createNewMaterial();
+                      } else {
+                        handleCellNavigation(0, 1, direction);
+                      }
+                    }}
                     type="select"
                     options={projectOptions}
                     className="italic text-muted-foreground"
@@ -247,9 +279,15 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-2"
-                    value=""
-                    onSave={(value) => handleNewRowEdit('quantity', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
+                    value={newRowData.quantity || ""}
+                    onSave={(value) => handleNewRowChange('quantity', value)}
+                    onNavigate={(direction) => {
+                      if (direction === 'down') {
+                        createNewMaterial();
+                      } else {
+                        handleCellNavigation(0, 2, direction);
+                      }
+                    }}
                     type="number"
                     placeholder="0"
                     className="italic text-muted-foreground"
@@ -259,9 +297,15 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-3"
-                    value=""
-                    onSave={(value) => handleNewRowEdit('unit', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
+                    value={newRowData.unit || ""}
+                    onSave={(value) => handleNewRowChange('unit', value)}
+                    onNavigate={(direction) => {
+                      if (direction === 'down') {
+                        createNewMaterial();
+                      } else {
+                        handleCellNavigation(0, 3, direction);
+                      }
+                    }}
                     placeholder="un"
                     className="italic text-muted-foreground"
                     tabIndex={1}
@@ -270,9 +314,15 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-4"
-                    value=""
-                    onSave={(value) => handleNewRowEdit('estimated_total_cost', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
+                    value={newRowData.estimated_total_cost || ""}
+                    onSave={(value) => handleNewRowChange('estimated_total_cost', value)}
+                    onNavigate={(direction) => {
+                      if (direction === 'down') {
+                        createNewMaterial();
+                      } else {
+                        handleCellNavigation(0, 4, direction);
+                      }
+                    }}
                     type="number"
                     placeholder="0.00"
                     className="italic text-muted-foreground"
@@ -287,9 +337,18 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-6"
-                    value=""
-                    onSave={(value) => handleNewRowEdit('status', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
+                    value={newRowData.status || ""}
+                    onSave={(value) => handleNewRowChange('status', value)}
+                    onNavigate={(direction) => {
+                      if (direction === 'down') {
+                        createNewMaterial();
+                      } else if (direction === 'next') {
+                        // Tab from last cell - create material
+                        handleCellNavigation(0, 6, direction, true);
+                      } else {
+                        handleCellNavigation(0, 6, direction);
+                      }
+                    }}
                     type="select"
                     options={[
                       { value: 'requested', label: 'Solicitado' },

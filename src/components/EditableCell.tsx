@@ -71,7 +71,12 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       handleCancel();
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      handleSave();
+      // For existing materials, save on Tab
+      // For new row, just navigate without saving
+      const isNewRow = id?.startsWith('cell-0-');
+      if (!isNewRow) {
+        handleSave();
+      }
       if (onNavigate) {
         onNavigate(e.shiftKey ? 'prev' : 'next');
       }
@@ -142,7 +147,15 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         type={type}
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
-        onBlur={handleSave}
+        onBlur={() => {
+          // Only save on blur for existing materials, not new row
+          const isNewRow = id?.startsWith('cell-0-');
+          if (!isNewRow) {
+            handleSave();
+          } else {
+            setIsEditing(false);
+          }
+        }}
         onKeyDown={handleKeyDown}
         className="h-8 text-sm"
         placeholder={placeholder}
