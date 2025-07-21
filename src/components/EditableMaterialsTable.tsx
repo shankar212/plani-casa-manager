@@ -362,7 +362,16 @@ export const EditableMaterialsTable: React.FC = () => {
                   />
                 </TableCell>
                 <TableCell className="p-2">
-                  <div className="h-8 w-8" tabIndex={-1}></div>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={createNewMaterial}
+                    disabled={isCreatingNew || !newRowData.material_name?.trim()}
+                    className="h-8 w-8 p-0"
+                    tabIndex={-1}
+                  >
+                    +
+                  </Button>
                 </TableCell>
               </TableRow>
 
