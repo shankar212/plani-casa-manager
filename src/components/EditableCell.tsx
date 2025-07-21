@@ -69,6 +69,12 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     } else if (e.key === 'Escape') {
       e.preventDefault();
       handleCancel();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      handleSave();
+      if (onNavigate) {
+        onNavigate(e.shiftKey ? 'prev' : 'next');
+      }
     } else if (e.key === 'ArrowDown' && !isEditing) {
       e.preventDefault();
       if (onNavigate) {
@@ -109,7 +115,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
           value={editValue} 
           onValueChange={(val) => {
             setEditValue(val);
-            onSave(val === 'null-value' ? null : val);
+            onSave(val === '' ? null : val);
             setIsEditing(false);
           }}
         >
