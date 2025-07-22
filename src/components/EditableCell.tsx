@@ -67,10 +67,15 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleSave();
-      if (onNavigate) {
-        console.log('Navigating down from Enter');
-        onNavigate('down');
+      if (type === 'select' && !isEditing) {
+        // For select cells, Enter should open the dropdown
+        setIsEditing(true);
+      } else {
+        handleSave();
+        if (onNavigate) {
+          console.log('Navigating down from Enter');
+          onNavigate('down');
+        }
       }
     } else if (e.key === 'Escape') {
       e.preventDefault();
