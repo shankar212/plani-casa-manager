@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -188,10 +189,22 @@ export const EditableMaterialsTable: React.FC = () => {
     setMaterialToDelete(null);
   };
 
+  // Calculate tab index for a cell
+  const getTabIndex = (rowIndex: number, cellIndex: number) => {
+    const editableCellsPerRow = 6; // 7 total cells - 1 disabled cell (unit cost)
+    
+    // Skip the disabled cell (unit cost at index 5) in tab order
+    let adjustedCellIndex = cellIndex;
+    if (cellIndex > 5) {
+      adjustedCellIndex = cellIndex - 1;
+    }
+    
+    return (rowIndex * editableCellsPerRow) + adjustedCellIndex + 1;
+  };
+
   const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up') => {
     console.log('Navigation called:', { currentRowIndex, currentCellIndex, direction });
     
-    const totalCells = 7; // Number of editable cells per row
     const totalRows = materials.length + 1; // +1 for the new material row at index 0
     let newRowIndex = currentRowIndex;
     let newCellIndex = currentCellIndex;
@@ -199,7 +212,11 @@ export const EditableMaterialsTable: React.FC = () => {
     switch (direction) {
       case 'next':
         newCellIndex++;
-        if (newCellIndex >= totalCells) {
+        // Skip disabled cell (unit cost at index 5)
+        if (newCellIndex === 5) {
+          newCellIndex = 6;
+        }
+        if (newCellIndex > 6) {
           newCellIndex = 0;
           newRowIndex++;
           if (newRowIndex >= totalRows) {
@@ -215,8 +232,12 @@ export const EditableMaterialsTable: React.FC = () => {
         break;
       case 'prev':
         newCellIndex--;
+        // Skip disabled cell (unit cost at index 5)
+        if (newCellIndex === 5) {
+          newCellIndex = 4;
+        }
         if (newCellIndex < 0) {
-          newCellIndex = totalCells - 1;
+          newCellIndex = 6;
           newRowIndex--;
           if (newRowIndex < 0) {
             newRowIndex = totalRows - 1; // Wrap to last row
@@ -243,26 +264,16 @@ export const EditableMaterialsTable: React.FC = () => {
         break;
     }
 
-    // Skip disabled cells (unit cost column at index 5)
-    if (newCellIndex === 5) {
-      if (direction === 'next') {
-        newCellIndex = 6;
-      } else if (direction === 'prev') {
-        newCellIndex = 4;
-      }
-    }
-
     console.log('Focusing new cell:', { newRowIndex, newCellIndex });
 
-    // Focus the new cell
-    const newCellId = `cell-${newRowIndex}-${newCellIndex}`;
-    const newCell = document.getElementById(newCellId);
+    // Focus the new cell using tab index
+    const newTabIndex = getTabIndex(newRowIndex, newCellIndex);
+    const newCell = document.querySelector(`[tabindex="${newTabIndex}"]`) as HTMLElement;
     if (newCell) {
       newCell.focus();
-      newCell.click();
-      console.log('Successfully focused cell:', newCellId);
+      console.log('Successfully focused cell with tab index:', newTabIndex);
     } else {
-      console.log('Could not find cell:', newCellId);
+      console.log('Could not find cell with tab index:', newTabIndex);
     }
   };
 
@@ -302,7 +313,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     onNavigate={(direction) => handleCellNavigation(0, 0, direction)}
                     placeholder="Clique para adicionar material..."
                     isNewRow={true}
-                    tabIndex={1}
+                    tabIndex={getTabIndex(0, 0)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -314,7 +325,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     type="select"
                     options={projectOptions}
                     isNewRow={true}
-                    tabIndex={1}
+                    tabIndex={getTabIndex(0, 1)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -326,7 +337,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     type="number"
                     placeholder="0"
                     isNewRow={true}
-                    tabIndex={1}
+                    tabIndex={getTabIndex(0, 2)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -337,7 +348,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
                     placeholder="un"
                     isNewRow={true}
-                    tabIndex={1}
+                    tabIndex={getTabIndex(0, 3)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -349,7 +360,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     type="number"
                     placeholder="0.00"
                     isNewRow={true}
-                    tabIndex={1}
+                    tabIndex={getTabIndex(0, 4)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -369,7 +380,7 @@ export const EditableMaterialsTable: React.FC = () => {
                       { value: 'delivered', label: 'Entregue' }
                     ]}
                     isNewRow={true}
-                    tabIndex={1}
+                    tabIndex={getTabIndex(0, 6)}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -398,7 +409,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 0, direction)}
                         placeholder="Nome do material"
-                        tabIndex={1}
+                        tabIndex={getTabIndex(rowIndex, 0)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -409,7 +420,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
                         type="select"
                         options={projectOptions}
-                        tabIndex={1}
+                        tabIndex={getTabIndex(rowIndex, 1)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -420,7 +431,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
                         type="number"
                         placeholder="0"
-                        tabIndex={1}
+                        tabIndex={getTabIndex(rowIndex, 2)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -430,7 +441,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         onSave={(value) => handleUpdateField(material.id, 'unit', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
                         placeholder="un"
-                        tabIndex={1}
+                        tabIndex={getTabIndex(rowIndex, 3)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -441,7 +452,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
                         type="number"
                         placeholder="0.00"
-                        tabIndex={1}
+                        tabIndex={getTabIndex(rowIndex, 4)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -466,7 +477,7 @@ export const EditableMaterialsTable: React.FC = () => {
                           { value: 'requested', label: 'Solicitado' },
                           { value: 'delivered', label: 'Entregue' }
                         ]}
-                        tabIndex={1}
+                        tabIndex={getTabIndex(rowIndex, 6)}
                       />
                     </TableCell>
                     <TableCell className="p-2">

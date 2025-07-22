@@ -34,6 +34,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value?.toString() || '');
   const inputRef = useRef<HTMLInputElement>(null);
+  const cellRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setEditValue(value?.toString() || '');
@@ -130,8 +131,10 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     return (
       <div 
         id={id}
-        className={cn("p-2 text-sm bg-muted/30", className)}
+        ref={cellRef}
+        className={cn("p-2 text-sm bg-muted/30 focus:outline-none focus:ring-2 focus:ring-ring", className)}
         tabIndex={tabIndex}
+        onKeyDown={handleKeyDown}
       >
         {getDisplayValue()}
       </div>
@@ -155,11 +158,11 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             
             // Auto-navigate to next cell after select
             if (onNavigate) {
-              setTimeout(() => onNavigate('next'), 100);
+              setTimeout(() => onNavigate('next'), 50);
             }
           }}
         >
-          <SelectTrigger className="h-8 text-sm">
+          <SelectTrigger className="h-8 text-sm" onKeyDown={handleKeyDown}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -204,6 +207,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   return (
     <div
       id={id}
+      ref={cellRef}
       className={cn(
         "p-2 text-sm cursor-pointer hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring",
         isNewRow && "italic text-muted-foreground",
@@ -213,7 +217,15 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         console.log('Cell clicked:', id);
         setIsEditing(true);
       }}
-      onKeyDown={handleKeyDown}
+      onKeyDown={(e) => {
+        // Handle Enter to start editing
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsEditing(true);
+        } else {
+          handleKeyDown(e);
+        }
+      }}
       tabIndex={tabIndex}
     >
       {getDisplayValue()}
