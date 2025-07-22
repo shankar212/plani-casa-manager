@@ -264,16 +264,27 @@ export const EditableMaterialsTable: React.FC = () => {
         break;
     }
 
-    console.log('Focusing new cell:', { newRowIndex, newCellIndex });
+    console.log('Calculated new position:', { newRowIndex, newCellIndex });
 
-    // Focus the new cell using tab index
-    const newTabIndex = getTabIndex(newRowIndex, newCellIndex);
-    const newCell = document.querySelector(`[tabindex="${newTabIndex}"]`) as HTMLElement;
+    // Find the cell using ID instead of tab index for more reliable focusing
+    const cellId = `cell-${newRowIndex}-${newCellIndex}`;
+    const newCell = document.getElementById(cellId) as HTMLElement;
+    
     if (newCell) {
       newCell.focus();
-      console.log('Successfully focused cell with tab index:', newTabIndex);
+      console.log('Successfully focused cell:', cellId);
     } else {
-      console.log('Could not find cell with tab index:', newTabIndex);
+      console.log('Could not find cell with ID:', cellId);
+      
+      // Fallback to tab index method
+      const newTabIndex = getTabIndex(newRowIndex, newCellIndex);
+      const newCellByTabIndex = document.querySelector(`[tabindex="${newTabIndex}"]`) as HTMLElement;
+      if (newCellByTabIndex) {
+        newCellByTabIndex.focus();
+        console.log('Successfully focused cell with tab index:', newTabIndex);
+      } else {
+        console.log('Could not find cell with tab index:', newTabIndex);
+      }
     }
   };
 
