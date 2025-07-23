@@ -24,13 +24,18 @@ const ProjectDetail = () => {
   const [projectLoading, setProjectLoading] = useState(true);
 
   useEffect(() => {
+    console.log('ProjectDetail: URL params:', { id });
+    console.log('ProjectDetail: typeof id:', typeof id);
+    
     if (id) {
       setProjectId(id);
       
       const fetchProject = async () => {
         try {
           setProjectLoading(true);
+          console.log('ProjectDetail: Fetching project with ID:', id);
           const projectData = await getProjectById(id);
+          console.log('ProjectDetail: Received project data:', projectData);
           setProject(projectData);
         } catch (error) {
           console.error('Error fetching project:', error);
@@ -40,6 +45,9 @@ const ProjectDetail = () => {
       };
       
       fetchProject();
+    } else {
+      console.log('ProjectDetail: No ID provided');
+      setProjectLoading(false);
     }
   }, [id, setProjectId, getProjectById]);
 
