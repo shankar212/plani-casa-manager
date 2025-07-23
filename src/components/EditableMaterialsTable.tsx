@@ -98,7 +98,7 @@ export const EditableMaterialsTable: React.FC = () => {
         await updateMaterial(materialId, { supplier_id: newSupplier.id });
       }
     } else {
-      await updateMaterial(materialId, { supplier_id: supplierId === "" ? null : supplierId });
+      await updateMaterial(materialId, { supplier_id: supplierId === "none" ? null : supplierId });
     }
   };
 
@@ -385,15 +385,15 @@ export const EditableMaterialsTable: React.FC = () => {
                   />
                 </TableCell>
                 <TableCell className="p-0">
-                  <Select
-                    value={newRowData.supplier_id || ""}
-                    onValueChange={(value) => handleNewRowChange('supplier_id', value)}
+                   <Select
+                     value={newRowData.supplier_id || "none"}
+                     onValueChange={(value) => handleNewRowChange('supplier_id', value)}
                   >
                     <SelectTrigger className="w-full border-0 h-full">
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Sem fornecedor</SelectItem>
+                      <SelectItem value="none">Sem fornecedor</SelectItem>
                       <SelectItem value="new">+ Novo Fornecedor</SelectItem>
                       {materialSuppliers.map((supplier) => (
                         <SelectItem key={supplier.id} value={supplier.id}>
@@ -497,15 +497,15 @@ export const EditableMaterialsTable: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell className="p-0">
-                      <Select
-                        value={material.supplier_id || ""}
-                        onValueChange={(value) => handleSupplierChange(material.id, value)}
+                       <Select
+                         value={material.supplier_id || "none"}
+                         onValueChange={(value) => handleSupplierChange(material.id, value)}
                       >
                         <SelectTrigger className="w-full border-0 h-full">
                           <SelectValue placeholder="Selecionar..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Sem fornecedor</SelectItem>
+                          <SelectItem value="none">Sem fornecedor</SelectItem>
                           <SelectItem value="new">+ Novo Fornecedor</SelectItem>
                           {materialSuppliers.map((supplier) => (
                             <SelectItem key={supplier.id} value={supplier.id}>
