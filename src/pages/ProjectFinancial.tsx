@@ -109,6 +109,15 @@ const ProjectFinancial = () => {
     }
   };
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value).replace('R$', '').trim();
+  };
+
   const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up') => {
     const totalRows = providers.length + 1; // +1 for the new provider row at index 0
     const totalCells = 5; // 5 editable columns (excluding actions)
@@ -246,84 +255,7 @@ const ProjectFinancial = () => {
 
           {/* Payments and Contracts */}
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">pagamentos e contratos confirmados</h2>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Contrato
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Novo Contrato</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleCreateProvider} className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Nome do Fornecedor</Label>
-                      <Input
-                        id="name"
-                        value={newProvider.name}
-                        onChange={(e) => setNewProvider(prev => ({ ...prev, name: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="service_type">Tipo de Serviço</Label>
-                      <Input
-                        id="service_type"
-                        value={newProvider.service_type}
-                        onChange={(e) => setNewProvider(prev => ({ ...prev, service_type: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="contract_value">Valor do Contrato</Label>
-                      <Input
-                        id="contract_value"
-                        type="number"
-                        step="0.01"
-                        value={newProvider.contract_value}
-                        onChange={(e) => setNewProvider(prev => ({ ...prev, contract_value: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="stage_id">Etapa</Label>
-                      <Select value={newProvider.stage_id} onValueChange={(value) => setNewProvider(prev => ({ ...prev, stage_id: value }))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecionar etapa" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {stages.map((stage) => (
-                            <SelectItem key={stage.id} value={stage.id}>
-                              {stage.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="payment_status">Status do Pagamento</Label>
-                      <Select value={newProvider.payment_status} onValueChange={(value) => setNewProvider(prev => ({ ...prev, payment_status: value }))}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pendente">Pendente</SelectItem>
-                          <SelectItem value="pago">Pago</SelectItem>
-                          <SelectItem value="atrasado">Atrasado</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button type="submit" className="w-full">
-                      Criar Contrato
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
+            <h2 className="text-lg font-semibold mb-4">pagamentos e contratos confirmados</h2>
             <div className="overflow-x-auto">
               {loading ? (
                 <div className="text-center py-8">Carregando...</div>
@@ -386,7 +318,7 @@ const ProjectFinancial = () => {
                             onSave={(value) => handleNewRowChange('contract_value', value)}
                             onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
                             type="number"
-                            placeholder="0.00"
+                            placeholder="0"
                             isNewRow={true}
                             tabIndex={getTabIndex(0, 3)}
                           />
@@ -456,15 +388,9 @@ const ProjectFinancial = () => {
                               />
                             </td>
                             <td className="p-0">
-                              <EditableCell
-                                id={`contract-cell-${rowIndex}-3`}
-                                value={provider.contract_value}
-                                onSave={(value) => handleUpdateProvider(provider.id, 'contract_value', value)}
-                                onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
-                                type="number"
-                                placeholder="0.00"
-                                tabIndex={getTabIndex(rowIndex, 3)}
-                              />
+                              <div className="p-2 text-right">
+                                {formatCurrency(provider.contract_value)}
+                              </div>
                             </td>
                             <td className="p-0">
                               <EditableCell
