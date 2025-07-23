@@ -10,14 +10,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useProjectStages } from "@/hooks/useProjects";
-import { Plus } from "lucide-react";
+import { Plus, Check, X } from "lucide-react";
+import { EditableCell } from "@/components/EditableCell";
 
 const ProjectFinancial = () => {
   const { id } = useParams();
-  const { providers, loading, createProvider } = useServiceProviders(id);
+  const { providers, loading, createProvider, updateProvider } = useServiceProviders(id);
   const { stages } = useProjectStages(id);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [newProvider, setNewProvider] = useState({
+    name: "",
+    service_type: "",
+    contract_value: "",
+    stage_id: "",
+    payment_status: "pendente"
+  });
+
+  // New row data for inline editing
+  const [newRowData, setNewRowData] = useState({
     name: "",
     service_type: "",
     contract_value: "",
@@ -48,6 +59,55 @@ const ProjectFinancial = () => {
   const totalBudget = 1000000;
   const usedAmount = providers.reduce((sum, provider) => sum + provider.contract_value, 0);
   const usedPercentage = Math.round((usedAmount / totalBudget) * 100);
+
+  const handleNewRowChange = (field: string, value: string | number | null) => {
+    setNewRowData(prev => ({
+      ...prev,
+      [field]: value?.toString() || ''
+    }));
+  };
+
+  const createNewProvider = async () => {
+    if (isCreatingNew || !newRowData.name?.trim()) return;
+    
+    setIsCreatingNew(true);
+    try {
+      await createProvider({
+        ...newRowData,
+        contract_value: parseFloat(newRowData.contract_value) || 0,
+        project_id: id!,
+        stage_id: newRowData.stage_id || null
+      });
+      
+      setNewRowData({
+        name: "",
+        service_type: "",
+        contract_value: "",
+        stage_id: "",
+        payment_status: "pendente"
+      });
+    } catch (error) {
+      console.error('Error creating provider:', error);
+    } finally {
+      setIsCreatingNew(false);
+    }
+  };
+
+  const handleUpdateProvider = async (providerId: string, field: string, value: string | number | null) => {
+    try {
+      const updates: any = { [field]: value };
+      
+      if (field === 'contract_value') {
+        updates.contract_value = parseFloat(value as string) || 0;
+      } else if (field === 'stage_id') {
+        updates.stage_id = value || null;
+      }
+      
+      await updateProvider(providerId, updates);
+    } catch (error) {
+      console.error('Error updating provider:', error);
+    }
+  };
 
   return (
     <Layout>
@@ -201,45 +261,156 @@ const ProjectFinancial = () => {
               {loading ? (
                 <div className="text-center py-8">Carregando...</div>
               ) : (
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2 text-gray-600">contrato</th>
-                      <th className="text-left py-2 text-gray-600">tipo de serviço</th>
-                      <th className="text-left py-2 text-gray-600">etapa</th>
-                      <th className="text-left py-2 text-gray-600">valor</th>
-                      <th className="text-left py-2 text-gray-600">status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {providers.map((provider) => (
-                      <tr key={provider.id} className="border-b">
-                        <td className="py-3">{provider.name}</td>
-                        <td className="py-3">{provider.service_type}</td>
-                        <td className="py-3">{provider.project_stages?.name || "N/A"}</td>
-                        <td className="py-3">R$ {provider.contract_value.toLocaleString('pt-BR')}</td>
-                        <td className="py-3">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            provider.payment_status === 'pago' 
-                              ? 'bg-green-100 text-green-700' 
-                              : provider.payment_status === 'atrasado'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {provider.payment_status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                    {providers.length === 0 && (
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
                       <tr>
-                        <td colSpan={5} className="text-center py-8 text-gray-500">
-                          Nenhum contrato encontrado. Clique em "Novo Contrato" para adicionar.
+                        <th className="text-left py-3 px-4 font-medium">contrato</th>
+                        <th className="text-left py-3 px-4 font-medium">tipo de serviço</th>
+                        <th className="text-left py-3 px-4 font-medium">etapa</th>
+                        <th className="text-left py-3 px-4 font-medium">valor</th>
+                        <th className="text-left py-3 px-4 font-medium">status</th>
+                        <th className="text-left py-3 px-4 font-medium">ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* New provider row */}
+                      <tr className="bg-muted/20 border-b">
+                        <td className="p-0">
+                          <EditableCell
+                            value={newRowData.name}
+                            onSave={(value) => handleNewRowChange('name', value)}
+                            placeholder="Clique para adicionar contrato..."
+                            isNewRow={true}
+                          />
+                        </td>
+                        <td className="p-0">
+                          <EditableCell
+                            value={newRowData.service_type}
+                            onSave={(value) => handleNewRowChange('service_type', value)}
+                            placeholder="Tipo de serviço"
+                            isNewRow={true}
+                          />
+                        </td>
+                        <td className="p-0">
+                          <EditableCell
+                            value={newRowData.stage_id}
+                            onSave={(value) => handleNewRowChange('stage_id', value)}
+                            type="select"
+                            options={[
+                              { value: null, label: 'Selecionar etapa' },
+                              ...stages.map(stage => ({ value: stage.id, label: stage.name }))
+                            ]}
+                            isNewRow={true}
+                          />
+                        </td>
+                        <td className="p-0">
+                          <EditableCell
+                            value={newRowData.contract_value}
+                            onSave={(value) => handleNewRowChange('contract_value', value)}
+                            type="number"
+                            placeholder="0.00"
+                            isNewRow={true}
+                          />
+                        </td>
+                        <td className="p-0">
+                          <EditableCell
+                            value={newRowData.payment_status}
+                            onSave={(value) => handleNewRowChange('payment_status', value)}
+                            type="select"
+                            options={[
+                              { value: 'pendente', label: 'Pendente' },
+                              { value: 'pago', label: 'Pago' },
+                              { value: 'atrasado', label: 'Atrasado' }
+                            ]}
+                            isNewRow={true}
+                          />
+                        </td>
+                        <td className="p-2">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={createNewProvider}
+                            disabled={isCreatingNew || !newRowData.name?.trim()}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
                         </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                      
+                      {/* Existing providers */}
+                      {providers.map((provider) => (
+                        <tr key={provider.id} className="border-b hover:bg-muted/50">
+                          <td className="p-0">
+                            <EditableCell
+                              value={provider.name}
+                              onSave={(value) => handleUpdateProvider(provider.id, 'name', value)}
+                              placeholder="Nome do contrato"
+                            />
+                          </td>
+                          <td className="p-0">
+                            <EditableCell
+                              value={provider.service_type}
+                              onSave={(value) => handleUpdateProvider(provider.id, 'service_type', value)}
+                              placeholder="Tipo de serviço"
+                            />
+                          </td>
+                          <td className="p-0">
+                            <EditableCell
+                              value={provider.stage_id || null}
+                              onSave={(value) => handleUpdateProvider(provider.id, 'stage_id', value)}
+                              type="select"
+                              options={[
+                                { value: null, label: 'N/A' },
+                                ...stages.map(stage => ({ value: stage.id, label: stage.name }))
+                              ]}
+                            />
+                          </td>
+                          <td className="p-0">
+                            <EditableCell
+                              value={provider.contract_value}
+                              onSave={(value) => handleUpdateProvider(provider.id, 'contract_value', value)}
+                              type="number"
+                              placeholder="0.00"
+                            />
+                          </td>
+                          <td className="p-0">
+                            <EditableCell
+                              value={provider.payment_status}
+                              onSave={(value) => handleUpdateProvider(provider.id, 'payment_status', value)}
+                              type="select"
+                              options={[
+                                { value: 'pendente', label: 'Pendente' },
+                                { value: 'pago', label: 'Pago' },
+                                { value: 'atrasado', label: 'Atrasado' }
+                              ]}
+                            />
+                          </td>
+                          <td className="p-2">
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              provider.payment_status === 'pago' 
+                                ? 'bg-green-100 text-green-700' 
+                                : provider.payment_status === 'atrasado'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {provider.payment_status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                      
+                      {providers.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="text-center py-8 text-gray-500">
+                            Clique na primeira linha para adicionar um novo contrato.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </Card>
