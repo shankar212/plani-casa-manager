@@ -31,7 +31,8 @@ const ProjectFinancial = () => {
       await createProvider({
         ...newProvider,
         contract_value: parseFloat(newProvider.contract_value),
-        project_id: id
+        project_id: id,
+        stage_id: newProvider.stage_id || null // Convert empty string to null
       });
       setNewProvider({
         name: "",
