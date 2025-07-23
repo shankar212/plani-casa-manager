@@ -60,6 +60,7 @@ export type Database = {
           name: string
           project_id: string | null
           stage_id: string | null
+          user_id: string | null
         }
         Insert: {
           contact_info?: Json | null
@@ -68,6 +69,7 @@ export type Database = {
           name: string
           project_id?: string | null
           stage_id?: string | null
+          user_id?: string | null
         }
         Update: {
           contact_info?: Json | null
@@ -76,6 +78,7 @@ export type Database = {
           name?: string
           project_id?: string | null
           stage_id?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -416,6 +419,7 @@ export type Database = {
           service_type: string
           stage_id: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           contract_date?: string | null
@@ -428,6 +432,7 @@ export type Database = {
           service_type: string
           stage_id?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           contract_date?: string | null
@@ -440,6 +445,7 @@ export type Database = {
           service_type?: string
           stage_id?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
