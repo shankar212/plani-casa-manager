@@ -109,6 +109,73 @@ const ProjectFinancial = () => {
     }
   };
 
+  const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up') => {
+    const totalRows = providers.length + 1; // +1 for the new provider row at index 0
+    const totalCells = 5; // 5 editable columns (excluding actions)
+    let newRowIndex = currentRowIndex;
+    let newCellIndex = currentCellIndex;
+
+    switch (direction) {
+      case 'next':
+        newCellIndex++;
+        if (newCellIndex >= totalCells) {
+          newCellIndex = 0;
+          newRowIndex++;
+          if (newRowIndex >= totalRows) {
+            newRowIndex = 0; // Wrap to first row
+          }
+        }
+        
+        // Special case: if we're in new row and going to next from last cell
+        if (currentRowIndex === 0 && currentCellIndex === totalCells - 1) {
+          createNewProvider();
+          return;
+        }
+        break;
+      case 'prev':
+        newCellIndex--;
+        if (newCellIndex < 0) {
+          newCellIndex = totalCells - 1;
+          newRowIndex--;
+          if (newRowIndex < 0) {
+            newRowIndex = totalRows - 1; // Wrap to last row
+          }
+        }
+        break;
+      case 'down':
+        // Special case: if we're in new row and press Enter/Down, create provider
+        if (currentRowIndex === 0) {
+          createNewProvider();
+          return;
+        }
+        
+        newRowIndex++;
+        if (newRowIndex >= totalRows) {
+          newRowIndex = 0; // Wrap to first row
+        }
+        break;
+      case 'up':
+        newRowIndex--;
+        if (newRowIndex < 0) {
+          newRowIndex = totalRows - 1; // Wrap to last row
+        }
+        break;
+    }
+
+    // Find the cell using ID for more reliable focusing
+    const cellId = `contract-cell-${newRowIndex}-${newCellIndex}`;
+    const newCell = document.getElementById(cellId) as HTMLElement;
+    
+    if (newCell) {
+      newCell.focus();
+    }
+  };
+
+  const getTabIndex = (rowIndex: number, cellIndex: number) => {
+    const cellsPerRow = 5; // 5 editable columns
+    return (rowIndex * cellsPerRow) + cellIndex + 1;
+  };
+
   return (
     <Layout>
       <div className="p-8">
@@ -270,7 +337,6 @@ const ProjectFinancial = () => {
                         <th className="text-left py-3 px-4 font-medium">etapa</th>
                         <th className="text-left py-3 px-4 font-medium">valor</th>
                         <th className="text-left py-3 px-4 font-medium">status</th>
-                        <th className="text-left py-3 px-4 font-medium">ações</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -278,45 +344,59 @@ const ProjectFinancial = () => {
                       <tr className="bg-muted/20 border-b">
                         <td className="p-0">
                           <EditableCell
+                            id="contract-cell-0-0"
                             value={newRowData.name}
                             onSave={(value) => handleNewRowChange('name', value)}
+                            onNavigate={(direction) => handleCellNavigation(0, 0, direction)}
                             placeholder="Clique para adicionar contrato..."
                             isNewRow={true}
+                            tabIndex={getTabIndex(0, 0)}
                           />
                         </td>
                         <td className="p-0">
                           <EditableCell
+                            id="contract-cell-0-1"
                             value={newRowData.service_type}
                             onSave={(value) => handleNewRowChange('service_type', value)}
+                            onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
                             placeholder="Tipo de serviço"
                             isNewRow={true}
+                            tabIndex={getTabIndex(0, 1)}
                           />
                         </td>
                         <td className="p-0">
                           <EditableCell
+                            id="contract-cell-0-2"
                             value={newRowData.stage_id}
                             onSave={(value) => handleNewRowChange('stage_id', value)}
+                            onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
                             type="select"
                             options={[
                               { value: null, label: 'Selecionar etapa' },
                               ...stages.map(stage => ({ value: stage.id, label: stage.name }))
                             ]}
                             isNewRow={true}
+                            tabIndex={getTabIndex(0, 2)}
                           />
                         </td>
                         <td className="p-0">
                           <EditableCell
+                            id="contract-cell-0-3"
                             value={newRowData.contract_value}
                             onSave={(value) => handleNewRowChange('contract_value', value)}
+                            onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
                             type="number"
                             placeholder="0.00"
                             isNewRow={true}
+                            tabIndex={getTabIndex(0, 3)}
                           />
                         </td>
                         <td className="p-0">
                           <EditableCell
+                            id="contract-cell-0-4"
                             value={newRowData.payment_status}
                             onSave={(value) => handleNewRowChange('payment_status', value)}
+                            onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
                             type="select"
                             options={[
                               { value: 'pendente', label: 'Pendente' },
@@ -324,86 +404,97 @@ const ProjectFinancial = () => {
                               { value: 'atrasado', label: 'Atrasado' }
                             ]}
                             isNewRow={true}
+                            tabIndex={getTabIndex(0, 4)}
+                            className={`${
+                              newRowData.payment_status === 'pago' 
+                                ? 'bg-green-100 text-green-800' 
+                                : newRowData.payment_status === 'atrasado'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}
                           />
-                        </td>
-                        <td className="p-2">
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={createNewProvider}
-                            disabled={isCreatingNew || !newRowData.name?.trim()}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
                         </td>
                       </tr>
                       
                       {/* Existing providers */}
-                      {providers.map((provider) => (
-                        <tr key={provider.id} className="border-b hover:bg-muted/50">
-                          <td className="p-0">
-                            <EditableCell
-                              value={provider.name}
-                              onSave={(value) => handleUpdateProvider(provider.id, 'name', value)}
-                              placeholder="Nome do contrato"
-                            />
-                          </td>
-                          <td className="p-0">
-                            <EditableCell
-                              value={provider.service_type}
-                              onSave={(value) => handleUpdateProvider(provider.id, 'service_type', value)}
-                              placeholder="Tipo de serviço"
-                            />
-                          </td>
-                          <td className="p-0">
-                            <EditableCell
-                              value={provider.stage_id || null}
-                              onSave={(value) => handleUpdateProvider(provider.id, 'stage_id', value)}
-                              type="select"
-                              options={[
-                                { value: null, label: 'N/A' },
-                                ...stages.map(stage => ({ value: stage.id, label: stage.name }))
-                              ]}
-                            />
-                          </td>
-                          <td className="p-0">
-                            <EditableCell
-                              value={provider.contract_value}
-                              onSave={(value) => handleUpdateProvider(provider.id, 'contract_value', value)}
-                              type="number"
-                              placeholder="0.00"
-                            />
-                          </td>
-                          <td className="p-0">
-                            <EditableCell
-                              value={provider.payment_status}
-                              onSave={(value) => handleUpdateProvider(provider.id, 'payment_status', value)}
-                              type="select"
-                              options={[
-                                { value: 'pendente', label: 'Pendente' },
-                                { value: 'pago', label: 'Pago' },
-                                { value: 'atrasado', label: 'Atrasado' }
-                              ]}
-                            />
-                          </td>
-                          <td className="p-2">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              provider.payment_status === 'pago' 
-                                ? 'bg-green-100 text-green-700' 
-                                : provider.payment_status === 'atrasado'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-yellow-100 text-yellow-700'
-                            }`}>
-                              {provider.payment_status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {providers.map((provider, providerIndex) => {
+                        const rowIndex = providerIndex + 1;
+                        return (
+                          <tr key={provider.id} className="border-b hover:bg-muted/50">
+                            <td className="p-0">
+                              <EditableCell
+                                id={`contract-cell-${rowIndex}-0`}
+                                value={provider.name}
+                                onSave={(value) => handleUpdateProvider(provider.id, 'name', value)}
+                                onNavigate={(direction) => handleCellNavigation(rowIndex, 0, direction)}
+                                placeholder="Nome do contrato"
+                                tabIndex={getTabIndex(rowIndex, 0)}
+                              />
+                            </td>
+                            <td className="p-0">
+                              <EditableCell
+                                id={`contract-cell-${rowIndex}-1`}
+                                value={provider.service_type}
+                                onSave={(value) => handleUpdateProvider(provider.id, 'service_type', value)}
+                                onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
+                                placeholder="Tipo de serviço"
+                                tabIndex={getTabIndex(rowIndex, 1)}
+                              />
+                            </td>
+                            <td className="p-0">
+                              <EditableCell
+                                id={`contract-cell-${rowIndex}-2`}
+                                value={provider.stage_id || null}
+                                onSave={(value) => handleUpdateProvider(provider.id, 'stage_id', value)}
+                                onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
+                                type="select"
+                                options={[
+                                  { value: null, label: 'N/A' },
+                                  ...stages.map(stage => ({ value: stage.id, label: stage.name }))
+                                ]}
+                                tabIndex={getTabIndex(rowIndex, 2)}
+                              />
+                            </td>
+                            <td className="p-0">
+                              <EditableCell
+                                id={`contract-cell-${rowIndex}-3`}
+                                value={provider.contract_value}
+                                onSave={(value) => handleUpdateProvider(provider.id, 'contract_value', value)}
+                                onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
+                                type="number"
+                                placeholder="0.00"
+                                tabIndex={getTabIndex(rowIndex, 3)}
+                              />
+                            </td>
+                            <td className="p-0">
+                              <EditableCell
+                                id={`contract-cell-${rowIndex}-4`}
+                                value={provider.payment_status}
+                                onSave={(value) => handleUpdateProvider(provider.id, 'payment_status', value)}
+                                onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
+                                type="select"
+                                options={[
+                                  { value: 'pendente', label: 'Pendente' },
+                                  { value: 'pago', label: 'Pago' },
+                                  { value: 'atrasado', label: 'Atrasado' }
+                                ]}
+                                tabIndex={getTabIndex(rowIndex, 4)}
+                                className={`${
+                                  provider.payment_status === 'pago' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : provider.payment_status === 'atrasado'
+                                    ? 'bg-red-100 text-red-800'
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }`}
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
                       
                       {providers.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="text-center py-8 text-gray-500">
+                          <td colSpan={5} className="text-center py-8 text-gray-500">
                             Clique na primeira linha para adicionar um novo contrato.
                           </td>
                         </tr>
