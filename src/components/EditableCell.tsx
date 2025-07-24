@@ -33,6 +33,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value?.toString() || '');
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const cellRef = useRef<HTMLDivElement>(null);
 
@@ -214,13 +215,22 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       id={id}
       ref={cellRef}
       className={cn(
-        "p-2 text-sm cursor-pointer hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring",
+        "p-2 text-sm cursor-pointer hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary",
+        isFocused && "bg-accent/30 ring-2 ring-primary",
         isNewRow && "italic text-muted-foreground",
+        type === 'number' && "text-right",
         className
       )}
       onClick={() => {
         console.log('Cell clicked:', id);
         setIsEditing(true);
+      }}
+      onFocus={() => {
+        setIsFocused(true);
+        setIsEditing(true);
+      }}
+      onBlur={() => {
+        setIsFocused(false);
       }}
       onKeyDown={(e) => {
         // Handle Enter to start editing
