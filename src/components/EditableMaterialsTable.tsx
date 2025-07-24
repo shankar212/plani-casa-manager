@@ -6,8 +6,9 @@ import { EditableCell } from './EditableCell';
 import { useMaterials, Material, NewMaterial } from '@/hooks/useMaterials';
 import { useProjects } from '@/hooks/useProjects';
 import { useMaterialSuppliers } from '@/hooks/useSuppliers';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Check, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,9 @@ export const EditableMaterialsTable: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set());
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [bulkStatusDialogOpen, setBulkStatusDialogOpen] = useState(false);
   
   // Local state for new row data - all strings from form inputs
   const [newRowData, setNewRowData] = useState<NewRowData>({
@@ -210,13 +214,65 @@ export const EditableMaterialsTable: React.FC = () => {
     setMaterialToDelete(null);
   };
 
+  const handleSelectMaterial = (materialId: string, checked: boolean) => {
+    const newSelected = new Set(selectedMaterials);
+    if (checked) {
+      newSelected.add(materialId);
+    } else {
+      newSelected.delete(materialId);
+    }
+    setSelectedMaterials(newSelected);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedMaterials(new Set(materials.map(m => m.id)));
+    } else {
+      setSelectedMaterials(new Set());
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedMaterials.size > 0) {
+      setBulkDeleteDialogOpen(true);
+    }
+  };
+
+  const confirmBulkDelete = async () => {
+    try {
+      await Promise.all(Array.from(selectedMaterials).map(id => deleteMaterial(id)));
+      setSelectedMaterials(new Set());
+    } catch (error) {
+      console.error('Error bulk deleting materials:', error);
+    }
+    setBulkDeleteDialogOpen(false);
+  };
+
+  const handleBulkStatusChange = () => {
+    if (selectedMaterials.size > 0) {
+      setBulkStatusDialogOpen(true);
+    }
+  };
+
+  const confirmBulkStatusChange = async () => {
+    try {
+      await Promise.all(Array.from(selectedMaterials).map(id => 
+        updateMaterial(id, { status: 'delivered' })
+      ));
+      setSelectedMaterials(new Set());
+    } catch (error) {
+      console.error('Error bulk updating material status:', error);
+    }
+    setBulkStatusDialogOpen(false);
+  };
+
   // Calculate tab index for a cell
   const getTabIndex = (rowIndex: number, cellIndex: number) => {
-    const editableCellsPerRow = 6; // 7 total cells - 1 disabled cell (unit cost)
+    const editableCellsPerRow = 7; // 8 total cells - 1 disabled cell (unit cost)
     
-    // Skip the disabled cell (unit cost at index 5) in tab order
+    // Skip the disabled cell (unit cost at index 6) in tab order  
     let adjustedCellIndex = cellIndex;
-    if (cellIndex > 5) {
+    if (cellIndex > 6) {
       adjustedCellIndex = cellIndex - 1;
     }
     
@@ -233,12 +289,12 @@ export const EditableMaterialsTable: React.FC = () => {
     switch (direction) {
       case 'next':
         newCellIndex++;
-        // Skip disabled cell (unit cost at index 5)
-        if (newCellIndex === 5) {
-          newCellIndex = 6;
+        // Skip checkbox column (index 0) and disabled cell (unit cost at index 6)
+        if (newCellIndex === 6) {
+          newCellIndex = 7;
         }
-        if (newCellIndex > 6) {
-          newCellIndex = 0;
+        if (newCellIndex > 7) {
+          newCellIndex = 1; // Skip checkbox column
           newRowIndex++;
           if (newRowIndex >= totalRows) {
             newRowIndex = 0; // Wrap to first row
@@ -246,19 +302,19 @@ export const EditableMaterialsTable: React.FC = () => {
         }
         
         // Special case: if we're in new row and going to next from status column (last cell)
-        if (currentRowIndex === 0 && currentCellIndex === 6) {
+        if (currentRowIndex === 0 && currentCellIndex === 7) {
           createNewMaterial();
           return;
         }
         break;
       case 'prev':
         newCellIndex--;
-        // Skip disabled cell (unit cost at index 5)
-        if (newCellIndex === 5) {
-          newCellIndex = 4;
+        // Skip checkbox column (index 0) and disabled cell (unit cost at index 6)
+        if (newCellIndex === 6) {
+          newCellIndex = 5;
         }
-        if (newCellIndex < 0) {
-          newCellIndex = 6;
+        if (newCellIndex < 1) { // Skip checkbox column
+          newCellIndex = 7;
           newRowIndex--;
           if (newRowIndex < 0) {
             newRowIndex = totalRows - 1; // Wrap to last row
@@ -315,15 +371,43 @@ export const EditableMaterialsTable: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-4">
+        <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Almoxarifado Digital</h2>
+          {selectedMaterials.size > 0 && (
+            <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Excluir ({selectedMaterials.size})
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleBulkStatusChange}
+                className="flex items-center gap-2"
+              >
+                <Check className="h-4 w-4" />
+                Marcar como Entregue ({selectedMaterials.size})
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox
+                    checked={selectedMaterials.size === materials.length && materials.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
                 <TableHead className="w-[200px]">Material</TableHead>
                 <TableHead className="w-[150px]">Projeto</TableHead>
                 <TableHead className="w-[100px]">Quantidade</TableHead>
@@ -338,25 +422,16 @@ export const EditableMaterialsTable: React.FC = () => {
             <TableBody>
               {/* New material row - at the top (index 0) */}
               <TableRow className="bg-muted/20">
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-0"
-                    value={newRowData.material_name}
-                    onSave={(value) => handleNewRowChange('material_name', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 0, direction)}
-                    placeholder="Clique para adicionar material..."
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 0)}
-                  />
+                <TableCell className="p-2">
+                  {/* Empty checkbox column for new row */}
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-1"
-                    value={newRowData.project_id}
-                    onSave={(value) => handleNewRowChange('project_id', value)}
+                    value={newRowData.material_name}
+                    onSave={(value) => handleNewRowChange('material_name', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
-                    type="select"
-                    options={projectOptions}
+                    placeholder="Clique para adicionar material..."
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 1)}
                   />
@@ -364,11 +439,11 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-2"
-                    value={newRowData.quantity}
-                    onSave={(value) => handleNewRowChange('quantity', value)}
+                    value={newRowData.project_id}
+                    onSave={(value) => handleNewRowChange('project_id', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
-                    type="number"
-                    placeholder="0"
+                    type="select"
+                    options={projectOptions}
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 2)}
                   />
@@ -376,12 +451,24 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-3"
-                    value={newRowData.unit}
-                    onSave={(value) => handleNewRowChange('unit', value)}
+                    value={newRowData.quantity}
+                    onSave={(value) => handleNewRowChange('quantity', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
-                    placeholder="un"
+                    type="number"
+                    placeholder="0"
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 3)}
+                  />
+                </TableCell>
+                <TableCell className="p-0">
+                  <EditableCell
+                    id="cell-0-4"
+                    value={newRowData.unit}
+                    onSave={(value) => handleNewRowChange('unit', value)}
+                    onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
+                    placeholder="un"
+                    isNewRow={true}
+                    tabIndex={getTabIndex(0, 4)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -405,14 +492,14 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id="cell-0-5"
+                    id="cell-0-6"
                     value={newRowData.estimated_total_cost}
                     onSave={(value) => handleNewRowChange('estimated_total_cost', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 5, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
                     type="number"
                     placeholder="0.00"
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 5)}
+                    tabIndex={getTabIndex(0, 6)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -422,17 +509,17 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id="cell-0-7"
+                    id="cell-0-8"
                     value={newRowData.status}
                     onSave={(value) => handleNewRowChange('status', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 7, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 8, direction)}
                     type="select"
                     options={[
                       { value: 'requested', label: 'Solicitado' },
                       { value: 'delivered', label: 'Entregue' }
                     ]}
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 7)}
+                    tabIndex={getTabIndex(0, 8)}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -451,49 +538,55 @@ export const EditableMaterialsTable: React.FC = () => {
 
               {/* Existing materials */}
               {materials.map((material, materialIndex) => {
-                const rowIndex = materialIndex + 1;
+                 const rowIndex = materialIndex + 1;
                 return (
                   <TableRow key={material.id}>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-0`}
-                        value={material.material_name}
-                        onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 0, direction)}
-                        placeholder="Nome do material"
-                        tabIndex={getTabIndex(rowIndex, 0)}
+                    <TableCell className="p-2">
+                      <Checkbox
+                        checked={selectedMaterials.has(material.id)}
+                        onCheckedChange={(checked) => handleSelectMaterial(material.id, checked as boolean)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-1`}
-                        value={material.project_id || null}
-                        onSave={(value) => handleUpdateField(material.id, 'project_id', value)}
+                        value={material.material_name}
+                        onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
-                        type="select"
-                        options={projectOptions}
+                        placeholder="Nome do material"
                         tabIndex={getTabIndex(rowIndex, 1)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-2`}
-                        value={material.quantity}
-                        onSave={(value) => handleUpdateField(material.id, 'quantity', value)}
+                        value={material.project_id || null}
+                        onSave={(value) => handleUpdateField(material.id, 'project_id', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
-                        type="number"
-                        placeholder="0"
+                        type="select"
+                        options={projectOptions}
                         tabIndex={getTabIndex(rowIndex, 2)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-3`}
+                        value={material.quantity?.toString() || ''}
+                        onSave={(value) => handleUpdateField(material.id, 'quantity', Number(value))}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
+                        type="number"
+                        placeholder="0"
+                        tabIndex={getTabIndex(rowIndex, 3)}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-4`}
                         value={material.unit}
                         onSave={(value) => handleUpdateField(material.id, 'unit', value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
                         placeholder="un"
-                        tabIndex={getTabIndex(rowIndex, 3)}
+                        tabIndex={getTabIndex(rowIndex, 4)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -517,38 +610,36 @@ export const EditableMaterialsTable: React.FC = () => {
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
-                        id={`cell-${rowIndex}-5`}
-                        value={material.estimated_total_cost}
-                        onSave={(value) => handleUpdateField(material.id, 'estimated_total_cost', value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
+                        id={`cell-${rowIndex}-6`}
+                        value={material.estimated_total_cost?.toString() || ''}
+                        onSave={(value) => handleUpdateField(material.id, 'estimated_total_cost', Number(value))}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
                         type="number"
                         placeholder="0.00"
-                        tabIndex={getTabIndex(rowIndex, 5)}
+                        tabIndex={getTabIndex(rowIndex, 6)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-6`}
-                        value={material.estimated_unit_cost}
-                        onSave={() => {}}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
-                        disabled={true}
-                        className="bg-muted/30"
-                        tabIndex={-1}
-                      />
+                      <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
+                        {material.estimated_unit_cost ? 
+                          `R$ ${material.estimated_unit_cost.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+                          : '-'
+                        }
+                      </div>
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
-                        id={`cell-${rowIndex}-7`}
+                        id={`cell-${rowIndex}-8`}
                         value={material.status}
                         onSave={(value) => handleUpdateField(material.id, 'status', value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 7, direction)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 8, direction)}
                         type="select"
                         options={[
                           { value: 'requested', label: 'Solicitado' },
-                          { value: 'delivered', label: 'Entregue' }
+                          { value: 'delivered', label: 'Entregue' },
+                          { value: 'used', label: 'Usado' }
                         ]}
-                        tabIndex={getTabIndex(rowIndex, 7)}
+                        tabIndex={getTabIndex(rowIndex, 8)}
                       />
                     </TableCell>
                     <TableCell className="p-2">
@@ -556,7 +647,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteMaterial(material.id)}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                         tabIndex={-1}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -570,18 +661,55 @@ export const EditableMaterialsTable: React.FC = () => {
         </div>
       </div>
 
+      {/* Single Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir este material? Esta ação não pode ser desfeita.
+              Tem certeza de que deseja excluir este material? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Dialog */}
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão em lote</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza de que deseja excluir {selectedMaterials.size} materiais? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir Todos
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Status Change Dialog */}
+      <AlertDialog open={bulkStatusDialogOpen} onOpenChange={setBulkStatusDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar mudança de status</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza de que deseja marcar {selectedMaterials.size} materiais como "Entregue"?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmBulkStatusChange}>
+              Marcar como Entregue
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
