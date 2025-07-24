@@ -388,15 +388,9 @@ const ProjectFinancial = () => {
                               />
                             </td>
                             <td className="p-0">
-                              <EditableCell
-                                id={`contract-cell-${rowIndex}-3`}
-                                value={provider.contract_value}
-                                onSave={(value) => handleUpdateProvider(provider.id, 'contract_value', value)}
-                                onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
-                                type="number"
-                                placeholder="0"
-                                tabIndex={getTabIndex(rowIndex, 3)}
-                              />
+                              <div className="p-2 text-right">
+                                {formatCurrency(provider.contract_value)}
+                              </div>
                             </td>
                             <td className="p-0">
                               <EditableCell
