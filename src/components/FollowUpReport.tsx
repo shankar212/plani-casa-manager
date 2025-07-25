@@ -37,13 +37,13 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
   const loadNotes = async () => {
     try {
       const { data, error } = await supabase
-        .from('follow_up_notes')
+        .from('follow_up_notes' as any)
         .select('*')
         .eq('project_id', projectId)
         .order('date', { ascending: false });
 
       if (error) throw error;
-      setNotes(data || []);
+      setNotes(data as unknown as FollowUpNote[] || []);
     } catch (error) {
       console.error('Error loading notes:', error);
     }
@@ -58,7 +58,7 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
     try {
       setLoading(true);
       const { error } = await supabase
-        .from('follow_up_notes')
+        .from('follow_up_notes' as any)
         .insert({
           project_id: projectId,
           date: newNote.date,

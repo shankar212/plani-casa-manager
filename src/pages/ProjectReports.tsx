@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import FollowUpReport from "@/components/FollowUpReport";
 
 interface ProjectPhoto {
   id: string;
@@ -217,18 +218,11 @@ const ProjectReports = () => {
             </div>
           </Card>
 
-          {/* Progress Reports */}
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">relatório de acompanhamento</h2>
-            <div className="space-y-3">
-              {reports.map((report, index) => (
-                <div key={index} className="text-sm">
-                  <div className="font-medium">Data: {report.date}</div>
-                  <div className="text-gray-600">{report.description}</div>
-                </div>
-              ))}
-            </div>
-          </Card>
+          {/* Follow Up Report */}
+          <FollowUpReport 
+            projectId={id || ""} 
+            projectName="apartamento hillrid" 
+          />
         </div>
 
         {/* Photo Report by Etapa */}
