@@ -182,7 +182,7 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
     <Card className="p-4">
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-base font-semibold">Acompanhamento</h2>
-        <div className="flex gap-1">
+        <div className="flex flex-col gap-1">
           <Button
             variant="outline"
             size="sm"
