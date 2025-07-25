@@ -49,7 +49,8 @@ export const EditableCell: React.FC<EditableCellProps> = ({
 
   const handleSave = () => {
     if (type === 'number') {
-      const numValue = parseFloat(editValue);
+      const cleanValue = parseNumberFromFormatted(editValue);
+      const numValue = parseFloat(cleanValue);
       onSave(isNaN(numValue) ? 0 : numValue);
     } else {
       onSave(editValue || null);
@@ -118,10 +119,26 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     }
   };
 
+  const formatNumberWithSeparator = (num: number | string | null): string => {
+    if (num === null || num === undefined) return '';
+    const numValue = typeof num === 'string' ? parseFloat(num) : num;
+    if (isNaN(numValue)) return '';
+    return numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  const parseNumberFromFormatted = (str: string): string => {
+    return str.replace(/\./g, '');
+  };
+
   const getDisplayValue = () => {
     if (type === 'select' && options.length > 0) {
       const option = options.find(opt => opt.value === value);
       return option ? option.label : (value || placeholder || '-');
+    }
+    
+    // For number type, format with thousand separators
+    if (type === 'number' && value !== null && value !== undefined && value !== '') {
+      return formatNumberWithSeparator(value);
     }
     
     // For new row, show the actual entered value or placeholder
@@ -220,6 +237,10 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       )}
       onClick={() => {
         console.log('Cell clicked:', id);
+        if (type === 'number' && value) {
+          // For number type, set unformatted value for editing
+          setEditValue(value.toString());
+        }
         setIsEditing(true);
       }}
       onKeyDown={(e) => {
