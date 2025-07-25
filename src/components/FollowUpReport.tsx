@@ -179,65 +179,68 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
   const displayedNotes = showAll ? notes : notes.slice(0, 3);
 
   return (
-    <Card className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">relatório de acompanhamento</h2>
-        <div className="flex gap-2">
+    <Card className="p-4">
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-base font-semibold">Acompanhamento</h2>
+        <div className="flex gap-1">
           <Button
             variant="outline"
             size="sm"
             onClick={generatePDF}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 px-2 py-1 h-8"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-3 w-3" />
             PDF
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={generateWord}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 px-2 py-1 h-8"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-3 w-3" />
             Word
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsAdding(!isAdding)}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 px-2 py-1 h-8"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3 w-3" />
             Nova Nota
           </Button>
         </div>
       </div>
 
       {isAdding && (
-        <Card className="p-4 mb-4 bg-gray-50">
-          <div className="space-y-3">
+        <Card className="p-3 mb-3 bg-gray-50">
+          <div className="space-y-2">
             <div>
-              <label className="text-sm font-medium mb-1 block">Data</label>
+              <label className="text-xs font-medium mb-1 block">Data</label>
               <Input
                 type="date"
                 value={newNote.date}
                 onChange={(e) => setNewNote(prev => ({ ...prev, date: e.target.value }))}
+                className="h-8"
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Descrição</label>
+              <label className="text-xs font-medium mb-1 block">Descrição</label>
               <Textarea
                 placeholder="Descreva o progresso do dia..."
                 value={newNote.description}
                 onChange={(e) => setNewNote(prev => ({ ...prev, description: e.target.value }))}
-                rows={3}
+                rows={2}
+                className="text-sm"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1 pt-1">
               <Button
                 onClick={saveNote}
                 disabled={loading}
                 size="sm"
+                className="h-7 px-3 text-xs"
               >
                 {loading ? 'Salvando...' : 'Salvar'}
               </Button>
@@ -248,6 +251,7 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
                   setNewNote({ date: new Date().toISOString().split('T')[0], description: "" });
                 }}
                 size="sm"
+                className="h-7 px-3 text-xs"
               >
                 Cancelar
               </Button>
@@ -256,17 +260,17 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
         </Card>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {displayedNotes.length === 0 ? (
-          <div className="text-center py-6 text-gray-500">
-            <p>Nenhuma nota de acompanhamento ainda.</p>
-            <p className="text-sm">Clique em "Nova Nota" para começar.</p>
+          <div className="text-center py-4 text-gray-500">
+            <p className="text-sm">Nenhuma nota de acompanhamento ainda.</p>
+            <p className="text-xs">Clique em "Nova Nota" para começar.</p>
           </div>
         ) : (
           displayedNotes.map((note) => (
-            <div key={note.id} className="text-sm border-b border-gray-100 pb-3 last:border-b-0">
-              <div className="font-medium">Data: {formatDate(note.date)}</div>
-              <div className="text-gray-600 mt-1">{note.description}</div>
+            <div key={note.id} className="text-sm border-b border-gray-100 pb-2 last:border-b-0">
+              <div className="font-medium text-xs">Data: {formatDate(note.date)}</div>
+              <div className="text-gray-600 mt-1 text-sm">{note.description}</div>
             </div>
           ))
         )}
@@ -276,16 +280,16 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
             variant="ghost"
             size="sm"
             onClick={() => setShowAll(!showAll)}
-            className="w-full flex items-center justify-center gap-1 text-gray-600 hover:text-gray-900"
+            className="w-full flex items-center justify-center gap-1 text-gray-600 hover:text-gray-900 h-7 text-xs"
           >
             {showAll ? (
               <>
-                <EyeOff className="h-4 w-4" />
+                <EyeOff className="h-3 w-3" />
                 Mostrar menos
               </>
             ) : (
               <>
-                <Eye className="h-4 w-4" />
+                <Eye className="h-3 w-3" />
                 Ver todas ({notes.length} notas)
               </>
             )}
