@@ -10,13 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useProjectStages } from "@/hooks/useProjects";
-import { Plus, Check, X } from "lucide-react";
+import { Plus, Check, X, ChevronDown, ChevronRight } from "lucide-react";
 import { EditableCell } from "@/components/EditableCell";
+import { useMaterials } from "@/hooks/useMaterials";
+import { useMaterialSuppliers } from "@/hooks/useSuppliers";
+import { MaterialsFinancialSummary } from "@/components/MaterialsFinancialSummary";
 
 const ProjectFinancial = () => {
   const { id } = useParams();
   const { providers, loading, createProvider, updateProvider } = useServiceProviders(id);
   const { stages } = useProjectStages(id);
+  const { materials, loading: materialsLoading } = useMaterials();
+  const { suppliers } = useMaterialSuppliers();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [newProvider, setNewProvider] = useState({
@@ -57,7 +62,11 @@ const ProjectFinancial = () => {
   };
 
   const totalBudget = 1000000;
-  const usedAmount = providers.reduce((sum, provider) => sum + provider.contract_value, 0);
+  const contractsAmount = providers.reduce((sum, provider) => sum + provider.contract_value, 0);
+  const materialsAmount = materials
+    .filter(material => material.project_id === id)
+    .reduce((sum, material) => sum + (material.estimated_total_cost || 0), 0);
+  const usedAmount = contractsAmount + materialsAmount;
   const usedPercentage = Math.round((usedAmount / totalBudget) * 100);
 
   const handleNewRowChange = (field: string, value: string | number | null) => {
@@ -248,8 +257,12 @@ const ProjectFinancial = () => {
               <span className="text-lg font-semibold">R$ {totalBudget.toLocaleString('pt-BR')}</span>
             </div>
             <Progress value={usedPercentage} className="h-3" />
-            <div className="mt-2 text-sm text-gray-600">
-              Usado: R$ {usedAmount.toLocaleString('pt-BR')}
+            <div className="mt-2 text-sm text-gray-600 space-y-1">
+              <div>Usado: R$ {usedAmount.toLocaleString('pt-BR')}</div>
+              <div className="text-xs text-muted-foreground">
+                Contratos: R$ {contractsAmount.toLocaleString('pt-BR')} • 
+                Materiais: R$ {materialsAmount.toLocaleString('pt-BR')}
+              </div>
             </div>
           </Card>
 
@@ -438,6 +451,14 @@ const ProjectFinancial = () => {
               )}
             </div>
           </Card>
+
+          {/* Materials Section */}
+          <MaterialsFinancialSummary 
+            materials={materials}
+            suppliers={suppliers}
+            stages={stages}
+            projectId={id || ''}
+          />
         </div>
       </div>
     </Layout>
