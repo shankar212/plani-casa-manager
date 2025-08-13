@@ -30,8 +30,7 @@ interface NewRowData {
   status: string;
   project_id: string;
   supplier_id: string;
-  delivery_date: string;
-  used_date: string;
+  payment_date: string;
 }
 
 export const EditableMaterialsTable: React.FC = () => {
@@ -54,8 +53,7 @@ export const EditableMaterialsTable: React.FC = () => {
     status: 'requested',
     project_id: '',
     supplier_id: '',
-    delivery_date: '',
-    used_date: ''
+    payment_date: ''
   });
 
   // Set up real-time subscription for materials
@@ -167,8 +165,7 @@ export const EditableMaterialsTable: React.FC = () => {
         stage_id: null,
         supplier_id: null,
         user_id: null,
-        delivery_date: newRowData.delivery_date || null,
-        used_date: newRowData.used_date || null,
+        delivery_date: newRowData.payment_date || null,
       };
 
       // Calculate unit cost if both total cost and quantity are available
@@ -189,8 +186,7 @@ export const EditableMaterialsTable: React.FC = () => {
         status: 'requested',
         project_id: '',
         supplier_id: '',
-        delivery_date: '',
-        used_date: ''
+        payment_date: ''
       });
       
       // Force refetch to ensure the new material appears
@@ -276,7 +272,7 @@ export const EditableMaterialsTable: React.FC = () => {
 
   // Calculate tab index for a cell
   const getTabIndex = (rowIndex: number, cellIndex: number) => {
-    const editableCellsPerRow = 9; // 11 total cells - 2 disabled cells (unit cost at index 6, requested_at)
+    const editableCellsPerRow = 8; // 10 total cells - 2 disabled cells (unit cost at index 6)
     
     // Skip the disabled cell (unit cost at index 6) in tab order  
     let adjustedCellIndex = cellIndex;
@@ -301,7 +297,7 @@ export const EditableMaterialsTable: React.FC = () => {
         if (newCellIndex === 6) {
           newCellIndex = 7;
         }
-        if (newCellIndex > 10) {
+        if (newCellIndex > 9) {
           newCellIndex = 1; // Skip checkbox column
           newRowIndex++;
           if (newRowIndex >= totalRows) {
@@ -309,8 +305,8 @@ export const EditableMaterialsTable: React.FC = () => {
           }
         }
         
-        // Special case: if we're in new row and going to next from used_date column (last cell)
-        if (currentRowIndex === 0 && currentCellIndex === 10) {
+        // Special case: if we're in new row and going to next from payment_date column (last cell)
+        if (currentRowIndex === 0 && currentCellIndex === 9) {
           createNewMaterial();
           return;
         }
@@ -322,7 +318,7 @@ export const EditableMaterialsTable: React.FC = () => {
           newCellIndex = 5;
         }
         if (newCellIndex < 1) { // Skip checkbox column
-          newCellIndex = 10;
+          newCellIndex = 9;
           newRowIndex--;
           if (newRowIndex < 0) {
             newRowIndex = totalRows - 1; // Wrap to last row
@@ -424,8 +420,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableHead className="w-[120px]">Custo Total Est.</TableHead>
                 <TableHead className="w-[120px]">Custo Unit. Est.</TableHead>
                 <TableHead className="w-[100px]">Status</TableHead>
-                <TableHead className="w-[120px]">Data Entrega</TableHead>
-                <TableHead className="w-[120px]">Data Utilização</TableHead>
+                <TableHead className="w-[120px]">Data de Pagamento</TableHead>
                 <TableHead className="w-[80px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -535,25 +530,13 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-9"
-                    value={newRowData.delivery_date}
-                    onSave={(value) => handleNewRowChange('delivery_date', value)}
+                    value={newRowData.payment_date}
+                    onSave={(value) => handleNewRowChange('payment_date', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 9, direction)}
                     type="date"
                     placeholder="DD/MM/AAAA"
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 9)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-10"
-                    value={newRowData.used_date}
-                    onSave={(value) => handleNewRowChange('used_date', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 10, direction)}
-                    type="date"
-                    placeholder="DD/MM/AAAA"
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 10)}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -685,17 +668,6 @@ export const EditableMaterialsTable: React.FC = () => {
                         type="date"
                         placeholder="DD/MM/AAAA"
                         tabIndex={getTabIndex(rowIndex, 9)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-10`}
-                        value={material.used_date || ''}
-                        onSave={(value) => handleUpdateField(material.id, 'used_date', value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 10, direction)}
-                        type="date"
-                        placeholder="DD/MM/AAAA"
-                        tabIndex={getTabIndex(rowIndex, 10)}
                       />
                     </TableCell>
                     <TableCell className="p-2">
