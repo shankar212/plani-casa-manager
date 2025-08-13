@@ -9,7 +9,7 @@ interface EditableCellProps {
   value: string | number | null;
   onSave: (value: string | number | null) => void;
   onNavigate?: (direction: 'next' | 'prev' | 'down' | 'up') => void;
-  type?: 'text' | 'number' | 'select';
+  type?: 'text' | 'number' | 'select' | 'date';
   options?: { value: string | null; label: string }[];
   placeholder?: string;
   className?: string;
@@ -52,6 +52,19 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       const cleanValue = parseNumberFromFormatted(editValue);
       const numValue = parseFloat(cleanValue);
       onSave(isNaN(numValue) ? 0 : numValue);
+    } else if (type === 'date') {
+      // For date type, convert Brazilian format to ISO format for storage
+      if (editValue && editValue.includes('/')) {
+        const [day, month, year] = editValue.split('/');
+        if (day && month && year && year.length === 4) {
+          const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          onSave(isoDate);
+        } else {
+          onSave(editValue || null);
+        }
+      } else {
+        onSave(editValue || null);
+      }
     } else {
       onSave(editValue || null);
     }
@@ -139,6 +152,16 @@ export const EditableCell: React.FC<EditableCellProps> = ({
     // For number type, format with thousand separators
     if (type === 'number' && value !== null && value !== undefined && value !== '') {
       return formatNumberWithSeparator(value);
+    }
+    
+    // For date type, format for display
+    if (type === 'date' && value) {
+      // Convert ISO date to Brazilian format for display
+      if (value.toString().includes('-') && value.toString().length === 10) {
+        const [year, month, day] = value.toString().split('-');
+        return `${day}/${month}/${year}`;
+      }
+      return value.toString();
     }
     
     // For new row, show the actual entered value or placeholder
