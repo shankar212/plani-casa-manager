@@ -19,6 +19,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 
 // Local interface for the new row data (all strings from inputs)
@@ -45,6 +55,10 @@ export const EditableMaterialsTable: React.FC = () => {
   const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set());
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [bulkStatusDialogOpen, setBulkStatusDialogOpen] = useState(false);
+  const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
+  const [supplierName, setSupplierName] = useState('');
+  const [materialForNewSupplier, setMaterialForNewSupplier] = useState<string | null>(null);
+  const [isCreatingSupplier, setIsCreatingSupplier] = useState(false);
   
   // Local state for new row data - all strings from form inputs
   const [newRowData, setNewRowData] = useState<NewRowData>({
@@ -113,16 +127,52 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const handleSupplierChange = async (materialId: string, supplierId: string) => {
     if (supplierId === "new") {
-      // Create a new supplier
-      const newSupplier = await createSupplier({
-        name: "Novo Fornecedor",
-        contact_info: {}
-      });
-      if (newSupplier) {
-        await updateMaterial(materialId, { supplier_id: newSupplier.id });
-      }
+      // Open dialog to get supplier name
+      setMaterialForNewSupplier(materialId);
+      setSupplierDialogOpen(true);
     } else {
       await updateMaterial(materialId, { supplier_id: supplierId === "none" ? null : supplierId });
+    }
+  };
+
+  const handleNewRowSupplierChange = (supplierId: string) => {
+    if (supplierId === "new") {
+      // Open dialog to get supplier name for new row
+      setMaterialForNewSupplier("new-row");
+      setSupplierDialogOpen(true);
+    } else {
+      handleNewRowChange('supplier_id', supplierId);
+    }
+  };
+
+  const createSupplierWithName = async () => {
+    if (!supplierName.trim()) return;
+    
+    setIsCreatingSupplier(true);
+    try {
+      const newSupplier = await createSupplier({
+        name: supplierName.trim(),
+        contact_info: {}
+      });
+      
+      if (newSupplier) {
+        if (materialForNewSupplier === "new-row") {
+          // Update new row data
+          handleNewRowChange('supplier_id', newSupplier.id);
+        } else if (materialForNewSupplier) {
+          // Update existing material
+          await updateMaterial(materialForNewSupplier, { supplier_id: newSupplier.id });
+        }
+      }
+      
+      // Close dialog and reset state
+      setSupplierDialogOpen(false);
+      setSupplierName('');
+      setMaterialForNewSupplier(null);
+    } catch (error) {
+      console.error('Error creating supplier:', error);
+    } finally {
+      setIsCreatingSupplier(false);
     }
   };
 
@@ -181,7 +231,7 @@ export const EditableMaterialsTable: React.FC = () => {
         estimated_unit_cost: 0,
         project_id: newRowData.project_id || null,
         stage_id: newRowData.stage_id || null,
-        supplier_id: null,
+        supplier_id: newRowData.supplier_id && newRowData.supplier_id !== "none" ? newRowData.supplier_id : null,
         user_id: null,
         delivery_date: newRowData.payment_date || null,
       };
@@ -529,7 +579,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                    <Select
                      value={newRowData.supplier_id || "none"}
-                     onValueChange={(value) => handleNewRowChange('supplier_id', value)}
+                     onValueChange={handleNewRowSupplierChange}
                   >
                     <SelectTrigger className="w-full border-0 h-full">
                       <SelectValue placeholder="Selecionar..." />
@@ -788,6 +838,53 @@ export const EditableMaterialsTable: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Supplier Name Input Dialog */}
+      <Dialog open={supplierDialogOpen} onOpenChange={setSupplierDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Criar Novo Fornecedor</DialogTitle>
+            <DialogDescription>
+              Digite o nome do fornecedor que você deseja adicionar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="supplier-name">Nome do Fornecedor</Label>
+              <Input
+                id="supplier-name"
+                value={supplierName}
+                onChange={(e) => setSupplierName(e.target.value)}
+                placeholder="Digite o nome do fornecedor..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && supplierName.trim()) {
+                    createSupplierWithName();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSupplierDialogOpen(false);
+                setSupplierName('');
+                setMaterialForNewSupplier(null);
+              }}
+              disabled={isCreatingSupplier}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={createSupplierWithName}
+              disabled={isCreatingSupplier || !supplierName.trim()}
+            >
+              {isCreatingSupplier ? 'Criando...' : 'Criar Fornecedor'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
