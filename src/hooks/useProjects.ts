@@ -172,19 +172,23 @@ export const useProjectStages = (projectId?: string) => {
   const { toast } = useToast();
 
   const fetchStages = async () => {
-    if (!projectId) {
-      setLoading(false);
-      setStages([]);
-      return;
-    }
-    
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      let query = supabase
         .from('project_stages')
-        .select('*')
-        .eq('project_id', projectId)
+        .select(`
+          *,
+          projects!inner(name)
+        `)
         .order('created_at', { ascending: true });
+      
+      // If projectId is provided, filter by it; otherwise get all stages
+      if (projectId) {
+        query = query.eq('project_id', projectId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setStages(data || []);

@@ -93,10 +93,17 @@ export const EditableMaterialsTable: React.FC = () => {
   ];
 
   const getStageOptions = (projectId: string) => {
+    if (!projectId) {
+      return [{ value: '', label: 'Selecione um projeto primeiro' }];
+    }
+    
     const projectStages = stages.filter(stage => stage.project_id === projectId);
     return [
       { value: '', label: 'Selecionar etapa' },
-      ...projectStages.map(stage => ({ value: stage.id, label: stage.name }))
+      ...projectStages.map(stage => ({ 
+        value: stage.id, 
+        label: `${stage.name}` 
+      }))
     ];
   };
 
@@ -284,11 +291,11 @@ export const EditableMaterialsTable: React.FC = () => {
 
   // Calculate tab index for a cell
   const getTabIndex = (rowIndex: number, cellIndex: number) => {
-    const editableCellsPerRow = 9; // 11 total cells - 2 disabled cells (unit cost at index 7)
+    const editableCellsPerRow = 9; // 11 total cells - 2 disabled cells (unit cost at index 9)
     
-    // Skip the disabled cell (unit cost at index 7) in tab order  
+    // Skip the disabled cell (unit cost at index 9) in tab order  
     let adjustedCellIndex = cellIndex;
-    if (cellIndex > 7) {
+    if (cellIndex > 9) {
       adjustedCellIndex = cellIndex - 1;
     }
     
@@ -305,9 +312,9 @@ export const EditableMaterialsTable: React.FC = () => {
     switch (direction) {
       case 'next':
         newCellIndex++;
-        // Skip checkbox column (index 0) and disabled cell (unit cost at index 7)
-        if (newCellIndex === 7) {
-          newCellIndex = 8;
+        // Skip checkbox column (index 0) and disabled cell (unit cost at index 9)
+        if (newCellIndex === 9) {
+          newCellIndex = 10;
         }
         if (newCellIndex > 10) {
           newCellIndex = 1; // Skip checkbox column
@@ -325,9 +332,9 @@ export const EditableMaterialsTable: React.FC = () => {
         break;
       case 'prev':
         newCellIndex--;
-        // Skip checkbox column (index 0) and disabled cell (unit cost at index 7)
-        if (newCellIndex === 7) {
-          newCellIndex = 6;
+        // Skip checkbox column (index 0) and disabled cell (unit cost at index 9)
+        if (newCellIndex === 9) {
+          newCellIndex = 8;
         }
         if (newCellIndex < 1) { // Skip checkbox column
           newCellIndex = 10;
@@ -424,15 +431,15 @@ export const EditableMaterialsTable: React.FC = () => {
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="w-[200px]">Material</TableHead>
                 <TableHead className="w-[150px]">Projeto</TableHead>
                 <TableHead className="w-[120px]">Etapa</TableHead>
+                <TableHead className="w-[100px]">Status</TableHead>
+                <TableHead className="w-[200px]">Material</TableHead>
                 <TableHead className="w-[100px]">Quantidade</TableHead>
                 <TableHead className="w-[80px]">Unidade</TableHead>
                 <TableHead className="w-[150px]">Fornecedor</TableHead>
                 <TableHead className="w-[120px]">Custo Total Est.</TableHead>
                 <TableHead className="w-[120px]">Custo Unit. Est.</TableHead>
-                <TableHead className="w-[100px]">Status</TableHead>
                 <TableHead className="w-[120px]">Data de Pagamento</TableHead>
                 <TableHead className="w-[80px]">Ações</TableHead>
               </TableRow>
@@ -446,10 +453,11 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-1"
-                    value={newRowData.material_name}
-                    onSave={(value) => handleNewRowChange('material_name', value)}
+                    value={newRowData.project_id}
+                    onSave={(value) => handleNewRowChange('project_id', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
-                    placeholder="Clique para adicionar material..."
+                    type="select"
+                    options={projectOptions}
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 1)}
                   />
@@ -457,11 +465,14 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-2"
-                    value={newRowData.project_id}
-                    onSave={(value) => handleNewRowChange('project_id', value)}
+                    value={newRowData.stage_id}
+                    onSave={(value) => {
+                      handleNewRowChange('stage_id', value);
+                      console.log('Setting stage_id to:', value);
+                    }}
                     onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
                     type="select"
-                    options={projectOptions}
+                    options={newRowData.project_id ? getStageOptions(newRowData.project_id) : [{ value: '', label: 'Selecione um projeto primeiro' }]}
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 2)}
                   />
@@ -469,11 +480,14 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-3"
-                    value={newRowData.stage_id}
-                    onSave={(value) => handleNewRowChange('stage_id', value)}
+                    value={newRowData.status}
+                    onSave={(value) => handleNewRowChange('status', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
                     type="select"
-                    options={getStageOptions(newRowData.project_id)}
+                    options={[
+                      { value: 'requested', label: 'Solicitado' },
+                      { value: 'delivered', label: 'Entregue' }
+                    ]}
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 3)}
                   />
@@ -481,11 +495,10 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-4"
-                    value={newRowData.quantity}
-                    onSave={(value) => handleNewRowChange('quantity', value)}
+                    value={newRowData.material_name}
+                    onSave={(value) => handleNewRowChange('material_name', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
-                    type="number"
-                    placeholder="0"
+                    placeholder="Clique para adicionar material..."
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 4)}
                   />
@@ -493,12 +506,24 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-5"
-                    value={newRowData.unit}
-                    onSave={(value) => handleNewRowChange('unit', value)}
+                    value={newRowData.quantity}
+                    onSave={(value) => handleNewRowChange('quantity', value)}
                     onNavigate={(direction) => handleCellNavigation(0, 5, direction)}
-                    placeholder="un"
+                    type="number"
+                    placeholder="0"
                     isNewRow={true}
                     tabIndex={getTabIndex(0, 5)}
+                  />
+                </TableCell>
+                <TableCell className="p-0">
+                  <EditableCell
+                    id="cell-0-6"
+                    value={newRowData.unit}
+                    onSave={(value) => handleNewRowChange('unit', value)}
+                    onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
+                    placeholder="un"
+                    isNewRow={true}
+                    tabIndex={getTabIndex(0, 6)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -522,35 +547,20 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
-                    id="cell-0-6"
+                    id="cell-0-8"
                     value={newRowData.estimated_total_cost}
                     onSave={(value) => handleNewRowChange('estimated_total_cost', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
+                    onNavigate={(direction) => handleCellNavigation(0, 8, direction)}
                     type="number"
                     placeholder="0.00"
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 6)}
+                    tabIndex={getTabIndex(0, 8)}
                   />
                 </TableCell>
                 <TableCell className="p-0">
                   <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
                     -
                   </div>
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-9"
-                    value={newRowData.status}
-                    onSave={(value) => handleNewRowChange('status', value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 9, direction)}
-                    type="select"
-                    options={[
-                      { value: 'requested', label: 'Solicitado' },
-                      { value: 'delivered', label: 'Entregue' }
-                    ]}
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 9)}
-                  />
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
@@ -592,54 +602,69 @@ export const EditableMaterialsTable: React.FC = () => {
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-1`}
-                        value={material.material_name}
-                        onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
+                        value={material.project_id || null}
+                        onSave={(value) => handleUpdateField(material.id, 'project_id', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
-                        placeholder="Nome do material"
+                        type="select"
+                        options={projectOptions}
                         tabIndex={getTabIndex(rowIndex, 1)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-2`}
-                        value={material.project_id || null}
-                        onSave={(value) => handleUpdateField(material.id, 'project_id', value)}
+                        value={material.stage_id || ''}
+                        onSave={(value) => handleUpdateField(material.id, 'stage_id', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
                         type="select"
-                        options={projectOptions}
+                        options={getStageOptions(material.project_id || '')}
                         tabIndex={getTabIndex(rowIndex, 2)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-3`}
-                        value={material.stage_id || ''}
-                        onSave={(value) => handleUpdateField(material.id, 'stage_id', value)}
+                        value={material.status}
+                        onSave={(value) => handleUpdateField(material.id, 'status', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
                         type="select"
-                        options={getStageOptions(material.project_id || '')}
+                        options={[
+                          { value: 'requested', label: 'Solicitado' },
+                          { value: 'delivered', label: 'Entregue' },
+                          { value: 'used', label: 'Usado' }
+                        ]}
                         tabIndex={getTabIndex(rowIndex, 3)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-4`}
-                        value={material.quantity?.toString() || ''}
-                        onSave={(value) => handleUpdateField(material.id, 'quantity', Number(value))}
+                        value={material.material_name}
+                        onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
-                        type="number"
-                        placeholder="0"
+                        placeholder="Nome do material"
                         tabIndex={getTabIndex(rowIndex, 4)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-5`}
+                        value={material.quantity?.toString() || ''}
+                        onSave={(value) => handleUpdateField(material.id, 'quantity', Number(value))}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
+                        type="number"
+                        placeholder="0"
+                        tabIndex={getTabIndex(rowIndex, 5)}
+                      />
+                    </TableCell>
+                    <TableCell className="p-0">
+                      <EditableCell
+                        id={`cell-${rowIndex}-6`}
                         value={material.unit}
                         onSave={(value) => handleUpdateField(material.id, 'unit', value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
                         placeholder="un"
-                        tabIndex={getTabIndex(rowIndex, 5)}
+                        tabIndex={getTabIndex(rowIndex, 6)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -663,13 +688,13 @@ export const EditableMaterialsTable: React.FC = () => {
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
-                        id={`cell-${rowIndex}-6`}
+                        id={`cell-${rowIndex}-8`}
                         value={material.estimated_total_cost?.toString() || ''}
                         onSave={(value) => handleUpdateField(material.id, 'estimated_total_cost', Number(value))}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
+                        onNavigate={(direction) => handleCellNavigation(rowIndex, 8, direction)}
                         type="number"
                         placeholder="0.00"
-                        tabIndex={getTabIndex(rowIndex, 6)}
+                        tabIndex={getTabIndex(rowIndex, 8)}
                       />
                     </TableCell>
                     <TableCell className="p-0">
@@ -679,21 +704,6 @@ export const EditableMaterialsTable: React.FC = () => {
                           : '-'
                         }
                       </div>
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-9`}
-                        value={material.status}
-                        onSave={(value) => handleUpdateField(material.id, 'status', value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 9, direction)}
-                        type="select"
-                        options={[
-                          { value: 'requested', label: 'Solicitado' },
-                          { value: 'delivered', label: 'Entregue' },
-                          { value: 'used', label: 'Usado' }
-                        ]}
-                        tabIndex={getTabIndex(rowIndex, 9)}
-                      />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
