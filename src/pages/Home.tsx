@@ -43,9 +43,9 @@ const Home = () => {
   };
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="p-8">
+  return (
+    <Layout>
+      <div className="p-4 md:p-8">
           <div className="text-center">Carregando projetos...</div>
         </div>
       </Layout>
