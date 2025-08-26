@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useProjectStages, useProjectTasks } from '@/hooks/useProjects';
 import type { ProjectStage, ProjectTask } from '@/hooks/useProjects';
@@ -179,6 +180,8 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
 
   const updateEtapaStatus = async (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => {
     try {
+      console.log('ProjectContext: updateEtapaStatus called with etapaId:', etapaId, 'status:', status);
+      console.log('ProjectContext: status type:', typeof status);
       await updateStage(etapaId, { status });
     } catch (error) {
       console.error('Error updating stage status:', error);

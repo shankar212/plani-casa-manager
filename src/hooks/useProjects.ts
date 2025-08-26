@@ -234,6 +234,9 @@ export const useProjectStages = (projectId?: string) => {
 
   const updateStage = async (id: string, updates: TablesUpdate<'project_stages'>) => {
     try {
+      console.log('useProjects: updateStage called with id:', id, 'updates:', updates);
+      console.log('useProjects: updates.status type:', typeof updates.status, 'value:', updates.status);
+      
       const { data, error } = await supabase
         .from('project_stages')
         .update(updates)
@@ -241,8 +244,12 @@ export const useProjectStages = (projectId?: string) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('useProjects: Supabase error:', error);
+        throw error;
+      }
       
+      console.log('useProjects: Successfully updated stage:', data);
       setStages(prev => prev.map(s => s.id === id ? data : s));
       toast({
         title: "Sucesso",

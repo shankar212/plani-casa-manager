@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   AlertDialog,
@@ -52,6 +53,7 @@ export const ChangeStatusDialog = ({ etapaName, currentStatus, targetStatus, onC
   const [open, setOpen] = useState(false);
 
   const handleConfirm = () => {
+    console.log('ChangeStatusDialog: Confirming status change from', currentStatus, 'to', targetStatus);
     onConfirm();
     setOpen(false);
   };
