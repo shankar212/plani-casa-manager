@@ -6,6 +6,7 @@ import { EditableCell } from './EditableCell';
 import { useMaterials, Material, NewMaterial } from '@/hooks/useMaterials';
 import { useProjects, useProjectStages } from '@/hooks/useProjects';
 import { useMaterialSuppliers } from '@/hooks/useSuppliers';
+import { useAuth } from '@/contexts/AuthContext';
 import { Trash2, Check, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -49,6 +50,7 @@ export const EditableMaterialsTable: React.FC = () => {
   const { projects } = useProjects();
   const { stages } = useProjectStages();
   const { suppliers: materialSuppliers, createSupplier } = useMaterialSuppliers();
+  const { user } = useAuth();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
@@ -232,7 +234,7 @@ export const EditableMaterialsTable: React.FC = () => {
         project_id: newRowData.project_id || null,
         stage_id: newRowData.stage_id || null,
         supplier_id: newRowData.supplier_id && newRowData.supplier_id !== "none" ? newRowData.supplier_id : null,
-        user_id: null,
+        user_id: user?.id || null,
         delivery_date: newRowData.payment_date || null,
       };
 
