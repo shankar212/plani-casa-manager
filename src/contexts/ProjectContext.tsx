@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useProjectStages, useProjectTasks } from '@/hooks/useProjects';
 import type { ProjectStage, ProjectTask } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
 
 export interface Tarefa {
   id: string;
@@ -179,12 +180,26 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
   };
 
   const updateEtapaStatus = async (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => {
+    console.log('ProjectContext: updateEtapaStatus called with etapaId:', etapaId, 'status:', status);
+    console.log('ProjectContext: status type:', typeof status);
+
+    const previousEtapas = etapas;
+    // Optimistic update
+    setEtapas(prev => prev.map(e => (e.id === etapaId ? { ...e, status } : e)));
+
     try {
-      console.log('ProjectContext: updateEtapaStatus called with etapaId:', etapaId, 'status:', status);
-      console.log('ProjectContext: status type:', typeof status);
       await updateStage(etapaId, { status });
+      toast({ title: 'Sucesso', description: 'Status da etapa atualizado.' });
     } catch (error) {
       console.error('Error updating stage status:', error);
+      // Revert on error
+      setEtapas(previousEtapas);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar o status da etapa',
+        variant: 'destructive',
+      });
+      throw error;
     }
   };
 

@@ -51,11 +51,19 @@ const getButtonVariant = (targetStatus: 'finalizado' | 'andamento' | 'proximo') 
 
 export const ChangeStatusDialog = ({ etapaName, currentStatus, targetStatus, onConfirm }: ChangeStatusDialogProps) => {
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     console.log('ChangeStatusDialog: Confirming status change from', currentStatus, 'to', targetStatus);
-    onConfirm();
-    setOpen(false);
+    try {
+      setIsSubmitting(true);
+      await Promise.resolve(onConfirm());
+      setOpen(false);
+    } catch (err) {
+      console.error('ChangeStatusDialog: Failed to change status', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,9 +86,9 @@ export const ChangeStatusDialog = ({ etapaName, currentStatus, targetStatus, onC
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm}>
-            Confirmar
+          <AlertDialogCancel disabled={isSubmitting}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirm} disabled={isSubmitting} aria-busy={isSubmitting}>
+            {isSubmitting ? 'Confirmando...' : 'Confirmar'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

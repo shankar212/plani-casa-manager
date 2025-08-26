@@ -235,18 +235,24 @@ export const useProjectStages = (projectId?: string) => {
   const updateStage = async (id: string, updates: TablesUpdate<'project_stages'>) => {
     try {
       console.log('useProjects: updateStage called with id:', id, 'updates:', updates);
-      console.log('useProjects: updates.status type:', typeof updates.status, 'value:', updates.status);
+      console.log('useProjects: updates.status type:', typeof (updates as any)?.status, 'value:', (updates as any)?.status);
       
       const { data, error } = await supabase
         .from('project_stages')
         .update(updates)
         .eq('id', id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
-        console.error('useProjects: Supabase error:', error);
+        console.error('useProjects: Supabase error on updateStage:', error);
         throw error;
+      }
+
+      if (!data) {
+        console.warn('useProjects: updateStage returned no row (maybe RLS or no match). Refetching stages...');
+        await fetchStages();
+        return null as unknown as ProjectStage; // keep return type compatible
       }
       
       console.log('useProjects: Successfully updated stage:', data);
