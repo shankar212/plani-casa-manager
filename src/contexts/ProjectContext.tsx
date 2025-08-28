@@ -4,6 +4,8 @@ import { useProjectStages, useProjectTasks } from '@/hooks/useProjects';
 import type { ProjectStage, ProjectTask } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
+import { normalizeStageStatus } from '@/lib/status';
+
 
 export interface Tarefa {
   id: string;
@@ -181,14 +183,25 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
 
   const updateEtapaStatus = async (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => {
     console.log('ProjectContext: updateEtapaStatus called with etapaId:', etapaId, 'status:', status);
-    console.log('ProjectContext: status type:', typeof status);
+
+    const normalized = normalizeStageStatus(status);
+    console.log('ProjectContext: normalized status:', normalized);
+
+    if (!normalized) {
+      toast({
+        title: 'Erro',
+        description: `Status inválido: ${status}`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const previousEtapas = etapas;
     // Optimistic update
-    setEtapas(prev => prev.map(e => (e.id === etapaId ? { ...e, status } : e)));
+    setEtapas(prev => prev.map(e => (e.id === etapaId ? { ...e, status: normalized } : e)));
 
     try {
-      await updateStage(etapaId, { status });
+      await updateStage(etapaId, { status: normalized as any });
       toast({ title: 'Sucesso', description: 'Status da etapa atualizado.' });
     } catch (error) {
       console.error('Error updating stage status:', error);

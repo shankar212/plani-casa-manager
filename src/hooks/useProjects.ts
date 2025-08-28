@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { normalizeStageStatus } from '@/lib/status';
+
 
 export type Project = Tables<'projects'>;
 export type ProjectStage = Tables<'project_stages'>;
@@ -235,11 +237,21 @@ export const useProjectStages = (projectId?: string) => {
   const updateStage = async (id: string, updates: TablesUpdate<'project_stages'>) => {
     try {
       console.log('useProjects: updateStage called with id:', id, 'updates:', updates);
-      console.log('useProjects: updates.status type:', typeof (updates as any)?.status, 'value:', (updates as any)?.status);
+
+      // Normalize status if present
+      const safeUpdates: any = { ...updates };
+      if (typeof safeUpdates.status === 'string') {
+        const normalized = normalizeStageStatus(safeUpdates.status);
+        console.log('useProjects: normalized status:', normalized, 'from:', safeUpdates.status);
+        if (!normalized) {
+          throw new Error(`Invalid stage status: ${safeUpdates.status}`);
+        }
+        safeUpdates.status = normalized;
+      }
       
       const { data, error } = await supabase
         .from('project_stages')
-        .update(updates)
+        .update(safeUpdates)
         .eq('id', id)
         .select()
         .maybeSingle();
