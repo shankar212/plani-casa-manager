@@ -1,12 +1,14 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
-import { useParams, NavLink } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TechnicalDocumentUpload } from "@/components/TechnicalDocumentUpload";
 import { PDFViewer } from "@/components/PDFViewer";
 import { calculateEndDate } from "@/lib/dateUtils";
+import { useProjectData } from "@/hooks/useProjectData";
+import { ProjectHeader } from "@/components/ProjectHeader";
 
 interface TechnicalDocument {
   id: string;
@@ -18,6 +20,7 @@ interface TechnicalDocument {
 
 const ProjectTechnical = () => {
   const { id } = useParams();
+  const { project, loading: projectLoading } = useProjectData(id);
   const { etapas } = useProject();
   const [activeTab, setActiveTab] = useState("estrutural");
   const [documents, setDocuments] = useState<Record<string, TechnicalDocument | null>>({});
@@ -68,59 +71,24 @@ const ProjectTechnical = () => {
     }));
   };
 
+  if (!id) {
+    return (
+      <Layout>
+        <div className="p-8">
+          <div className="text-center">Projeto não encontrado</div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="p-8">
-        <div className="mb-6">
-          <div className="text-sm text-gray-600 mb-2">
-            <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › apartamento hillrid
-          </div>
-          <h1 className="text-2xl font-bold mb-4">apartamento hillrid</h1>
-          
-          <div className="flex space-x-4 border-b border-gray-200">
-            <NavLink 
-              to={`/projetos/${id}`} 
-              end
-              className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
-              }
-            >
-              gestão
-            </NavLink>
-            <NavLink 
-              to={`/projetos/${id}/financeiro`}
-              className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
-              }
-            >
-              financeiro
-            </NavLink>
-            <NavLink 
-              to={`/projetos/${id}/tecnico`}
-              className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
-              }
-            >
-              técnico
-            </NavLink>
-            <NavLink 
-              to={`/projetos/${id}/conformidade-legal`}
-              className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
-              }
-            >
-              conformidade legal
-            </NavLink>
-            <NavLink 
-              to={`/projetos/${id}/relatorios`}
-              className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
-              }
-            >
-              relatórios e indicadores
-            </NavLink>
-          </div>
-        </div>
+        <ProjectHeader 
+          projectId={id} 
+          projectName={project?.name || "Carregando..."} 
+          loading={projectLoading}
+        />
 
         <div className="space-y-6">
           {/* Physical Financial Schedule */}
