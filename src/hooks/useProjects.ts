@@ -249,33 +249,43 @@ export const useProjectStages = (projectId?: string) => {
         safeUpdates.status = normalized;
       }
       
-      const { data, error } = 'status' in safeUpdates
-        ? await supabase.rpc('update_stage_status', { p_id: id, p_status: safeUpdates.status as any })
-        : await supabase
-            .from('project_stages')
-            .update(safeUpdates)
-            .eq('id', id)
-            .select()
-            .maybeSingle();
-
+      let data: any, error: any;
+      
       if ('status' in safeUpdates) {
-        // RPC returns row directly in data
-        if ((data as any) == null) {
-          console.warn('useProjects: RPC update_stage_status returned null. Refetching stages...');
-          await fetchStages();
-          return null as unknown as ProjectStage;
-        }
+        console.log('useProjects: calling RPC update_stage_status with params:', { p_id: id, p_status: safeUpdates.status });
+        const result = await supabase.rpc('update_stage_status', { p_id: id, p_status: safeUpdates.status as any });
+        data = result.data;
+        error = result.error;
+        console.log('useProjects: RPC result:', { data, error });
       } else {
-        if (!data) {
-          console.warn('useProjects: updateStage returned no row (maybe RLS or no match). Refetching stages...');
-          await fetchStages();
-          return null as unknown as ProjectStage; // keep return type compatible
-        }
+        const result = await supabase
+          .from('project_stages')
+          .update(safeUpdates)
+          .eq('id', id)
+          .select()
+          .maybeSingle();
+        data = result.data;
+        error = result.error;
+      }
+
+      if (error) {
+        console.error('useProjects: Supabase error on updateStage:', error);
+        throw error;
+      }
+      
+      if (!data) {
+        console.warn('useProjects: updateStage returned no data. Refetching stages...');
+        await fetchStages();
+        return null as unknown as ProjectStage;
       }
       
       const updated = data as ProjectStage;
       console.log('useProjects: Successfully updated stage:', updated);
-      setStages(prev => prev.map(s => s.id === id ? updated : s));
+      setStages(prev => {
+        const newStages = prev.map(s => s.id === id ? updated : s);
+        console.log('useProjects: Updated stages array:', newStages);
+        return newStages;
+      });
       toast({
         title: "Sucesso",
         description: "Etapa atualizada com sucesso!"

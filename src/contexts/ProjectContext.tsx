@@ -87,6 +87,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
         completed: task.completed || false
       })) : []
     }));
+    console.log('ProjectContext: Converted etapas from stages:', convertedEtapas);
     setEtapas(convertedEtapas);
   }, [stages, allTasks]);
 
@@ -201,8 +202,10 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
     setEtapas(prev => prev.map(e => (e.id === etapaId ? { ...e, status: normalized } : e)));
 
     try {
+      console.log('ProjectContext: Calling updateStage with etapaId:', etapaId, 'normalized status:', normalized);
       // Call updateStage which now uses RPC normalization on server-side
-      await updateStage(etapaId, { status: normalized as any });
+      const result = await updateStage(etapaId, { status: normalized as any });
+      console.log('ProjectContext: updateStage result:', result);
       toast({ title: 'Sucesso', description: 'Status da etapa atualizado.' });
     } catch (error) {
       console.error('Error updating stage status:', error);
