@@ -248,25 +248,16 @@ export const useProjectStages = (projectId?: string) => {
         }
         safeUpdates.status = normalized;
       }
-      
       let data: any, error: any;
-      
-      if ('status' in safeUpdates) {
-        console.log('useProjects: calling RPC update_stage_status with params:', { p_id: id, p_status: safeUpdates.status });
-        const result = await supabase.rpc('update_stage_status', { p_id: id, p_status: safeUpdates.status as any });
-        data = result.data;
-        error = result.error;
-        console.log('useProjects: RPC result:', { data, error });
-      } else {
-        const result = await supabase
-          .from('project_stages')
-          .update(safeUpdates)
-          .eq('id', id)
-          .select()
-          .maybeSingle();
-        data = result.data;
-        error = result.error;
-      }
+      // Always update directly; we normalize status client-side
+      const result = await supabase
+        .from('project_stages')
+        .update(safeUpdates)
+        .eq('id', id)
+        .select()
+        .maybeSingle();
+      data = result.data;
+      error = result.error;
 
       if (error) {
         console.error('useProjects: Supabase error on updateStage:', error);
