@@ -20,10 +20,11 @@ const AddStep = () => {
 
   // Set project ID in context when component mounts
   useEffect(() => {
-    if (id && id !== projectId) {
+    if (id) {
+      console.log('AddStep: Setting project ID to:', id);
       setProjectId(id);
     }
-  }, [id, projectId, setProjectId]);
+  }, [id, setProjectId]);
   
   const [isNewEtapa, setIsNewEtapa] = useState(false);
   const [selectedEtapaId, setSelectedEtapaId] = useState<string>("");

@@ -70,6 +70,15 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
   
   const { stages, loading: stagesLoading, createStage, updateStage, deleteStage, refetch: refetchStages } = useProjectStages(projectId || undefined);
 
+  // Clear etapas when project changes to prevent showing stale data
+  const setProjectIdWithClear = (id: string | null) => {
+    if (id !== projectId) {
+      setEtapas([]); // Clear existing etapas immediately
+      setAllTasks({}); // Clear existing tasks
+    }
+    setProjectId(id);
+  };
+
   // Convert database stages to frontend format
   useEffect(() => {
     const convertedEtapas: Etapa[] = stages.map(stage => ({
@@ -237,7 +246,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       etapas,
       loading: stagesLoading,
       projectId,
-      setProjectId,
+      setProjectId: setProjectIdWithClear,
       addEtapa,
       addTarefa,
       deleteTarefa,

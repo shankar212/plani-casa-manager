@@ -185,9 +185,14 @@ export const useProjectStages = (projectId?: string) => {
         `)
         .order('created_at', { ascending: true });
       
-      // If projectId is provided, filter by it; otherwise get all stages
+      // Always filter by projectId - don't show stages if no project is selected
       if (projectId) {
         query = query.eq('project_id', projectId);
+      } else {
+        // If no projectId, return empty array to prevent showing unfiltered data
+        setStages([]);
+        setLoading(false);
+        return;
       }
 
       const { data, error } = await query;
