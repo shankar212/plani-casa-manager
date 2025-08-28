@@ -532,7 +532,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_stage_status: {
+        Args: { p_id: string; p_status: string }
+        Returns: {
+          actual_cost: number | null
+          created_at: string | null
+          description: string | null
+          estimated_cost: number | null
+          estimated_duration_days: number | null
+          id: string
+          name: string
+          progress_percentage: number | null
+          project_id: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["stage_status"]
+          updated_at: string | null
+        }
+      }
     }
     Enums: {
       material_status: "requested" | "delivered" | "used"

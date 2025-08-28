@@ -249,37 +249,45 @@ export const useProjectStages = (projectId?: string) => {
         safeUpdates.status = normalized;
       }
       
-      const { data, error } = await supabase
-        .from('project_stages')
-        .update(safeUpdates)
-        .eq('id', id)
-        .select()
-        .maybeSingle();
+      const { data, error } = 'status' in safeUpdates
+        ? await supabase.rpc('update_stage_status', { p_id: id, p_status: safeUpdates.status as any })
+        : await supabase
+            .from('project_stages')
+            .update(safeUpdates)
+            .eq('id', id)
+            .select()
+            .maybeSingle();
 
-      if (error) {
-        console.error('useProjects: Supabase error on updateStage:', error);
-        throw error;
-      }
-
-      if (!data) {
-        console.warn('useProjects: updateStage returned no row (maybe RLS or no match). Refetching stages...');
-        await fetchStages();
-        return null as unknown as ProjectStage; // keep return type compatible
+      if ('status' in safeUpdates) {
+        // RPC returns row directly in data
+        if ((data as any) == null) {
+          console.warn('useProjects: RPC update_stage_status returned null. Refetching stages...');
+          await fetchStages();
+          return null as unknown as ProjectStage;
+        }
+      } else {
+        if (!data) {
+          console.warn('useProjects: updateStage returned no row (maybe RLS or no match). Refetching stages...');
+          await fetchStages();
+          return null as unknown as ProjectStage; // keep return type compatible
+        }
       }
       
-      console.log('useProjects: Successfully updated stage:', data);
-      setStages(prev => prev.map(s => s.id === id ? data : s));
+      const updated = data as ProjectStage;
+      console.log('useProjects: Successfully updated stage:', updated);
+      setStages(prev => prev.map(s => s.id === id ? updated : s));
       toast({
         title: "Sucesso",
         description: "Etapa atualizada com sucesso!"
       });
       
-      return data;
-    } catch (error) {
+      return updated;
+    } catch (error: any) {
       console.error('Error updating stage:', error);
+      const message = error?.message || String(error);
       toast({
         title: "Erro",
-        description: "Não foi possível atualizar a etapa",
+        description: message.includes('Invalid stage status') ? "Status inválido enviado. Tente novamente." : "Não foi possível atualizar a etapa",
         variant: "destructive"
       });
       throw error;

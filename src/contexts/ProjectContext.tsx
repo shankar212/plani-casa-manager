@@ -201,6 +201,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
     setEtapas(prev => prev.map(e => (e.id === etapaId ? { ...e, status: normalized } : e)));
 
     try {
+      // Call updateStage which now uses RPC normalization on server-side
       await updateStage(etapaId, { status: normalized as any });
       toast({ title: 'Sucesso', description: 'Status da etapa atualizado.' });
     } catch (error) {
