@@ -203,17 +203,25 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
 
     try {
       console.log('ProjectContext: Calling updateStage with etapaId:', etapaId, 'normalized status:', normalized);
-      // Call updateStage which now uses RPC normalization on server-side
       const result = await updateStage(etapaId, { status: normalized as any });
       console.log('ProjectContext: updateStage result:', result);
+      
+      if (!result) {
+        throw new Error('No data returned from stage update');
+      }
+      
+      // Force refetch to ensure UI is synchronized with database
+      refetchStages();
       toast({ title: 'Sucesso', description: 'Status da etapa atualizado.' });
     } catch (error) {
-      console.error('Error updating stage status:', error);
+      console.error('ProjectContext: Error updating stage status:', error);
       // Revert on error
       setEtapas(previousEtapas);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       toast({
         title: 'Erro',
-        description: 'Não foi possível atualizar o status da etapa',
+        description: `Falha ao atualizar status: ${errorMessage}`,
         variant: 'destructive',
       });
       throw error;
