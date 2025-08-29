@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EditableCell } from './EditableCell';
 import { useMaterials, Material, NewMaterial } from '@/hooks/useMaterials';
-import { useProjects, useProjectStages } from '@/hooks/useProjects';
+import { useProjects } from '@/hooks/useProjects';
 import { useMaterialSuppliers } from '@/hooks/useSuppliers';
 import { useAuth } from '@/contexts/AuthContext';
 import { Trash2, Check, X } from 'lucide-react';
@@ -48,8 +48,11 @@ interface NewRowData {
 export const EditableMaterialsTable: React.FC = () => {
   const { materials, loading, createMaterial, updateMaterial, deleteMaterial, refetch } = useMaterials();
   const { projects } = useProjects();
-  const { stages } = useProjectStages();
   const { suppliers: materialSuppliers, createSupplier } = useMaterialSuppliers();
+  
+  // Local state for all stages accessible to the user
+  const [stages, setStages] = useState<any[]>([]);
+  const [stagesLoading, setStagesLoading] = useState(true);
   const { user } = useAuth();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
@@ -74,6 +77,28 @@ export const EditableMaterialsTable: React.FC = () => {
     supplier_id: '',
     payment_date: ''
   });
+
+  // Fetch all stages accessible to the user
+  useEffect(() => {
+    const fetchStages = async () => {
+      try {
+        setStagesLoading(true);
+        const { data, error } = await supabase
+          .from('project_stages')
+          .select('*')
+          .order('created_at');
+        
+        if (error) throw error;
+        setStages(data || []);
+      } catch (error) {
+        console.error('Error fetching stages:', error);
+      } finally {
+        setStagesLoading(false);
+      }
+    };
+
+    fetchStages();
+  }, []);
 
   // Set up real-time subscription for materials
   useEffect(() => {
@@ -506,7 +531,13 @@ export const EditableMaterialsTable: React.FC = () => {
                   <EditableCell
                     id="cell-0-1"
                     value={newRowData.project_id}
-                    onSave={(value) => handleNewRowChange('project_id', value)}
+                    onSave={(value) => {
+                      handleNewRowChange('project_id', value);
+                      // Clear stage when project changes
+                      if (value !== newRowData.project_id) {
+                        handleNewRowChange('stage_id', '');
+                      }
+                    }}
                     onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
                     type="select"
                     options={projectOptions}
@@ -655,7 +686,13 @@ export const EditableMaterialsTable: React.FC = () => {
                       <EditableCell
                         id={`cell-${rowIndex}-1`}
                         value={material.project_id || null}
-                        onSave={(value) => handleUpdateField(material.id, 'project_id', value)}
+                        onSave={(value) => {
+                          // Clear stage when project changes
+                          if (value !== material.project_id) {
+                            handleUpdateField(material.id, 'stage_id', '');
+                          }
+                          handleUpdateField(material.id, 'project_id', value);
+                        }}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
                         type="select"
                         options={projectOptions}
