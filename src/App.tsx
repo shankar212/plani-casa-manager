@@ -83,11 +83,6 @@ const App = () => (
                 <DigitalWarehouse />
               </ProtectedRoute>
             } />
-            <Route path="/configuracoes" element={
-              <ProtectedRoute>
-                <div>Configurações em desenvolvimento</div>
-              </ProtectedRoute>
-            } />
             <Route path="/notificacoes" element={
               <ProtectedRoute>
                 <Notifications />

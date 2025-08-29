@@ -12,7 +12,6 @@ const navigationItems = [
   { title: "Notificações", icon: Bell, url: "/notificacoes" },
   { title: "Projetos", icon: Folder, url: "/projetos" },
   { title: "Almoxarifado Digital", icon: Archive, url: "/almoxarifado" },
-  { title: "Configurações", icon: Settings, url: "/configuracoes" },
 ];
 
 export const Sidebar = () => {

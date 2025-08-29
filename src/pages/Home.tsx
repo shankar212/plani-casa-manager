@@ -72,6 +72,20 @@ const Home = () => {
             />
           ))}
         </div>
+        
+        {/* Contact support message */}
+        <div className="mt-16 pt-8 border-t border-border text-center">
+          <p className="text-muted-foreground">
+            Entrem em contato com o suporte via{" "}
+            <a 
+              href="mailto:gustavo.corbucci@gmail.com?subject=[Plani] Assunto"
+              className="text-primary hover:underline font-medium"
+            >
+              gustavo.corbucci@gmail.com
+            </a>
+            {" "}com o título [Plani] Assunto
+          </p>
+        </div>
       </div>
     </Layout>
   );
