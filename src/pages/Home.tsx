@@ -74,7 +74,7 @@ const Home = () => {
         </div>
         
         {/* Contact support message */}
-        <div className="mt-16 pt-8 border-t border-border text-center">
+        <div className="mt-16 pt-8 border-t border-border text-center space-y-3">
           <p className="text-muted-foreground">
             Entrem em contato com o suporte via{" "}
             <a 
@@ -84,6 +84,12 @@ const Home = () => {
               gustavo.corbucci@gmail.com
             </a>
             {" "}com o título [Plani] Assunto
+          </p>
+          <p className="text-muted-foreground font-medium">
+            Aceitamos sugestões!
+          </p>
+          <p className="text-muted-foreground">
+            Obrigado por usar Plani, construindo com você!
           </p>
         </div>
       </div>

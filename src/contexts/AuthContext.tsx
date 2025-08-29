@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       toast({
         title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao PlaniTec",
+        description: "Bem-vindo ao Plani",
       });
 
       return {};

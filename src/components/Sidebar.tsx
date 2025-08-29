@@ -33,7 +33,7 @@ export const Sidebar = () => {
           <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
             <span className="text-white text-sm font-bold">P</span>
           </div>
-          {!collapsed && <span className="font-bold text-lg">PlaniTec</span>}
+          {!collapsed && <span className="font-bold text-lg">Plani</span>}
         </div>
         
         <div className="mb-6">
