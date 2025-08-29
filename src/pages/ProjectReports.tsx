@@ -1,15 +1,17 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useParams } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import FollowUpReport from "@/components/FollowUpReport";
 import { useProjectData } from "@/hooks/useProjectData";
 import { ProjectHeader } from "@/components/ProjectHeader";
+import { useFinancialData } from "@/hooks/useFinancialData";
 
 interface ProjectPhoto {
   id: string;
@@ -26,6 +28,9 @@ const ProjectReports = () => {
   const { etapas } = useProject();
   const [photos, setPhotos] = useState<ProjectPhoto[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
+  const { financialData, loading: financialLoading, updateSaleValue, formatCurrency } = useFinancialData(id);
+  const [editingSaleValue, setEditingSaleValue] = useState(false);
+  const [saleValueInput, setSaleValueInput] = useState('');
 
   const reports = [
     { date: "15/01/2025", description: "Concluída a fundação do bloco A. Iniciados trabalhos de alvenaria." },
@@ -173,17 +178,87 @@ const ProjectReports = () => {
           {/* Financial Results */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">Resultados Financeiros</h2>
-            <div className="space-y-3">
-              <div className="bg-gray-100 p-3 rounded">
-                <div className="text-sm text-gray-600">Custo: R$ XX</div>
+            {financialLoading ? (
+              <div className="space-y-3">
+                <div className="bg-gray-100 p-3 rounded animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                </div>
+                <div className="bg-gray-100 p-3 rounded animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                </div>
+                <div className="bg-gray-100 p-3 rounded animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                </div>
               </div>
-              <div className="bg-gray-100 p-3 rounded">
-                <div className="text-sm text-gray-600">Valor Presente líquido: R$ XX</div>
+            ) : (
+              <div className="space-y-3">
+                <div className="bg-gray-100 p-3 rounded">
+                  <div className="text-sm font-medium text-gray-800">Custo Material</div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    {formatCurrency(financialData.materialCost)}
+                  </div>
+                </div>
+                <div className="bg-gray-100 p-3 rounded">
+                  <div className="text-sm font-medium text-gray-800">Custo Mão de Obra</div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    {formatCurrency(financialData.laborCost)}
+                  </div>
+                </div>
+                <div className="bg-gray-100 p-3 rounded">
+                  <div className="text-sm font-medium text-gray-800">Valor de venda projeto</div>
+                  {editingSaleValue ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input
+                        type="number"
+                        value={saleValueInput}
+                        onChange={(e) => setSaleValueInput(e.target.value)}
+                        className="h-8 text-sm"
+                        placeholder="0.00"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const value = parseFloat(saleValueInput) || 0;
+                            updateSaleValue(value);
+                            setEditingSaleValue(false);
+                          }
+                          if (e.key === 'Escape') {
+                            setEditingSaleValue(false);
+                            setSaleValueInput('');
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const value = parseFloat(saleValueInput) || 0;
+                          updateSaleValue(value);
+                          setEditingSaleValue(false);
+                        }}
+                      >
+                        Salvar
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between mt-1">
+                      <div className="text-lg font-semibold text-gray-900">
+                        {formatCurrency(financialData.saleValue)}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditingSaleValue(true);
+                          setSaleValueInput(financialData.saleValue.toString());
+                        }}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="bg-gray-100 p-3 rounded">
-                <div className="text-sm text-gray-600">Exp. Retorno líquido: R$ XX</div>
-              </div>
-            </div>
+            )}
           </Card>
 
           {/* Follow Up Report */}

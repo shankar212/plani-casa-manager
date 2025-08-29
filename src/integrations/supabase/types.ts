@@ -402,6 +402,7 @@ export type Database = {
           end_date: string | null
           id: string
           name: string
+          sale_value: number | null
           start_date: string | null
           status: Database["public"]["Enums"]["project_status"]
           total_budget: number | null
@@ -414,6 +415,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           name: string
+          sale_value?: number | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
           total_budget?: number | null
@@ -426,6 +428,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           name?: string
+          sale_value?: number | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["project_status"]
           total_budget?: number | null
