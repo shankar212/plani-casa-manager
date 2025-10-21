@@ -202,10 +202,6 @@ export const EditableMaterialsTable: React.FC = () => {
   const handleUpdateField = async (id: string, field: keyof Material, value: string | number | null) => {
     try {
       const updates: any = { [field]: value };
-      // Map payment_date correctly if field name differs in DB
-      if (field === "payment_date") {
-        updates.payment_date = value;
-      }
 
       // If updating total cost or quantity, recalculate unit cost
       const material = materials.find((m) => m.id === id);
@@ -260,7 +256,7 @@ export const EditableMaterialsTable: React.FC = () => {
         stage_id: newRowData.stage_id || null,
         supplier_id: newRowData.supplier_id && newRowData.supplier_id !== "none" ? newRowData.supplier_id : null,
         user_id: user?.id || null,
-        payment_date: newRowData.payment_date || null,
+        delivery_date: newRowData.payment_date || null,
       };
 
       // Calculate unit cost if both total cost and quantity are available
