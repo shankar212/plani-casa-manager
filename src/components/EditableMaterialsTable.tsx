@@ -41,7 +41,7 @@ interface NewRowData {
   project_id: string;
   stage_id: string;
   supplier_id: string;
-  payment_date: string;
+  delivery_date: string;
 }
 
 export const EditableMaterialsTable: React.FC = () => {
@@ -74,7 +74,7 @@ export const EditableMaterialsTable: React.FC = () => {
     project_id: "",
     stage_id: "",
     supplier_id: "",
-    payment_date: "",
+    delivery_date: "",
   });
 
   // Fetch all stages accessible to the user
@@ -256,7 +256,7 @@ export const EditableMaterialsTable: React.FC = () => {
         stage_id: newRowData.stage_id || null,
         supplier_id: newRowData.supplier_id && newRowData.supplier_id !== "none" ? newRowData.supplier_id : null,
         user_id: user?.id || null,
-        delivery_date: newRowData.payment_date || null,
+        delivery_date: newRowData.delivery_date || null,
       };
 
       // Calculate unit cost if both total cost and quantity are available
@@ -278,7 +278,7 @@ export const EditableMaterialsTable: React.FC = () => {
         project_id: "",
         stage_id: "",
         supplier_id: "",
-        payment_date: "",
+        delivery_date: "",
       });
 
       // Force refetch to ensure the new material appears
@@ -398,7 +398,7 @@ export const EditableMaterialsTable: React.FC = () => {
           }
         }
 
-        // Special case: if we're in new row and going to next from payment_date column (last cell)
+        // Special case: if we're in new row and going to next from delivery_date column (last cell)
         if (currentRowIndex === 0 && currentCellIndex === 10) {
           createNewMaterial();
           return;
@@ -505,7 +505,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableHead className="w-[150px]">Fornecedor</TableHead>
                 <TableHead className="w-[120px]">Custo Total Est.</TableHead>
                 <TableHead className="w-[120px]">Custo Unit. Est.</TableHead>
-                <TableHead className="w-[120px]">Data de Pagamento</TableHead>
+                <TableHead className="w-[120px]">Data de Entrega</TableHead>
                 <TableHead className="w-[80px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -635,8 +635,8 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-10"
-                    value={newRowData.payment_date}
-                    onSave={(value) => handleNewRowChange("payment_date", value)}
+                    value={newRowData.delivery_date}
+                    onSave={(value) => handleNewRowChange("delivery_date", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 10, direction)}
                     type="date"
                     placeholder="DD/MM/AAAA"
