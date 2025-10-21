@@ -229,19 +229,14 @@ export const EditableMaterialsTable: React.FC = () => {
   };
 
   const createNewMaterial = async () => {
-    if (isCreatingNew) {
-      console.log("Already creating material, skipping...");
-      return;
-    }
+    if (isCreatingNew) return;
 
     // Check if we have at least a material name
     if (!newRowData.material_name?.trim()) {
       console.log("No material name provided, not creating material");
-      alert("Por favor, insira o nome do material antes de criar.");
       return;
     }
 
-    console.log("Starting material creation with data:", newRowData);
     setIsCreatingNew(true);
 
     try {
@@ -251,9 +246,9 @@ export const EditableMaterialsTable: React.FC = () => {
       const status = (newRowData.status as "requested" | "delivered") || "requested";
 
       const newMaterial: NewMaterial = {
-        material_name: newRowData.material_name.trim(),
+        material_name: newRowData.material_name.trim() || "Novo Material",
         quantity: quantity,
-        unit: newRowData.unit?.trim() || "un",
+        unit: newRowData.unit || "un",
         status: status,
         estimated_total_cost: estimatedTotalCost,
         estimated_unit_cost: 0,
@@ -273,10 +268,6 @@ export const EditableMaterialsTable: React.FC = () => {
       const createdMaterial = await createMaterial(newMaterial);
       console.log("Material created successfully:", createdMaterial);
 
-      if (!createdMaterial) {
-        throw new Error("Failed to create material - no data returned");
-      }
-
       // Clear the new row data
       setNewRowData({
         material_name: "",
@@ -291,11 +282,11 @@ export const EditableMaterialsTable: React.FC = () => {
       });
 
       // Force refetch to ensure the new material appears
-      await refetch();
-      console.log("Refetch completed");
+      setTimeout(() => {
+        refetch();
+      }, 100);
     } catch (error) {
       console.error("Error creating material:", error);
-      alert(`Erro ao criar material: ${error instanceof Error ? error.message : "Erro desconhecido"}`);
     } finally {
       setIsCreatingNew(false);
     }
