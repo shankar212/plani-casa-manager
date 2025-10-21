@@ -41,7 +41,7 @@ interface NewRowData {
   project_id: string;
   stage_id: string;
   supplier_id: string;
-  delivery_date: string;
+  payment_date: string;
 }
 
 export const EditableMaterialsTable: React.FC = () => {
@@ -74,7 +74,7 @@ export const EditableMaterialsTable: React.FC = () => {
     project_id: "",
     stage_id: "",
     supplier_id: "",
-    delivery_date: "",
+    payment_date: "",
   });
 
   // Fetch all stages accessible to the user
@@ -229,14 +229,19 @@ export const EditableMaterialsTable: React.FC = () => {
   };
 
   const createNewMaterial = async () => {
-    if (isCreatingNew) return;
+    if (isCreatingNew) {
+      console.log("Already creating material, skipping...");
+      return;
+    }
 
     // Check if we have at least a material name
     if (!newRowData.material_name?.trim()) {
       console.log("No material name provided, not creating material");
+      alert("Por favor, insira o nome do material antes de criar.");
       return;
     }
 
+    console.log("Starting material creation with data:", newRowData);
     setIsCreatingNew(true);
 
     try {
@@ -246,9 +251,9 @@ export const EditableMaterialsTable: React.FC = () => {
       const status = (newRowData.status as "requested" | "delivered") || "requested";
 
       const newMaterial: NewMaterial = {
-        material_name: newRowData.material_name.trim() || "Novo Material",
+        material_name: newRowData.material_name.trim(),
         quantity: quantity,
-        unit: newRowData.unit || "un",
+        unit: newRowData.unit?.trim() || "un",
         status: status,
         estimated_total_cost: estimatedTotalCost,
         estimated_unit_cost: 0,
@@ -256,7 +261,7 @@ export const EditableMaterialsTable: React.FC = () => {
         stage_id: newRowData.stage_id || null,
         supplier_id: newRowData.supplier_id && newRowData.supplier_id !== "none" ? newRowData.supplier_id : null,
         user_id: user?.id || null,
-        delivery_date: newRowData.delivery_date || null,
+        delivery_date: newRowData.payment_date || null,
       };
 
       // Calculate unit cost if both total cost and quantity are available
@@ -268,6 +273,10 @@ export const EditableMaterialsTable: React.FC = () => {
       const createdMaterial = await createMaterial(newMaterial);
       console.log("Material created successfully:", createdMaterial);
 
+      if (!createdMaterial) {
+        throw new Error("Failed to create material - no data returned");
+      }
+
       // Clear the new row data
       setNewRowData({
         material_name: "",
@@ -278,15 +287,15 @@ export const EditableMaterialsTable: React.FC = () => {
         project_id: "",
         stage_id: "",
         supplier_id: "",
-        delivery_date: "",
+        payment_date: "",
       });
 
       // Force refetch to ensure the new material appears
-      setTimeout(() => {
-        refetch();
-      }, 100);
+      await refetch();
+      console.log("Refetch completed");
     } catch (error) {
       console.error("Error creating material:", error);
+      alert(`Erro ao criar material: ${error instanceof Error ? error.message : "Erro desconhecido"}`);
     } finally {
       setIsCreatingNew(false);
     }
@@ -398,7 +407,7 @@ export const EditableMaterialsTable: React.FC = () => {
           }
         }
 
-        // Special case: if we're in new row and going to next from delivery_date column (last cell)
+        // Special case: if we're in new row and going to next from payment_date column (last cell)
         if (currentRowIndex === 0 && currentCellIndex === 10) {
           createNewMaterial();
           return;
@@ -505,7 +514,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableHead className="w-[150px]">Fornecedor</TableHead>
                 <TableHead className="w-[120px]">Custo Total Est.</TableHead>
                 <TableHead className="w-[120px]">Custo Unit. Est.</TableHead>
-                <TableHead className="w-[120px]">Data de Entrega</TableHead>
+                <TableHead className="w-[120px]">Data de Pagamento</TableHead>
                 <TableHead className="w-[80px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -635,8 +644,8 @@ export const EditableMaterialsTable: React.FC = () => {
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-10"
-                    value={newRowData.delivery_date}
-                    onSave={(value) => handleNewRowChange("delivery_date", value)}
+                    value={newRowData.payment_date}
+                    onSave={(value) => handleNewRowChange("payment_date", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 10, direction)}
                     type="date"
                     placeholder="DD/MM/AAAA"
