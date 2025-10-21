@@ -1,16 +1,15 @@
-
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { EditableCell } from './EditableCell';
-import { useMaterials, Material, NewMaterial } from '@/hooks/useMaterials';
-import { useProjects } from '@/hooks/useProjects';
-import { useMaterialSuppliers } from '@/hooks/useSuppliers';
-import { useAuth } from '@/contexts/AuthContext';
-import { Trash2, Check, X } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { EditableCell } from "./EditableCell";
+import { useMaterials, Material, NewMaterial } from "@/hooks/useMaterials";
+import { useProjects } from "@/hooks/useProjects";
+import { useMaterialSuppliers } from "@/hooks/useSuppliers";
+import { useAuth } from "@/contexts/AuthContext";
+import { Trash2, Check, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -19,18 +18,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { 
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 
 // Local interface for the new row data (all strings from inputs)
 interface NewRowData {
@@ -49,7 +48,7 @@ export const EditableMaterialsTable: React.FC = () => {
   const { materials, loading, createMaterial, updateMaterial, deleteMaterial, refetch } = useMaterials();
   const { projects } = useProjects();
   const { suppliers: materialSuppliers, createSupplier } = useMaterialSuppliers();
-  
+
   // Local state for all stages accessible to the user
   const [stages, setStages] = useState<any[]>([]);
   const [stagesLoading, setStagesLoading] = useState(true);
@@ -61,37 +60,40 @@ export const EditableMaterialsTable: React.FC = () => {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [bulkStatusDialogOpen, setBulkStatusDialogOpen] = useState(false);
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
-  const [supplierName, setSupplierName] = useState('');
+  const [supplierName, setSupplierName] = useState("");
   const [materialForNewSupplier, setMaterialForNewSupplier] = useState<string | null>(null);
   const [isCreatingSupplier, setIsCreatingSupplier] = useState(false);
-  
+
+  // **New: Filter by Project**
+  const [filterProjectId, setFilterProjectId] = useState<string>("all");
+
   // Local state for new row data - all strings from form inputs
   const [newRowData, setNewRowData] = useState<NewRowData>({
-    material_name: '',
-    quantity: '',
-    unit: '',
-    estimated_total_cost: '',
-    status: 'requested',
-    project_id: '',
-    stage_id: '',
-    supplier_id: '',
-    payment_date: ''
+    material_name: "",
+    quantity: "",
+    unit: "",
+    estimated_total_cost: "",
+    status: "requested",
+    project_id: "",
+    stage_id: "",
+    supplier_id: "",
+    payment_date: "",
   });
+
+  // Refs for managing focus
+  const firstCellRef = useRef<HTMLInputElement>(null);
 
   // Fetch all stages accessible to the user
   useEffect(() => {
     const fetchStages = async () => {
       try {
         setStagesLoading(true);
-        const { data, error } = await supabase
-          .from('project_stages')
-          .select('*')
-          .order('created_at');
-        
+        const { data, error } = await supabase.from("project_stages").select("*").order("created_at");
+
         if (error) throw error;
         setStages(data || []);
       } catch (error) {
-        console.error('Error fetching stages:', error);
+        console.error("Error fetching stages:", error);
       } finally {
         setStagesLoading(false);
       }
@@ -103,18 +105,18 @@ export const EditableMaterialsTable: React.FC = () => {
   // Set up real-time subscription for materials
   useEffect(() => {
     const channel = supabase
-      .channel('materials-changes')
+      .channel("materials-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'materials'
+          event: "*",
+          schema: "public",
+          table: "materials",
         },
         () => {
-          console.log('Materials table changed, refetching...');
+          console.log("Materials table changed, refetching...");
           refetch();
-        }
+        },
       )
       .subscribe();
 
@@ -128,23 +130,32 @@ export const EditableMaterialsTable: React.FC = () => {
     refetch();
   }, []);
 
+  // Filter materials based on selected project
+  const filteredMaterials =
+    filterProjectId === "all" ? materials : materials.filter((m) => m.project_id === filterProjectId);
+
   const projectOptions = [
-    { value: null, label: 'Sem Projeto' },
-    ...projects.map(p => ({ value: p.id, label: p.name }))
+    { value: null, label: "Sem Projeto" },
+    ...projects.map((p) => ({ value: p.id, label: p.name })),
+  ];
+
+  const filterProjectOptions = [
+    { value: "all", label: "Todos os Projetos" },
+    ...projects.map((p) => ({ value: p.id, label: p.name })),
   ];
 
   const getStageOptions = (projectId: string) => {
     if (!projectId) {
-      return [{ value: '', label: 'Selecione um projeto primeiro' }];
+      return [{ value: "", label: "Selecione um projeto primeiro" }];
     }
-    
-    const projectStages = stages.filter(stage => stage.project_id === projectId);
+
+    const projectStages = stages.filter((stage) => stage.project_id === projectId);
     return [
-      { value: '', label: 'Selecionar etapa' },
-      ...projectStages.map(stage => ({ 
-        value: stage.id, 
-        label: `${stage.name}` 
-      }))
+      { value: "", label: "Selecionar etapa" },
+      ...projectStages.map((stage) => ({
+        value: stage.id,
+        label: `${stage.name}`,
+      })),
     ];
   };
 
@@ -154,7 +165,6 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const handleSupplierChange = async (materialId: string, supplierId: string) => {
     if (supplierId === "new") {
-      // Open dialog to get supplier name
       setMaterialForNewSupplier(materialId);
       setSupplierDialogOpen(true);
     } else {
@@ -164,40 +174,36 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const handleNewRowSupplierChange = (supplierId: string) => {
     if (supplierId === "new") {
-      // Open dialog to get supplier name for new row
       setMaterialForNewSupplier("new-row");
       setSupplierDialogOpen(true);
     } else {
-      handleNewRowChange('supplier_id', supplierId);
+      handleNewRowChange("supplier_id", supplierId);
     }
   };
 
   const createSupplierWithName = async () => {
     if (!supplierName.trim()) return;
-    
+
     setIsCreatingSupplier(true);
     try {
       const newSupplier = await createSupplier({
         name: supplierName.trim(),
-        contact_info: {}
+        contact_info: {},
       });
-      
+
       if (newSupplier) {
         if (materialForNewSupplier === "new-row") {
-          // Update new row data
-          handleNewRowChange('supplier_id', newSupplier.id);
+          handleNewRowChange("supplier_id", newSupplier.id);
         } else if (materialForNewSupplier) {
-          // Update existing material
           await updateMaterial(materialForNewSupplier, { supplier_id: newSupplier.id });
         }
       }
-      
-      // Close dialog and reset state
+
       setSupplierDialogOpen(false);
-      setSupplierName('');
+      setSupplierName("");
       setMaterialForNewSupplier(null);
     } catch (error) {
-      console.error('Error creating supplier:', error);
+      console.error("Error creating supplier:", error);
     } finally {
       setIsCreatingSupplier(false);
     }
@@ -206,53 +212,48 @@ export const EditableMaterialsTable: React.FC = () => {
   const handleUpdateField = async (id: string, field: keyof Material, value: string | number | null) => {
     try {
       const updates: any = { [field]: value };
-      
-      // If updating total cost or quantity, recalculate unit cost
-      const material = materials.find(m => m.id === id);
-      if (material && (field === 'estimated_total_cost' || field === 'quantity')) {
-        const newTotalCost = field === 'estimated_total_cost' ? Number(value) : material.estimated_total_cost;
-        const newQuantity = field === 'quantity' ? Number(value) : material.quantity;
-        
+
+      const material = materials.find((m) => m.id === id);
+      if (material && (field === "estimated_total_cost" || field === "quantity")) {
+        const newTotalCost = field === "estimated_total_cost" ? Number(value) : material.estimated_total_cost;
+        const newQuantity = field === "quantity" ? Number(value) : material.quantity;
+
         if (newTotalCost && newQuantity) {
           updates.estimated_unit_cost = calculateUnitCost(Number(newTotalCost), Number(newQuantity));
         }
       }
-      
+
       await updateMaterial(id, updates);
     } catch (error) {
-      console.error('Error updating material:', error);
+      console.error("Error updating material:", error);
     }
   };
 
   const handleNewRowChange = (field: keyof NewRowData, value: string | number | null) => {
-    console.log('Updating new row field:', field, 'with value:', value);
-    setNewRowData(prev => ({
+    setNewRowData((prev) => ({
       ...prev,
-      [field]: value?.toString() || ''
+      [field]: value?.toString() || "",
     }));
   };
 
   const createNewMaterial = async () => {
     if (isCreatingNew) return;
-    
-    // Check if we have at least a material name
+
     if (!newRowData.material_name?.trim()) {
-      console.log('No material name provided, not creating material');
       return;
     }
-    
+
     setIsCreatingNew(true);
-    
+
     try {
-      // Convert string values to proper types for database
       const quantity = Number(newRowData.quantity) || 1;
       const estimatedTotalCost = Number(newRowData.estimated_total_cost) || 0;
-      const status = (newRowData.status as 'requested' | 'delivered') || 'requested';
-      
+      const status = (newRowData.status as "requested" | "delivered") || "requested";
+
       const newMaterial: NewMaterial = {
-        material_name: newRowData.material_name.trim() || 'Novo Material',
+        material_name: newRowData.material_name.trim() || "Novo Material",
         quantity: quantity,
-        unit: newRowData.unit || 'un',
+        unit: newRowData.unit || "un",
         status: status,
         estimated_total_cost: estimatedTotalCost,
         estimated_unit_cost: 0,
@@ -263,35 +264,31 @@ export const EditableMaterialsTable: React.FC = () => {
         delivery_date: newRowData.payment_date || null,
       };
 
-      // Calculate unit cost if both total cost and quantity are available
       if (newMaterial.estimated_total_cost && newMaterial.quantity) {
         newMaterial.estimated_unit_cost = calculateUnitCost(newMaterial.estimated_total_cost, newMaterial.quantity);
       }
 
-      console.log('Creating new material:', newMaterial);
       const createdMaterial = await createMaterial(newMaterial);
-      console.log('Material created successfully:', createdMaterial);
-      
-      // Clear the new row data
+
+      // Clear the new row
       setNewRowData({
-        material_name: '',
-        quantity: '',
-        unit: '',
-        estimated_total_cost: '',
-        status: 'requested',
-        project_id: '',
-        stage_id: '',
-        supplier_id: '',
-        payment_date: ''
+        material_name: "",
+        quantity: "",
+        unit: "",
+        estimated_total_cost: "",
+        status: "requested",
+        project_id: "",
+        stage_id: "",
+        supplier_id: "",
+        payment_date: "",
       });
-      
-      // Force refetch to ensure the new material appears
+
+      // Focus back to first cell after creation
       setTimeout(() => {
-        refetch();
+        firstCellRef.current?.focus();
       }, 100);
-      
     } catch (error) {
-      console.error('Error creating material:', error);
+      console.error("Error creating material:", error);
     } finally {
       setIsCreatingNew(false);
     }
@@ -304,11 +301,7 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const confirmDelete = async () => {
     if (materialToDelete) {
-      try {
-        await deleteMaterial(materialToDelete);
-      } catch (error) {
-        console.error('Error deleting material:', error);
-      }
+      await deleteMaterial(materialToDelete);
     }
     setDeleteDialogOpen(false);
     setMaterialToDelete(null);
@@ -326,7 +319,7 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedMaterials(new Set(materials.map(m => m.id)));
+      setSelectedMaterials(new Set(filteredMaterials.map((m) => m.id)));
     } else {
       setSelectedMaterials(new Set());
     }
@@ -340,10 +333,10 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const confirmBulkDelete = async () => {
     try {
-      await Promise.all(Array.from(selectedMaterials).map(id => deleteMaterial(id)));
+      await Promise.all(Array.from(selectedMaterials).map((id) => deleteMaterial(id)));
       setSelectedMaterials(new Set());
     } catch (error) {
-      console.error('Error bulk deleting materials:', error);
+      console.error("Error bulk deleting materials:", error);
     }
     setBulkDeleteDialogOpen(false);
   };
@@ -356,112 +349,65 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const confirmBulkStatusChange = async () => {
     try {
-      await Promise.all(Array.from(selectedMaterials).map(id => 
-        updateMaterial(id, { status: 'delivered' })
-      ));
+      await Promise.all(Array.from(selectedMaterials).map((id) => updateMaterial(id, { status: "delivered" })));
       setSelectedMaterials(new Set());
     } catch (error) {
-      console.error('Error bulk updating material status:', error);
+      console.error("Error bulk updating material status:", error);
     }
     setBulkStatusDialogOpen(false);
   };
 
-  // Calculate tab index for a cell
-  const getTabIndex = (rowIndex: number, cellIndex: number) => {
-    const editableCellsPerRow = 9; // 11 total cells - 2 disabled cells (unit cost at index 9)
-    
-    // Skip the disabled cell (unit cost at index 9) in tab order  
-    let adjustedCellIndex = cellIndex;
-    if (cellIndex > 9) {
-      adjustedCellIndex = cellIndex - 1;
-    }
-    
-    return (rowIndex * editableCellsPerRow) + adjustedCellIndex + 1;
-  };
-
-  const handleCellNavigation = (currentRowIndex: number, currentCellIndex: number, direction: 'next' | 'prev' | 'down' | 'up') => {
-    console.log('Navigation called:', { currentRowIndex, currentCellIndex, direction });
-    
-    const totalRows = materials.length + 1; // +1 for the new material row at index 0
+  // Keyboard navigation with TAB and Enter
+  const handleCellNavigation = (
+    currentRowIndex: number,
+    currentCellIndex: number,
+    direction: "next" | "prev" | "down" | "up",
+  ) => {
+    const totalRows = filteredMaterials.length + 1; // +1 for new row
     let newRowIndex = currentRowIndex;
     let newCellIndex = currentCellIndex;
 
     switch (direction) {
-      case 'next':
+      case "next":
         newCellIndex++;
-        // Skip checkbox column (index 0) and disabled cell (unit cost at index 9)
-        if (newCellIndex === 9) {
-          newCellIndex = 10;
-        }
+        if (newCellIndex === 9) newCellIndex = 10; // Skip unit cost
         if (newCellIndex > 10) {
-          newCellIndex = 1; // Skip checkbox column
+          newCellIndex = 1;
           newRowIndex++;
-          if (newRowIndex >= totalRows) {
-            newRowIndex = 0; // Wrap to first row
-          }
+          if (newRowIndex >= totalRows) newRowIndex = 0;
         }
-        
-        // Special case: if we're in new row and going to next from payment_date column (last cell)
         if (currentRowIndex === 0 && currentCellIndex === 10) {
           createNewMaterial();
           return;
         }
         break;
-      case 'prev':
+      case "prev":
         newCellIndex--;
-        // Skip checkbox column (index 0) and disabled cell (unit cost at index 9)
-        if (newCellIndex === 9) {
-          newCellIndex = 8;
-        }
-        if (newCellIndex < 1) { // Skip checkbox column
+        if (newCellIndex === 9) newCellIndex = 8;
+        if (newCellIndex < 1) {
           newCellIndex = 10;
           newRowIndex--;
-          if (newRowIndex < 0) {
-            newRowIndex = totalRows - 1; // Wrap to last row
-          }
+          if (newRowIndex < 0) newRowIndex = totalRows - 1;
         }
         break;
-      case 'down':
-        // Special case: if we're in new row and press Enter/Down, create material
+      case "down":
         if (currentRowIndex === 0) {
           createNewMaterial();
           return;
         }
-        
         newRowIndex++;
-        if (newRowIndex >= totalRows) {
-          newRowIndex = 0; // Wrap to first row
-        }
+        if (newRowIndex >= totalRows) newRowIndex = 0;
         break;
-      case 'up':
+      case "up":
         newRowIndex--;
-        if (newRowIndex < 0) {
-          newRowIndex = totalRows - 1; // Wrap to last row
-        }
+        if (newRowIndex < 0) newRowIndex = totalRows - 1;
         break;
     }
 
-    console.log('Calculated new position:', { newRowIndex, newCellIndex });
-
-    // Find the cell using ID instead of tab index for more reliable focusing
     const cellId = `cell-${newRowIndex}-${newCellIndex}`;
     const newCell = document.getElementById(cellId) as HTMLElement;
-    
     if (newCell) {
       newCell.focus();
-      console.log('Successfully focused cell:', cellId);
-    } else {
-      console.log('Could not find cell with ID:', cellId);
-      
-      // Fallback to tab index method
-      const newTabIndex = getTabIndex(newRowIndex, newCellIndex);
-      const newCellByTabIndex = document.querySelector(`[tabindex="${newTabIndex}"]`) as HTMLElement;
-      if (newCellByTabIndex) {
-        newCellByTabIndex.focus();
-        console.log('Successfully focused cell with tab index:', newTabIndex);
-      } else {
-        console.log('Could not find cell with tab index:', newTabIndex);
-      }
     }
   };
 
@@ -471,31 +417,42 @@ export const EditableMaterialsTable: React.FC = () => {
 
   return (
     <>
-        <div className="space-y-4">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Almoxarifado Digital</h2>
-          {selectedMaterials.size > 0 && (
-            <div className="flex gap-2">
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-                className="flex items-center gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                Excluir ({selectedMaterials.size})
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleBulkStatusChange}
-                className="flex items-center gap-2"
-              >
-                <Check className="h-4 w-4" />
-                Marcar como Entregue ({selectedMaterials.size})
-              </Button>
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            {/* Project Filter */}
+            <Select value={filterProjectId} onValueChange={setFilterProjectId}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filtrar por projeto" />
+              </SelectTrigger>
+              <SelectContent>
+                {filterProjectOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {selectedMaterials.size > 0 && (
+              <div className="flex gap-2">
+                <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  Excluir ({selectedMaterials.size})
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleBulkStatusChange}
+                  className="flex items-center gap-2"
+                >
+                  <Check className="h-4 w-4" />
+                  Marcar como Entregue ({selectedMaterials.size})
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="border rounded-lg overflow-hidden">
@@ -504,7 +461,7 @@ export const EditableMaterialsTable: React.FC = () => {
               <TableRow>
                 <TableHead className="w-[50px]">
                   <Checkbox
-                    checked={selectedMaterials.size === materials.length && materials.length > 0}
+                    checked={selectedMaterials.size === filteredMaterials.length && filteredMaterials.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
@@ -522,98 +479,94 @@ export const EditableMaterialsTable: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {/* New material row - at the top (index 0) */}
+              {/* New material row */}
               <TableRow className="bg-muted/20">
-                <TableCell className="p-2">
-                  {/* Empty checkbox column for new row */}
-                </TableCell>
+                <TableCell className="p-2"></TableCell>
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-1"
                     value={newRowData.project_id}
                     onSave={(value) => {
-                      handleNewRowChange('project_id', value);
-                      // Clear stage when project changes
+                      handleNewRowChange("project_id", value);
                       if (value !== newRowData.project_id) {
-                        handleNewRowChange('stage_id', '');
+                        handleNewRowChange("stage_id", "");
                       }
                     }}
                     onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
                     type="select"
                     options={projectOptions}
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 1)}
+                    tabIndex={1}
+                    ref={firstCellRef}
                   />
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-2"
                     value={newRowData.stage_id}
-                    onSave={(value) => {
-                      handleNewRowChange('stage_id', value);
-                      console.log('Setting stage_id to:', value);
-                    }}
+                    onSave={(value) => handleNewRowChange("stage_id", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
                     type="select"
-                    options={newRowData.project_id ? getStageOptions(newRowData.project_id) : [{ value: '', label: 'Selecione um projeto primeiro' }]}
+                    options={
+                      newRowData.project_id
+                        ? getStageOptions(newRowData.project_id)
+                        : [{ value: "", label: "Selecione um projeto primeiro" }]
+                    }
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 2)}
+                    tabIndex={2}
                   />
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-3"
                     value={newRowData.status}
-                    onSave={(value) => handleNewRowChange('status', value)}
+                    onSave={(value) => handleNewRowChange("status", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
                     type="select"
                     options={[
-                      { value: 'requested', label: 'Solicitado' },
-                      { value: 'delivered', label: 'Entregue' }
+                      { value: "requested", label: "Solicitado" },
+                      { value: "delivered", label: "Entregue" },
                     ]}
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 3)}
+                    tabIndex={3}
                   />
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-4"
                     value={newRowData.material_name}
-                    onSave={(value) => handleNewRowChange('material_name', value)}
+                    onSave={(value) => handleNewRowChange("material_name", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
                     placeholder="Clique para adicionar material..."
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 4)}
+                    tabIndex={4}
                   />
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-5"
                     value={newRowData.quantity}
-                    onSave={(value) => handleNewRowChange('quantity', value)}
+                    onSave={(value) => handleNewRowChange("quantity", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 5, direction)}
                     type="number"
                     placeholder="0"
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 5)}
+                    tabIndex={5}
                   />
                 </TableCell>
                 <TableCell className="p-0">
                   <EditableCell
                     id="cell-0-6"
                     value={newRowData.unit}
-                    onSave={(value) => handleNewRowChange('unit', value)}
+                    onSave={(value) => handleNewRowChange("unit", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
                     placeholder="un"
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 6)}
+                    tabIndex={6}
                   />
                 </TableCell>
                 <TableCell className="p-0">
-                   <Select
-                     value={newRowData.supplier_id || "none"}
-                     onValueChange={handleNewRowSupplierChange}
-                  >
+                  <Select value={newRowData.supplier_id || "none"} onValueChange={handleNewRowSupplierChange}>
                     <SelectTrigger className="w-full border-0 h-full">
                       <SelectValue placeholder="Selecionar..." />
                     </SelectTrigger>
@@ -632,12 +585,12 @@ export const EditableMaterialsTable: React.FC = () => {
                   <EditableCell
                     id="cell-0-8"
                     value={newRowData.estimated_total_cost}
-                    onSave={(value) => handleNewRowChange('estimated_total_cost', value)}
+                    onSave={(value) => handleNewRowChange("estimated_total_cost", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 8, direction)}
                     type="number"
                     placeholder="0.00"
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 8)}
+                    tabIndex={7}
                   />
                 </TableCell>
                 <TableCell className="p-0">
@@ -649,12 +602,12 @@ export const EditableMaterialsTable: React.FC = () => {
                   <EditableCell
                     id="cell-0-10"
                     value={newRowData.payment_date}
-                    onSave={(value) => handleNewRowChange('payment_date', value)}
+                    onSave={(value) => handleNewRowChange("payment_date", value)}
                     onNavigate={(direction) => handleCellNavigation(0, 10, direction)}
                     type="date"
                     placeholder="DD/MM/AAAA"
                     isNewRow={true}
-                    tabIndex={getTabIndex(0, 10)}
+                    tabIndex={8}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -672,8 +625,8 @@ export const EditableMaterialsTable: React.FC = () => {
               </TableRow>
 
               {/* Existing materials */}
-              {materials.map((material, materialIndex) => {
-                 const rowIndex = materialIndex + 1;
+              {filteredMaterials.map((material, materialIndex) => {
+                const rowIndex = materialIndex + 1;
                 return (
                   <TableRow key={material.id}>
                     <TableCell className="p-2">
@@ -687,79 +640,78 @@ export const EditableMaterialsTable: React.FC = () => {
                         id={`cell-${rowIndex}-1`}
                         value={material.project_id || null}
                         onSave={(value) => {
-                          // Clear stage when project changes
                           if (value !== material.project_id) {
-                            handleUpdateField(material.id, 'stage_id', '');
+                            handleUpdateField(material.id, "stage_id", "");
                           }
-                          handleUpdateField(material.id, 'project_id', value);
+                          handleUpdateField(material.id, "project_id", value);
                         }}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
                         type="select"
                         options={projectOptions}
-                        tabIndex={getTabIndex(rowIndex, 1)}
+                        tabIndex={rowIndex * 8 + 1}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-2`}
-                        value={material.stage_id || ''}
-                        onSave={(value) => handleUpdateField(material.id, 'stage_id', value)}
+                        value={material.stage_id || ""}
+                        onSave={(value) => handleUpdateField(material.id, "stage_id", value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
                         type="select"
-                        options={getStageOptions(material.project_id || '')}
-                        tabIndex={getTabIndex(rowIndex, 2)}
+                        options={getStageOptions(material.project_id || "")}
+                        tabIndex={rowIndex * 8 + 2}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-3`}
                         value={material.status}
-                        onSave={(value) => handleUpdateField(material.id, 'status', value)}
+                        onSave={(value) => handleUpdateField(material.id, "status", value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
                         type="select"
                         options={[
-                          { value: 'requested', label: 'Solicitado' },
-                          { value: 'delivered', label: 'Entregue' },
-                          { value: 'used', label: 'Usado' }
+                          { value: "requested", label: "Solicitado" },
+                          { value: "delivered", label: "Entregue" },
+                          { value: "used", label: "Usado" },
                         ]}
-                        tabIndex={getTabIndex(rowIndex, 3)}
+                        tabIndex={rowIndex * 8 + 3}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-4`}
                         value={material.material_name}
-                        onSave={(value) => handleUpdateField(material.id, 'material_name', value)}
+                        onSave={(value) => handleUpdateField(material.id, "material_name", value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
                         placeholder="Nome do material"
-                        tabIndex={getTabIndex(rowIndex, 4)}
+                        tabIndex={rowIndex * 8 + 4}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-5`}
-                        value={material.quantity?.toString() || ''}
-                        onSave={(value) => handleUpdateField(material.id, 'quantity', Number(value))}
+                        value={material.quantity?.toString() || ""}
+                        onSave={(value) => handleUpdateField(material.id, "quantity", Number(value))}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
                         type="number"
                         placeholder="0"
-                        tabIndex={getTabIndex(rowIndex, 5)}
+                        tabIndex={rowIndex * 8 + 5}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-6`}
                         value={material.unit}
-                        onSave={(value) => handleUpdateField(material.id, 'unit', value)}
+                        onSave={(value) => handleUpdateField(material.id, "unit", value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
                         placeholder="un"
-                        tabIndex={getTabIndex(rowIndex, 6)}
+                        tabIndex={rowIndex * 8 + 6}
                       />
                     </TableCell>
                     <TableCell className="p-0">
-                       <Select
-                         value={material.supplier_id || "none"}
-                         onValueChange={(value) => handleSupplierChange(material.id, value)}
+                      <Select
+                        value={material.supplier_id || "none"}
+                        onValueChange={(value) => handleSupplierChange(material.id, value)}
                       >
                         <SelectTrigger className="w-full border-0 h-full">
                           <SelectValue placeholder="Selecionar..." />
@@ -778,31 +730,30 @@ export const EditableMaterialsTable: React.FC = () => {
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-8`}
-                        value={material.estimated_total_cost?.toString() || ''}
-                        onSave={(value) => handleUpdateField(material.id, 'estimated_total_cost', Number(value))}
+                        value={material.estimated_total_cost?.toString() || ""}
+                        onSave={(value) => handleUpdateField(material.id, "estimated_total_cost", Number(value))}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 8, direction)}
                         type="number"
                         placeholder="0.00"
-                        tabIndex={getTabIndex(rowIndex, 8)}
+                        tabIndex={rowIndex * 8 + 7}
                       />
                     </TableCell>
                     <TableCell className="p-0">
                       <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
-                        {material.estimated_unit_cost ? 
-                          `R$ ${material.estimated_unit_cost.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
-                          : '-'
-                        }
+                        {material.estimated_unit_cost
+                          ? `R$ ${material.estimated_unit_cost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : "-"}
                       </div>
                     </TableCell>
                     <TableCell className="p-0">
                       <EditableCell
                         id={`cell-${rowIndex}-10`}
-                        value={material.delivery_date || ''}
-                        onSave={(value) => handleUpdateField(material.id, 'delivery_date', value)}
+                        value={material.delivery_date || ""}
+                        onSave={(value) => handleUpdateField(material.id, "delivery_date", value)}
                         onNavigate={(direction) => handleCellNavigation(rowIndex, 10, direction)}
                         type="date"
                         placeholder="DD/MM/AAAA"
-                        tabIndex={getTabIndex(rowIndex, 10)}
+                        tabIndex={rowIndex * 8 + 8}
                       />
                     </TableCell>
                     <TableCell className="p-2">
@@ -835,7 +786,10 @@ export const EditableMaterialsTable: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -853,7 +807,10 @@ export const EditableMaterialsTable: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmBulkDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmBulkDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Excluir Todos
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -871,9 +828,7 @@ export const EditableMaterialsTable: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmBulkStatusChange}>
-              Marcar como Entregue
-            </AlertDialogAction>
+            <AlertDialogAction onClick={confirmBulkStatusChange}>Marcar como Entregue</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -883,9 +838,7 @@ export const EditableMaterialsTable: React.FC = () => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Criar Novo Fornecedor</DialogTitle>
-            <DialogDescription>
-              Digite o nome do fornecedor que você deseja adicionar.
-            </DialogDescription>
+            <DialogDescription>Digite o nome do fornecedor que você deseja adicionar.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -896,7 +849,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 onChange={(e) => setSupplierName(e.target.value)}
                 placeholder="Digite o nome do fornecedor..."
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && supplierName.trim()) {
+                  if (e.key === "Enter" && supplierName.trim()) {
                     createSupplierWithName();
                   }
                 }}
@@ -908,18 +861,15 @@ export const EditableMaterialsTable: React.FC = () => {
               variant="outline"
               onClick={() => {
                 setSupplierDialogOpen(false);
-                setSupplierName('');
+                setSupplierName("");
                 setMaterialForNewSupplier(null);
               }}
               disabled={isCreatingSupplier}
             >
               Cancelar
             </Button>
-            <Button
-              onClick={createSupplierWithName}
-              disabled={isCreatingSupplier || !supplierName.trim()}
-            >
-              {isCreatingSupplier ? 'Criando...' : 'Criar Fornecedor'}
+            <Button onClick={createSupplierWithName} disabled={isCreatingSupplier || !supplierName.trim()}>
+              {isCreatingSupplier ? "Criando..." : "Criar Fornecedor"}
             </Button>
           </DialogFooter>
         </DialogContent>
