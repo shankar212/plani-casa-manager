@@ -6,7 +6,7 @@ import { useMaterials, Material, NewMaterial } from "@/hooks/useMaterials";
 import { useProjects } from "@/hooks/useProjects";
 import { useMaterialSuppliers } from "@/hooks/useSuppliers";
 import { useAuth } from "@/contexts/AuthContext";
-import { Trash2, Check, X, Search, Package, DollarSign, TrendingUp, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Trash2, Check, Search, Package, DollarSign, TrendingUp, CheckCircle2, Clock, AlertCircle, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { materialSchema } from "@/lib/validationSchemas";
+import { AddMaterialDialog } from "./AddMaterialDialog";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -36,18 +36,8 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 
-// Local interface for the new row data (all strings from inputs)
-interface NewRowData {
-  material_name: string;
-  quantity: string;
-  unit: string;
-  estimated_total_cost: string;
-  status: string;
-  project_id: string;
-  stage_id: string;
-  supplier_id: string;
-  payment_date: string;
-}
+// Local interface for the new row data (all strings from inputs) - No longer needed
+// Material addition is now handled by AddMaterialDialog
 
 export const EditableMaterialsTable: React.FC = () => {
   const { materials, loading, createMaterial, updateMaterial, deleteMaterial, refetch } = useMaterials();
@@ -60,7 +50,6 @@ export const EditableMaterialsTable: React.FC = () => {
   const { user } = useAuth();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set());
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [bulkStatusDialogOpen, setBulkStatusDialogOpen] = useState(false);
@@ -71,19 +60,7 @@ export const EditableMaterialsTable: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
-
-  // Local state for new row data - all strings from form inputs
-  const [newRowData, setNewRowData] = useState<NewRowData>({
-    material_name: "",
-    quantity: "",
-    unit: "",
-    estimated_total_cost: "",
-    status: "requested",
-    project_id: "",
-    stage_id: "",
-    supplier_id: "",
-    payment_date: "",
-  });
+  const [addMaterialDialogOpen, setAddMaterialDialogOpen] = useState(false);
 
   // Fetch all stages accessible to the user
   useEffect(() => {
@@ -166,16 +143,6 @@ export const EditableMaterialsTable: React.FC = () => {
     }
   };
 
-  const handleNewRowSupplierChange = (supplierId: string) => {
-    if (supplierId === "new") {
-      // Open dialog to get supplier name for new row
-      setMaterialForNewSupplier("new-row");
-      setSupplierDialogOpen(true);
-    } else {
-      handleNewRowChange("supplier_id", supplierId);
-    }
-  };
-
   const createSupplierWithName = async () => {
     if (!supplierName.trim()) return;
 
@@ -186,25 +153,30 @@ export const EditableMaterialsTable: React.FC = () => {
         contact_info: {},
       });
 
-      if (newSupplier) {
-        if (materialForNewSupplier === "new-row") {
-          // Update new row data
-          handleNewRowChange("supplier_id", newSupplier.id);
-        } else if (materialForNewSupplier) {
-          // Update existing material
-          await updateMaterial(materialForNewSupplier, { supplier_id: newSupplier.id });
-        }
+      if (newSupplier && materialForNewSupplier && materialForNewSupplier !== "from-add-dialog") {
+        // Update existing material
+        await updateMaterial(materialForNewSupplier, { supplier_id: newSupplier.id });
       }
 
       // Close dialog and reset state
       setSupplierDialogOpen(false);
       setSupplierName("");
       setMaterialForNewSupplier(null);
+      
+      // Reopen the add material dialog if we came from there
+      if (materialForNewSupplier === "from-add-dialog") {
+        setAddMaterialDialogOpen(true);
+      }
     } catch (error) {
       console.error("Error creating supplier:", error);
     } finally {
       setIsCreatingSupplier(false);
     }
+  };
+
+  const handleOpenCreateSupplierFromDialog = () => {
+    setMaterialForNewSupplier("from-add-dialog");
+    setSupplierDialogOpen(true);
   };
 
   const handleUpdateField = async (id: string, field: keyof Material, value: string | number | null) => {
@@ -228,91 +200,16 @@ export const EditableMaterialsTable: React.FC = () => {
     }
   };
 
-  const handleNewRowChange = (field: keyof NewRowData, value: string | number | null) => {
-    console.log("Updating new row field:", field, "with value:", value);
-    setNewRowData((prev) => ({
-      ...prev,
-      [field]: value?.toString() || "",
-    }));
-  };
-
-  const createNewMaterial = async () => {
-    if (isCreatingNew) return;
-
-    // Check if we have at least a material name
-    if (!newRowData.material_name?.trim()) {
-      console.log("No material name provided, not creating material");
-      return;
-    }
-
-    setIsCreatingNew(true);
-
+  const createNewMaterial = async (newMaterial: NewMaterial) => {
     try {
-      // Convert string values to proper types for database
-      const quantity = Number(newRowData.quantity) || 1;
-      const estimatedTotalCost = Number(newRowData.estimated_total_cost) || 0;
-      const status = (newRowData.status as "requested" | "delivered") || "requested";
-
-      // Validate input using zod schema
-      const validationResult = materialSchema.safeParse({
-        material_name: newRowData.material_name.trim(),
-        quantity: quantity,
-        unit: newRowData.unit || "un",
-        estimated_unit_cost: 0,
-        notes: "",
-        invoice_number: "",
-      });
-
-      if (!validationResult.success) {
-        toast.error(validationResult.error.errors[0].message);
-        setIsCreatingNew(false);
-        return;
-      }
-
-      const newMaterial: NewMaterial = {
-        material_name: validationResult.data.material_name,
-        quantity: validationResult.data.quantity,
-        unit: validationResult.data.unit,
-        status: status,
-        estimated_total_cost: estimatedTotalCost,
-        estimated_unit_cost: 0,
-        project_id: newRowData.project_id || null,
-        stage_id: newRowData.stage_id || null,
-        supplier_id: newRowData.supplier_id && newRowData.supplier_id !== "none" ? newRowData.supplier_id : null,
-        user_id: user?.id || null,
-        delivery_date: newRowData.payment_date || null,
-      };
-
-      // Calculate unit cost if both total cost and quantity are available
-      if (newMaterial.estimated_total_cost && newMaterial.quantity) {
-        newMaterial.estimated_unit_cost = calculateUnitCost(newMaterial.estimated_total_cost, newMaterial.quantity);
-      }
-
-      console.log("Creating new material:", newMaterial);
-      const createdMaterial = await createMaterial(newMaterial);
-      console.log("Material created successfully:", createdMaterial);
-
-      // Clear the new row data
-      setNewRowData({
-        material_name: "",
-        quantity: "",
-        unit: "",
-        estimated_total_cost: "",
-        status: "requested",
-        project_id: "",
-        stage_id: "",
-        supplier_id: "",
-        payment_date: "",
-      });
-
+      await createMaterial(newMaterial);
       // Force refetch to ensure the new material appears
       setTimeout(() => {
         refetch();
       }, 100);
     } catch (error) {
       console.error("Error creating material:", error);
-    } finally {
-      setIsCreatingNew(false);
+      throw error;
     }
   };
 
@@ -462,7 +359,7 @@ export const EditableMaterialsTable: React.FC = () => {
   ) => {
     console.log("Navigation called:", { currentRowIndex, currentCellIndex, direction });
 
-    const totalRows = materials.length + 1; // +1 for the new material row at index 0
+    const totalRows = materials.length;
     let newRowIndex = currentRowIndex;
     let newCellIndex = currentCellIndex;
 
@@ -479,12 +376,6 @@ export const EditableMaterialsTable: React.FC = () => {
           if (newRowIndex >= totalRows) {
             newRowIndex = 0; // Wrap to first row
           }
-        }
-
-        // Special case: if we're in new row and going to next from payment_date column (last cell)
-        if (currentRowIndex === 0 && currentCellIndex === 10) {
-          createNewMaterial();
-          return;
         }
         break;
       case "prev":
@@ -503,12 +394,6 @@ export const EditableMaterialsTable: React.FC = () => {
         }
         break;
       case "down":
-        // Special case: if we're in new row and press Enter/Down, create material
-        if (currentRowIndex === 0) {
-          createNewMaterial();
-          return;
-        }
-
         newRowIndex++;
         if (newRowIndex >= totalRows) {
           newRowIndex = 0; // Wrap to first row
@@ -635,28 +520,36 @@ export const EditableMaterialsTable: React.FC = () => {
             </Select>
           </div>
           
-          {selectedMaterials.size > 0 && (
-            <div className="flex gap-2 w-full md:w-auto">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="flex items-center gap-2 flex-1 md:flex-initial">
-                    <Trash2 className="h-4 w-4" />
-                    Excluir ({selectedMaterials.size})
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Excluir materiais selecionados</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="default" size="sm" onClick={handleBulkStatusChange} className="flex items-center gap-2 flex-1 md:flex-initial">
-                    <Check className="h-4 w-4" />
-                    Marcar Entregue ({selectedMaterials.size})
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Marcar materiais como entregues</TooltipContent>
-              </Tooltip>
-            </div>
-          )}
+          <div className="flex gap-2 w-full md:w-auto">
+            {selectedMaterials.size > 0 && (
+              <>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="flex items-center gap-2 flex-1 md:flex-initial">
+                      <Trash2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Excluir ({selectedMaterials.size})</span>
+                      <span className="sm:hidden">({selectedMaterials.size})</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Excluir materiais selecionados</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="default" size="sm" onClick={handleBulkStatusChange} className="flex items-center gap-2 flex-1 md:flex-initial">
+                      <Check className="h-4 w-4" />
+                      <span className="hidden sm:inline">Marcar ({selectedMaterials.size})</span>
+                      <span className="sm:hidden">({selectedMaterials.size})</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Marcar materiais como entregues</TooltipContent>
+                </Tooltip>
+              </>
+            )}
+            <Button onClick={() => setAddMaterialDialogOpen(true)} className="flex items-center gap-2 flex-1 md:flex-initial">
+              <Plus className="h-4 w-4" />
+              Novo Material
+            </Button>
+          </div>
         </div>
 
         {filteredMaterials.length === 0 && materials.length === 0 ? (
@@ -667,9 +560,13 @@ export const EditableMaterialsTable: React.FC = () => {
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Nenhum material cadastrado</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Comece adicionando seu primeiro material usando o formulário acima da tabela.
+                Comece adicionando seu primeiro material clicando no botão "Novo Material".
               </p>
             </div>
+            <Button onClick={() => setAddMaterialDialogOpen(true)} className="mt-4">
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Primeiro Material
+            </Button>
           </div>
         ) : filteredMaterials.length === 0 ? (
           <div className="border rounded-lg p-12 text-center space-y-4">
@@ -710,157 +607,9 @@ export const EditableMaterialsTable: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {/* New material row - at the top (index 0) */}
-              <TableRow className="bg-muted/20">
-                <TableCell className="p-2">{/* Empty checkbox column for new row */}</TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-1"
-                    value={newRowData.project_id}
-                    onSave={(value) => {
-                      handleNewRowChange("project_id", value);
-                      // Clear stage when project changes
-                      if (value !== newRowData.project_id) {
-                        handleNewRowChange("stage_id", "");
-                      }
-                    }}
-                    onNavigate={(direction) => handleCellNavigation(0, 1, direction)}
-                    type="select"
-                    options={projectOptions}
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 1)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-2"
-                    value={newRowData.stage_id}
-                    onSave={(value) => {
-                      handleNewRowChange("stage_id", value);
-                      console.log("Setting stage_id to:", value);
-                    }}
-                    onNavigate={(direction) => handleCellNavigation(0, 2, direction)}
-                    type="select"
-                    options={
-                      newRowData.project_id
-                        ? getStageOptions(newRowData.project_id)
-                        : [{ value: "", label: "Selecione um projeto primeiro" }]
-                    }
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 2)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-3"
-                    value={newRowData.status}
-                    onSave={(value) => handleNewRowChange("status", value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 3, direction)}
-                    type="select"
-                    options={[
-                      { value: "requested", label: "Solicitado" },
-                      { value: "delivered", label: "Entregue" },
-                    ]}
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 3)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-4"
-                    value={newRowData.material_name}
-                    onSave={(value) => handleNewRowChange("material_name", value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 4, direction)}
-                    placeholder="Clique para adicionar material..."
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 4)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-5"
-                    value={newRowData.quantity}
-                    onSave={(value) => handleNewRowChange("quantity", value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 5, direction)}
-                    type="number"
-                    placeholder="0"
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 5)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-6"
-                    value={newRowData.unit}
-                    onSave={(value) => handleNewRowChange("unit", value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 6, direction)}
-                    placeholder="un"
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 6)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <Select value={newRowData.supplier_id || "none"} onValueChange={handleNewRowSupplierChange}>
-                    <SelectTrigger className="w-full border-0 h-full">
-                      <SelectValue placeholder="Selecionar..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Sem fornecedor</SelectItem>
-                      <SelectItem value="new">+ Novo Fornecedor</SelectItem>
-                      {materialSuppliers.map((supplier) => (
-                        <SelectItem key={supplier.id} value={supplier.id}>
-                          {supplier.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-8"
-                    value={newRowData.estimated_total_cost}
-                    onSave={(value) => handleNewRowChange("estimated_total_cost", value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 8, direction)}
-                    type="number"
-                    placeholder="0.00"
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 8)}
-                  />
-                </TableCell>
-                <TableCell className="p-0">
-                  <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
-                    -
-                  </div>
-                </TableCell>
-                <TableCell className="p-0">
-                  <EditableCell
-                    id="cell-0-10"
-                    value={newRowData.payment_date}
-                    onSave={(value) => handleNewRowChange("payment_date", value)}
-                    onNavigate={(direction) => handleCellNavigation(0, 10, direction)}
-                    type="date"
-                    placeholder="DD/MM/AAAA"
-                    isNewRow={true}
-                    tabIndex={getTabIndex(0, 10)}
-                  />
-                </TableCell>
-                <TableCell className="p-2">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={createNewMaterial}
-                    disabled={isCreatingNew || !newRowData.material_name?.trim()}
-                    className="h-8 w-8 p-0"
-                    tabIndex={-1}
-                  >
-                    +
-                  </Button>
-                </TableCell>
-              </TableRow>
-
               {/* Existing materials */}
               {filteredMaterials.map((material, materialIndex) => {
-                const rowIndex = materialIndex + 1;
+                const rowIndex = materialIndex;
                 return (
                   <TableRow key={material.id}>
                     <TableCell className="p-2">
@@ -1100,6 +849,10 @@ export const EditableMaterialsTable: React.FC = () => {
                 setSupplierDialogOpen(false);
                 setSupplierName("");
                 setMaterialForNewSupplier(null);
+                // Reopen add material dialog if we came from there
+                if (materialForNewSupplier === "from-add-dialog") {
+                  setAddMaterialDialogOpen(true);
+                }
               }}
               disabled={isCreatingSupplier}
             >
@@ -1111,6 +864,18 @@ export const EditableMaterialsTable: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add Material Dialog */}
+      <AddMaterialDialog
+        open={addMaterialDialogOpen}
+        onOpenChange={setAddMaterialDialogOpen}
+        onSubmit={createNewMaterial}
+        projects={projects}
+        stages={stages}
+        suppliers={materialSuppliers}
+        userId={user?.id}
+        onCreateSupplier={handleOpenCreateSupplierFromDialog}
+      />
     </TooltipProvider>
   );
 };
