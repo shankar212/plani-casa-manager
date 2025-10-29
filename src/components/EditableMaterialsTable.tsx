@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EditableCell } from "./EditableCell";
@@ -6,8 +6,13 @@ import { useMaterials, Material, NewMaterial } from "@/hooks/useMaterials";
 import { useProjects } from "@/hooks/useProjects";
 import { useMaterialSuppliers } from "@/hooks/useSuppliers";
 import { useAuth } from "@/contexts/AuthContext";
-import { Trash2, Check, X } from "lucide-react";
+import { Trash2, Check, X, Search, Package, DollarSign, TrendingUp, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
@@ -27,8 +32,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
 // Local interface for the new row data (all strings from inputs)
@@ -63,6 +66,9 @@ export const EditableMaterialsTable: React.FC = () => {
   const [supplierName, setSupplierName] = useState("");
   const [materialForNewSupplier, setMaterialForNewSupplier] = useState<string | null>(null);
   const [isCreatingSupplier, setIsCreatingSupplier] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
 
   // Local state for new row data - all strings from form inputs
   const [newRowData, setNewRowData] = useState<NewRowData>({
@@ -359,6 +365,65 @@ export const EditableMaterialsTable: React.FC = () => {
     setBulkStatusDialogOpen(false);
   };
 
+  // Filter and search materials
+  const filteredMaterials = useMemo(() => {
+    return materials.filter((material) => {
+      const matchesSearch = searchQuery === "" || 
+        material.material_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        material.projects?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = statusFilter === "all" || material.status === statusFilter;
+      const matchesProject = projectFilter === "all" || material.project_id === projectFilter;
+      
+      return matchesSearch && matchesStatus && matchesProject;
+    });
+  }, [materials, searchQuery, statusFilter, projectFilter]);
+
+  // Calculate summary stats
+  const summaryStats = useMemo(() => {
+    const totalMaterials = filteredMaterials.length;
+    const totalCost = filteredMaterials.reduce((sum, m) => sum + (m.estimated_total_cost || 0), 0);
+    const deliveredCount = filteredMaterials.filter(m => m.status === 'delivered').length;
+    const requestedCount = filteredMaterials.filter(m => m.status === 'requested').length;
+    
+    return {
+      totalMaterials,
+      totalCost,
+      deliveredCount,
+      requestedCount,
+      deliveryRate: totalMaterials > 0 ? (deliveredCount / totalMaterials) * 100 : 0
+    };
+  }, [filteredMaterials]);
+
+  // Get status badge
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'delivered':
+        return (
+          <Badge variant="default" className="bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            Entregue
+          </Badge>
+        );
+      case 'requested':
+        return (
+          <Badge variant="default" className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
+            <Clock className="h-3 w-3 mr-1" />
+            Solicitado
+          </Badge>
+        );
+      case 'used':
+        return (
+          <Badge variant="default" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20">
+            <Check className="h-3 w-3 mr-1" />
+            Usado
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
   // Calculate tab index for a cell
   const getTabIndex = (rowIndex: number, cellIndex: number) => {
     const editableCellsPerRow = 9; // 11 total cells - 2 disabled cells (unit cost at index 9)
@@ -463,41 +528,158 @@ export const EditableMaterialsTable: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-center py-8">Carregando materiais...</div>;
+  if (loading || stagesLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-24 rounded-lg" />
+          ))}
+        </div>
+        <Skeleton className="h-12 rounded-lg" />
+        <Skeleton className="h-96 rounded-lg" />
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Almoxarifado Digital</h2>
+    <TooltipProvider>
+      <div className="space-y-6">
+        {/* Summary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-card border rounded-lg p-4 space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <Package className="h-4 w-4" />
+              <span>Total de Materiais</span>
+            </div>
+            <p className="text-2xl font-bold">{summaryStats.totalMaterials}</p>
+          </div>
+          <div className="bg-card border rounded-lg p-4 space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <DollarSign className="h-4 w-4" />
+              <span>Custo Total Est.</span>
+            </div>
+            <p className="text-2xl font-bold">
+              R$ {summaryStats.totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          </div>
+          <div className="bg-card border rounded-lg p-4 space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <CheckCircle2 className="h-4 w-4" />
+              <span>Entregues</span>
+            </div>
+            <p className="text-2xl font-bold">{summaryStats.deliveredCount}</p>
+          </div>
+          <div className="bg-card border rounded-lg p-4 space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <TrendingUp className="h-4 w-4" />
+              <span>Taxa de Entrega</span>
+            </div>
+            <p className="text-2xl font-bold">{summaryStats.deliveryRate.toFixed(0)}%</p>
+          </div>
+        </div>
+
+        {/* Filters and Actions */}
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <div className="flex flex-col md:flex-row gap-3 flex-1 w-full md:w-auto">
+            <div className="relative flex-1 md:max-w-xs">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar materiais..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full md:w-[160px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos Status</SelectItem>
+                <SelectItem value="requested">Solicitado</SelectItem>
+                <SelectItem value="delivered">Entregue</SelectItem>
+                <SelectItem value="used">Usado</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={projectFilter} onValueChange={setProjectFilter}>
+              <SelectTrigger className="w-full md:w-[200px]">
+                <SelectValue placeholder="Projeto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos Projetos</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           {selectedMaterials.size > 0 && (
-            <div className="flex gap-2">
-              <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="flex items-center gap-2">
-                <Trash2 className="h-4 w-4" />
-                Excluir ({selectedMaterials.size})
-              </Button>
-              <Button variant="default" size="sm" onClick={handleBulkStatusChange} className="flex items-center gap-2">
-                <Check className="h-4 w-4" />
-                Marcar como Entregue ({selectedMaterials.size})
-              </Button>
+            <div className="flex gap-2 w-full md:w-auto">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="flex items-center gap-2 flex-1 md:flex-initial">
+                    <Trash2 className="h-4 w-4" />
+                    Excluir ({selectedMaterials.size})
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Excluir materiais selecionados</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="default" size="sm" onClick={handleBulkStatusChange} className="flex items-center gap-2 flex-1 md:flex-initial">
+                    <Check className="h-4 w-4" />
+                    Marcar Entregue ({selectedMaterials.size})
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Marcar materiais como entregues</TooltipContent>
+              </Tooltip>
             </div>
           )}
         </div>
 
-        <div className="border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
-                  <Checkbox
-                    checked={selectedMaterials.size === materials.length && materials.length > 0}
-                    onCheckedChange={handleSelectAll}
-                  />
-                </TableHead>
-                <TableHead className="w-[150px]">Projeto</TableHead>
-                <TableHead className="w-[120px]">Etapa</TableHead>
+        {filteredMaterials.length === 0 && materials.length === 0 ? (
+          <div className="border rounded-lg p-12 text-center space-y-4">
+            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+              <Package className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Nenhum material cadastrado</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                Comece adicionando seu primeiro material usando o formulário acima da tabela.
+              </p>
+            </div>
+          </div>
+        ) : filteredMaterials.length === 0 ? (
+          <div className="border rounded-lg p-12 text-center space-y-4">
+            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+              <AlertCircle className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Nenhum material encontrado</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                Tente ajustar os filtros de busca para encontrar os materiais desejados.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={selectedMaterials.size === filteredMaterials.length && filteredMaterials.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
+                    <TableHead className="w-[150px]">Projeto</TableHead>
+                    <TableHead className="w-[120px]">Etapa</TableHead>
+
                 <TableHead className="w-[100px]">Status</TableHead>
                 <TableHead className="w-[200px]">Material</TableHead>
                 <TableHead className="w-[100px]">Quantidade</TableHead>
@@ -659,7 +841,7 @@ export const EditableMaterialsTable: React.FC = () => {
               </TableRow>
 
               {/* Existing materials */}
-              {materials.map((material, materialIndex) => {
+              {filteredMaterials.map((material, materialIndex) => {
                 const rowIndex = materialIndex + 1;
                 return (
                   <TableRow key={material.id}>
@@ -807,7 +989,9 @@ export const EditableMaterialsTable: React.FC = () => {
               })}
             </TableBody>
           </Table>
-        </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Single Delete Dialog */}
@@ -909,6 +1093,6 @@ export const EditableMaterialsTable: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </TooltipProvider>
   );
 };

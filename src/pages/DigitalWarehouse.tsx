@@ -1,22 +1,19 @@
 
 import { Layout } from "@/components/Layout";
-import { Card } from "@/components/ui/card";
 import { EditableMaterialsTable } from "@/components/EditableMaterialsTable";
 
 const DigitalWarehouse = () => {
   return (
     <Layout>
-      <div className="p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold">Almoxarifado Digital</h1>
-          <p className="text-muted-foreground mt-2">
-            Gerencie seus materiais de forma eficiente. Clique nas células para editar os dados diretamente.
+      <div className="p-4 md:p-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2">Almoxarifado Digital</h1>
+          <p className="text-muted-foreground">
+            Gerencie seus materiais de forma eficiente. Use os filtros para buscar e organize por status ou projeto.
           </p>
         </div>
 
-        <Card className="p-6">
-          <EditableMaterialsTable />
-        </Card>
+        <EditableMaterialsTable />
       </div>
     </Layout>
   );
