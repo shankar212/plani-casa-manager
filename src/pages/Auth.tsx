@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Building2, Eye, EyeOff } from 'lucide-react';
+import { signInSchema, signUpSchema, resetPasswordSchema } from '@/lib/validationSchemas';
 
 const Auth = () => {
   const { user, signIn, signUp, loading, resetPassword } = useAuth();
@@ -31,6 +32,14 @@ const Auth = () => {
     setError('');
     setIsSubmitting(true);
 
+    // Validate input
+    const result = signInSchema.safeParse({ email, password });
+    if (!result.success) {
+      setError(result.error.errors[0].message);
+      setIsSubmitting(false);
+      return;
+    }
+
     const { error } = await signIn(email, password);
     if (error) {
       setError(error);
@@ -43,8 +52,10 @@ const Auth = () => {
     setError('');
     setIsSubmitting(true);
 
-    if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres');
+    // Validate input
+    const result = signUpSchema.safeParse({ email, password, fullName });
+    if (!result.success) {
+      setError(result.error.errors[0].message);
       setIsSubmitting(false);
       return;
     }
@@ -59,6 +70,14 @@ const Auth = () => {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsResetting(true);
+
+    // Validate input
+    const result = resetPasswordSchema.safeParse({ email: resetEmail });
+    if (!result.success) {
+      setError(result.error.errors[0].message);
+      setIsResetting(false);
+      return;
+    }
 
     const { error } = await resetPassword(resetEmail);
     if (!error) {

@@ -27,6 +27,7 @@ const ProjectReports = () => {
   const { project, loading: projectLoading } = useProjectData(id);
   const { etapas } = useProject();
   const [photos, setPhotos] = useState<ProjectPhoto[]>([]);
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState<string | null>(null);
   const { financialData, loading: financialLoading, updateSaleValue, formatCurrency } = useFinancialData(id);
   const [editingSaleValue, setEditingSaleValue] = useState(false);
@@ -51,6 +52,22 @@ const ProjectReports = () => {
 
       if (error) throw error;
       setPhotos(data || []);
+      
+      // Load signed URLs for all photos
+      if (data) {
+        const urls: Record<string, string> = {};
+        await Promise.all(
+          data.map(async (photo) => {
+            const { data: urlData } = await supabase.storage
+              .from('project-photos')
+              .createSignedUrl(photo.file_path, 3600);
+            if (urlData) {
+              urls[photo.id] = urlData.signedUrl;
+            }
+          })
+        );
+        setPhotoUrls(urls);
+      }
     } catch (error) {
       console.error('Error loading photos:', error);
       toast.error('Erro ao carregar fotos');
@@ -118,11 +135,8 @@ const ProjectReports = () => {
     }
   };
 
-  const getPhotoUrl = (filePath: string) => {
-    const { data } = supabase.storage
-      .from('project-photos')
-      .getPublicUrl(filePath);
-    return data.publicUrl;
+  const getPhotoUrl = (photoId: string): string => {
+    return photoUrls[photoId] || '';
   };
 
   const getPhotosForEtapa = (etapaId: string) => {
@@ -282,7 +296,7 @@ const ProjectReports = () => {
                     {etapaPhotos.map((photo) => (
                       <div key={photo.id} className="aspect-square bg-gray-100 rounded-lg relative overflow-hidden group">
                         <img 
-                          src={getPhotoUrl(photo.file_path)} 
+                          src={getPhotoUrl(photo.id)} 
                           alt={photo.file_name}
                           className="w-full h-full object-cover"
                         />

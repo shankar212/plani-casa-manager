@@ -14,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { materialSchema } from "@/lib/validationSchemas";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -251,10 +253,26 @@ export const EditableMaterialsTable: React.FC = () => {
       const estimatedTotalCost = Number(newRowData.estimated_total_cost) || 0;
       const status = (newRowData.status as "requested" | "delivered") || "requested";
 
-      const newMaterial: NewMaterial = {
-        material_name: newRowData.material_name.trim() || "Novo Material",
+      // Validate input using zod schema
+      const validationResult = materialSchema.safeParse({
+        material_name: newRowData.material_name.trim(),
         quantity: quantity,
         unit: newRowData.unit || "un",
+        estimated_unit_cost: 0,
+        notes: "",
+        invoice_number: "",
+      });
+
+      if (!validationResult.success) {
+        toast.error(validationResult.error.errors[0].message);
+        setIsCreatingNew(false);
+        return;
+      }
+
+      const newMaterial: NewMaterial = {
+        material_name: validationResult.data.material_name,
+        quantity: validationResult.data.quantity,
+        unit: validationResult.data.unit,
         status: status,
         estimated_total_cost: estimatedTotalCost,
         estimated_unit_cost: 0,

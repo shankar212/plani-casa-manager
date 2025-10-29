@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useProjects } from '@/hooks/useProjects';
 import { useToast } from "@/hooks/use-toast";
+import { projectSchema } from '@/lib/validationSchemas';
 
 const CreateProject = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -32,10 +33,19 @@ const CreateProject = () => {
   const { toast } = useToast();
 
   const handleSave = async () => {
-    if (!projectName.trim()) {
+    // Validate input
+    const result = projectSchema.safeParse({
+      name: projectName,
+      description: `Tipo: ${constructionType}\nCliente: ${client}\nEngenheiro: ${engineer}\nEquipe: ${team}`,
+      client,
+      engineer,
+      team,
+    });
+
+    if (!result.success) {
       toast({
-        title: "Erro",
-        description: "Nome do projeto é obrigatório",
+        title: "Erro de validação",
+        description: result.error.errors[0].message,
         variant: "destructive"
       });
       return;
@@ -44,8 +54,8 @@ const CreateProject = () => {
     setSaving(true);
     try {
       const project = await createProject({
-        name: projectName.trim(),
-        description: `Tipo: ${constructionType}\nCliente: ${client}\nEngenheiro: ${engineer}\nEquipe: ${team}`,
+        name: result.data.name,
+        description: result.data.description,
         start_date: startDate ? startDate.toISOString().split('T')[0] : null,
         end_date: endDate ? endDate.toISOString().split('T')[0] : null,
         status: (projectStatus || 'Pré-projeto') as any,
