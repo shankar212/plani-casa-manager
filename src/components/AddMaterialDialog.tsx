@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Package, MapPin, DollarSign, Truck } from "lucide-react";
+import { Plus } from "lucide-react";
 import { NewMaterial } from "@/hooks/useMaterials";
 import { materialSchema } from "@/lib/validationSchemas";
 import { toast } from "sonner";
+import { Separator } from "@/components/ui/separator";
 
 interface AddMaterialDialogProps {
   open: boolean;
@@ -31,7 +31,6 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
   userId,
   onCreateSupplier,
 }) => {
-  const [activeTab, setActiveTab] = useState("basic");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     material_name: "",
@@ -72,7 +71,6 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
     // Validate required fields
     if (!formData.material_name.trim()) {
       toast.error("Nome do material é obrigatório");
-      setActiveTab("basic");
       return;
     }
 
@@ -130,7 +128,6 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
         status: "requested",
         delivery_date: "",
       });
-      setActiveTab("basic");
       onOpenChange(false);
     } catch (error) {
       console.error("Error creating material:", error);
@@ -138,26 +135,6 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
       setIsSubmitting(false);
     }
   };
-
-  const handleNext = () => {
-    const tabs = ["basic", "location", "financial", "delivery"];
-    const currentIndex = tabs.indexOf(activeTab);
-    if (currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1]);
-    } else {
-      handleSubmit();
-    }
-  };
-
-  const handlePrevious = () => {
-    const tabs = ["basic", "location", "financial", "delivery"];
-    const currentIndex = tabs.indexOf(activeTab);
-    if (currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1]);
-    }
-  };
-
-  const isLastTab = activeTab === "delivery";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -167,30 +144,13 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
             <Plus className="h-5 w-5" />
             Adicionar Novo Material
           </DialogTitle>
-          <DialogDescription>Preencha os dados do material. Use as abas para navegar entre as seções.</DialogDescription>
+          <DialogDescription>Preencha os dados do material em um único formulário.</DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic" className="flex items-center gap-1">
-              <Package className="h-3 w-3" />
-              <span className="hidden sm:inline">Básico</span>
-            </TabsTrigger>
-            <TabsTrigger value="location" className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              <span className="hidden sm:inline">Local</span>
-            </TabsTrigger>
-            <TabsTrigger value="financial" className="flex items-center gap-1">
-              <DollarSign className="h-3 w-3" />
-              <span className="hidden sm:inline">Financeiro</span>
-            </TabsTrigger>
-            <TabsTrigger value="delivery" className="flex items-center gap-1">
-              <Truck className="h-3 w-3" />
-              <span className="hidden sm:inline">Entrega</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="basic" className="space-y-4 mt-4">
+        <div className="space-y-6 py-4">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Informações Básicas</h3>
             <div className="space-y-2">
               <Label htmlFor="material_name" className="text-sm font-medium">
                 Nome do Material <span className="text-destructive">*</span>
@@ -232,9 +192,13 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
                 />
               </div>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="location" className="space-y-4 mt-4">
+          <Separator />
+
+          {/* Project & Stage */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Projeto e Etapa</h3>
             <div className="space-y-2">
               <Label htmlFor="project_id" className="text-sm font-medium">
                 Projeto
@@ -275,9 +239,13 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="financial" className="space-y-4 mt-4">
+          <Separator />
+
+          {/* Financial Information */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Informações Financeiras</h3>
             <div className="space-y-2">
               <Label htmlFor="supplier_id" className="text-sm font-medium">
                 Fornecedor
@@ -330,9 +298,13 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
                 </p>
               </div>
             )}
-          </TabsContent>
+          </div>
 
-          <TabsContent value="delivery" className="space-y-4 mt-4">
+          <Separator />
+
+          {/* Delivery Information */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Informações de Entrega</h3>
             <div className="space-y-2">
               <Label htmlFor="status" className="text-sm font-medium">
                 Status
@@ -359,15 +331,15 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
                 className="w-full"
               />
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
 
-        <DialogFooter className="flex gap-2 sm:gap-0">
-          <Button type="button" variant="outline" onClick={handlePrevious} disabled={activeTab === "basic" || isSubmitting}>
-            Anterior
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            Cancelar
           </Button>
-          <Button type="button" onClick={handleNext} disabled={isSubmitting}>
-            {isLastTab ? (isSubmitting ? "Criando..." : "Criar Material") : "Próximo"}
+          <Button type="button" onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Criando..." : "Criar Material"}
           </Button>
         </DialogFooter>
       </DialogContent>
