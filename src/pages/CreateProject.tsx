@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,8 +15,10 @@ import { cn } from "@/lib/utils";
 import { useProjects } from '@/hooks/useProjects';
 import { useToast } from "@/hooks/use-toast";
 import { projectSchema } from '@/lib/validationSchemas';
+import { useAuth } from "@/contexts/AuthContext";
 
 const CreateProject = () => {
+  const { user } = useAuth();
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [projectName, setProjectName] = useState("");
@@ -50,6 +51,15 @@ const CreateProject = () => {
       });
       return;
     }
+    
+    if (!user?.id) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar autenticado para criar projetos",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setSaving(true);
     try {
@@ -59,7 +69,8 @@ const CreateProject = () => {
         start_date: startDate ? startDate.toISOString().split('T')[0] : null,
         end_date: endDate ? endDate.toISOString().split('T')[0] : null,
         status: (projectStatus || 'Pré-projeto') as any,
-        total_budget: null
+        total_budget: null,
+        user_id: user.id,
       });
       
       navigate(`/projetos/${project.id}`);

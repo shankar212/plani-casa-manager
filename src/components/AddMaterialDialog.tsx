@@ -93,6 +93,12 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
       return;
     }
 
+    // Validate authentication before proceeding
+    if (!userId) {
+      toast.error("Você precisa estar autenticado para criar materiais");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -106,7 +112,7 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
         project_id: formData.project_id || null,
         stage_id: formData.stage_id || null,
         supplier_id: formData.supplier_id && formData.supplier_id !== "none" ? formData.supplier_id : null,
-        user_id: userId || null,
+        user_id: userId, // No longer nullable - auth is validated above
         delivery_date: formData.delivery_date || null,
       };
 

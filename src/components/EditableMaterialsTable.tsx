@@ -145,12 +145,18 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const createSupplierWithName = async () => {
     if (!supplierName.trim()) return;
+    
+    if (!user?.id) {
+      toast.error("Você precisa estar autenticado para criar fornecedores");
+      return;
+    }
 
     setIsCreatingSupplier(true);
     try {
       const newSupplier = await createSupplier({
         name: supplierName.trim(),
         contact_info: {},
+        user_id: user.id,
       });
 
       if (newSupplier && materialForNewSupplier && materialForNewSupplier !== "from-add-dialog") {

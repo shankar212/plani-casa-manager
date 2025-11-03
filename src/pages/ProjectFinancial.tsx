@@ -17,8 +17,11 @@ import { useMaterialSuppliers } from "@/hooks/useSuppliers";
 import { MaterialsFinancialSummary } from "@/components/MaterialsFinancialSummary";
 import { useProjectData } from "@/hooks/useProjectData";
 import { ProjectHeader } from "@/components/ProjectHeader";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const ProjectFinancial = () => {
+  const { user } = useAuth();
   const { id } = useParams();
   const { project, loading: projectLoading } = useProjectData(id);
   const { providers, loading, createProvider, updateProvider } = useServiceProviders(id);
@@ -46,12 +49,19 @@ const ProjectFinancial = () => {
 
   const handleCreateProvider = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) {
+      toast.error("Você precisa estar autenticado para criar prestadores");
+      return;
+    }
+    
     if (newProvider.name && newProvider.service_type && newProvider.contract_value && id) {
       await createProvider({
         ...newProvider,
         contract_value: parseFloat(newProvider.contract_value),
         project_id: id,
-        stage_id: newProvider.stage_id || null // Convert empty string to null
+        stage_id: newProvider.stage_id || null, // Convert empty string to null
+        user_id: user.id,
       });
       setNewProvider({
         name: "",
@@ -82,13 +92,19 @@ const ProjectFinancial = () => {
   const createNewProvider = async () => {
     if (isCreatingNew || !newRowData.name?.trim()) return;
     
+    if (!user?.id) {
+      toast.error("Você precisa estar autenticado para criar prestadores");
+      return;
+    }
+    
     setIsCreatingNew(true);
     try {
       await createProvider({
         ...newRowData,
         contract_value: parseFloat(newRowData.contract_value) || 0,
         project_id: id!,
-        stage_id: newRowData.stage_id || null
+        stage_id: newRowData.stage_id || null,
+        user_id: user.id,
       });
       
       setNewRowData({
