@@ -9,6 +9,7 @@ import { NewMaterial } from "@/hooks/useMaterials";
 import { materialSchema } from "@/lib/validationSchemas";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { logError } from "@/lib/errorHandler";
 
 interface AddMaterialDialogProps {
   open: boolean;
@@ -130,7 +131,8 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
       });
       onOpenChange(false);
     } catch (error) {
-      console.error("Error creating material:", error);
+      logError("AddMaterialDialog.handleSubmit", error);
+      toast.error("Não foi possível criar o material");
     } finally {
       setIsSubmitting(false);
     }
