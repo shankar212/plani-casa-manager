@@ -19,10 +19,21 @@ export const resetPasswordSchema = z.object({
 // Project schemas
 export const projectSchema = z.object({
   name: z.string().trim().min(1, 'Nome do projeto é obrigatório').max(200, 'Nome muito longo'),
-  description: z.string().trim().max(2000, 'Descrição muito longa').optional(),
-  client: z.string().trim().max(200, 'Nome do cliente muito longo').optional(),
-  engineer: z.string().trim().max(200, 'Nome do engenheiro muito longo').optional(),
-  team: z.string().trim().max(200, 'Nome da equipe muito longo').optional(),
+  constructionType: z.string().min(1, 'Tipo de construção é obrigatório'),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  status: z.string().min(1, 'Status é obrigatório'),
+  client: z.string().trim().min(1, 'Cliente é obrigatório').max(200, 'Nome do cliente muito longo'),
+  engineer: z.string().trim().min(1, 'Engenheiro/Arquiteto é obrigatório').max(200, 'Nome muito longo'),
+  team: z.string().trim().max(2000, 'Descrição da equipe muito longa').optional(),
+}).refine((data) => {
+  if (data.startDate && data.endDate) {
+    return data.endDate >= data.startDate;
+  }
+  return true;
+}, {
+  message: 'Data de término deve ser posterior à data de início',
+  path: ['endDate'],
 });
 
 // Material schemas
