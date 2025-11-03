@@ -96,7 +96,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
         completed: task.completed || false
       })) : []
     }));
-    console.log('ProjectContext: Converted etapas from stages:', convertedEtapas);
+    if (import.meta.env.DEV) {
+      console.log('ProjectContext: Converted etapas from stages:', convertedEtapas);
+    }
     setEtapas(convertedEtapas);
   }, [stages, allTasks]);
 
@@ -170,7 +172,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       });
       refetchStages();
     } catch (error) {
-      console.error('Error adding task:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error adding task:', error);
+      }
     }
   };
 
@@ -179,7 +183,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       await supabase.from('project_tasks').delete().eq('id', tarefaId);
       refetchStages();
     } catch (error) {
-      console.error('Error deleting task:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting task:', error);
+      }
     }
   };
 
@@ -187,15 +193,21 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
     try {
       await deleteStage(etapaId);
     } catch (error) {
-      console.error('Error deleting stage:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting stage:', error);
+      }
     }
   };
 
   const updateEtapaStatus = async (etapaId: string, status: 'finalizado' | 'andamento' | 'proximo') => {
-    console.log('ProjectContext: updateEtapaStatus called with etapaId:', etapaId, 'status:', status);
+    if (import.meta.env.DEV) {
+      console.log('ProjectContext: updateEtapaStatus called with etapaId:', etapaId, 'status:', status);
+    }
 
     const normalized = normalizeStageStatus(status);
-    console.log('ProjectContext: normalized status:', normalized);
+    if (import.meta.env.DEV) {
+      console.log('ProjectContext: normalized status:', normalized);
+    }
 
     if (!normalized) {
       toast({
@@ -211,9 +223,13 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
     setEtapas(prev => prev.map(e => (e.id === etapaId ? { ...e, status: normalized } : e)));
 
     try {
-      console.log('ProjectContext: Calling updateStage with etapaId:', etapaId, 'normalized status:', normalized);
+      if (import.meta.env.DEV) {
+        console.log('ProjectContext: Calling updateStage with etapaId:', etapaId, 'normalized status:', normalized);
+      }
       const result = await updateStage(etapaId, { status: normalized as any });
-      console.log('ProjectContext: updateStage result:', result);
+      if (import.meta.env.DEV) {
+        console.log('ProjectContext: updateStage result:', result);
+      }
       
       if (!result) {
         throw new Error('No data returned from stage update');
@@ -223,7 +239,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       refetchStages();
       toast({ title: 'Sucesso', description: 'Status da etapa atualizado.' });
     } catch (error) {
-      console.error('ProjectContext: Error updating stage status:', error);
+      if (import.meta.env.DEV) {
+        console.error('ProjectContext: Error updating stage status:', error);
+      }
       // Revert on error
       setEtapas(previousEtapas);
       

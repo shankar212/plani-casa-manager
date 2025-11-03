@@ -72,7 +72,9 @@ export const EditableMaterialsTable: React.FC = () => {
         if (error) throw error;
         setStages(data || []);
       } catch (error) {
-        console.error("Error fetching stages:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error fetching stages:", error);
+        }
       } finally {
         setStagesLoading(false);
       }
@@ -93,7 +95,9 @@ export const EditableMaterialsTable: React.FC = () => {
           table: "materials",
         },
         () => {
-          console.log("Materials table changed, refetching...");
+          if (import.meta.env.DEV) {
+            console.log("Materials table changed, refetching...");
+          }
           refetch();
         },
       )
@@ -174,7 +178,9 @@ export const EditableMaterialsTable: React.FC = () => {
         setAddMaterialDialogOpen(true);
       }
     } catch (error) {
-      console.error("Error creating supplier:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error creating supplier:", error);
+      }
     } finally {
       setIsCreatingSupplier(false);
     }
@@ -202,7 +208,9 @@ export const EditableMaterialsTable: React.FC = () => {
 
       await updateMaterial(id, updates);
     } catch (error) {
-      console.error("Error updating material:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error updating material:", error);
+      }
     }
   };
 
@@ -214,7 +222,9 @@ export const EditableMaterialsTable: React.FC = () => {
         refetch();
       }, 100);
     } catch (error) {
-      console.error("Error creating material:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error creating material:", error);
+      }
       throw error;
     }
   };
@@ -229,7 +239,9 @@ export const EditableMaterialsTable: React.FC = () => {
       try {
         await deleteMaterial(materialToDelete);
       } catch (error) {
-        console.error("Error deleting material:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error deleting material:", error);
+        }
       }
     }
     setDeleteDialogOpen(false);
@@ -265,7 +277,9 @@ export const EditableMaterialsTable: React.FC = () => {
       await Promise.all(Array.from(selectedMaterials).map((id) => deleteMaterial(id)));
       setSelectedMaterials(new Set());
     } catch (error) {
-      console.error("Error bulk deleting materials:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error bulk deleting materials:", error);
+      }
     }
     setBulkDeleteDialogOpen(false);
   };
@@ -281,7 +295,9 @@ export const EditableMaterialsTable: React.FC = () => {
       await Promise.all(Array.from(selectedMaterials).map((id) => updateMaterial(id, { status: "delivered" })));
       setSelectedMaterials(new Set());
     } catch (error) {
-      console.error("Error bulk updating material status:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error bulk updating material status:", error);
+      }
     }
     setBulkStatusDialogOpen(false);
   };
@@ -363,7 +379,9 @@ export const EditableMaterialsTable: React.FC = () => {
     currentCellIndex: number,
     direction: "next" | "prev" | "down" | "up",
   ) => {
-    console.log("Navigation called:", { currentRowIndex, currentCellIndex, direction });
+    if (import.meta.env.DEV) {
+      console.log("Navigation called:", { currentRowIndex, currentCellIndex, direction });
+    }
 
     const totalRows = materials.length;
     let newRowIndex = currentRowIndex;
@@ -413,7 +431,9 @@ export const EditableMaterialsTable: React.FC = () => {
         break;
     }
 
-    console.log("Calculated new position:", { newRowIndex, newCellIndex });
+    if (import.meta.env.DEV) {
+      console.log("Calculated new position:", { newRowIndex, newCellIndex });
+    }
 
     // Find the cell using ID instead of tab index for more reliable focusing
     const cellId = `cell-${newRowIndex}-${newCellIndex}`;
@@ -421,18 +441,26 @@ export const EditableMaterialsTable: React.FC = () => {
 
     if (newCell) {
       newCell.focus();
-      console.log("Successfully focused cell:", cellId);
+      if (import.meta.env.DEV) {
+        console.log("Successfully focused cell:", cellId);
+      }
     } else {
-      console.log("Could not find cell with ID:", cellId);
+      if (import.meta.env.DEV) {
+        console.log("Could not find cell with ID:", cellId);
+      }
 
       // Fallback to tab index method
       const newTabIndex = getTabIndex(newRowIndex, newCellIndex);
       const newCellByTabIndex = document.querySelector(`[tabindex="${newTabIndex}"]`) as HTMLElement;
       if (newCellByTabIndex) {
         newCellByTabIndex.focus();
-        console.log("Successfully focused cell with tab index:", newTabIndex);
+        if (import.meta.env.DEV) {
+          console.log("Successfully focused cell with tab index:", newTabIndex);
+        }
       } else {
-        console.log("Could not find cell with tab index:", newTabIndex);
+        if (import.meta.env.DEV) {
+          console.log("Could not find cell with tab index:", newTabIndex);
+        }
       }
     }
   };

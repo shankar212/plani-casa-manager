@@ -77,7 +77,9 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    console.log('Key pressed:', e.key, 'Cell ID:', id, 'Is editing:', isEditing);
+    if (import.meta.env.DEV) {
+      console.log('Key pressed:', e.key, 'Cell ID:', id, 'Is editing:', isEditing);
+    }
     
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -87,7 +89,9 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       } else {
         handleSave();
         if (onNavigate) {
-          console.log('Navigating down from Enter');
+          if (import.meta.env.DEV) {
+            console.log('Navigating down from Enter');
+          }
           onNavigate('down');
         }
       }
@@ -96,7 +100,9 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       handleCancel();
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      console.log('Tab pressed, Shift key:', e.shiftKey);
+      if (import.meta.env.DEV) {
+        console.log('Tab pressed, Shift key:', e.shiftKey);
+      }
       
       // Always save current value when pressing Tab
       if (isNewRow) {
@@ -114,7 +120,9 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       
       if (onNavigate) {
         const direction = e.shiftKey ? 'prev' : 'next';
-        console.log('Navigating:', direction);
+        if (import.meta.env.DEV) {
+          console.log('Navigating:', direction);
+        }
         onNavigate(direction);
       }
       
@@ -192,7 +200,9 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         <Select 
           value={editValue} 
           onValueChange={(val) => {
-            console.log('Select value changed:', val);
+            if (import.meta.env.DEV) {
+              console.log('Select value changed:', val);
+            }
             setEditValue(val);
             if (isNewRow) {
               onSave(val === '' ? null : val);
@@ -231,7 +241,9 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
         onBlur={() => {
-          console.log('Input blur, isNewRow:', isNewRow);
+          if (import.meta.env.DEV) {
+            console.log('Input blur, isNewRow:', isNewRow);
+          }
           if (isNewRow) {
             // For new row, save the value to local state but don't create material
             onSave(editValue || null);
@@ -259,7 +271,9 @@ export const EditableCell: React.FC<EditableCellProps> = ({
         className
       )}
       onClick={() => {
-        console.log('Cell clicked:', id);
+        if (import.meta.env.DEV) {
+          console.log('Cell clicked:', id);
+        }
         if (type === 'number' && value) {
           // For number type, set unformatted value for editing
           setEditValue(value.toString());
