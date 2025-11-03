@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/Layout";
 import { ProjectCard } from "@/components/ProjectCard";
 import { DashboardStats } from "@/components/DashboardStats";
@@ -25,10 +24,7 @@ const Home = () => {
 
   const fetchProjects = async () => {
     try {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
 
       if (error) throw error;
       setProjects(data || []);
@@ -73,11 +69,9 @@ const Home = () => {
         {/* Hero Section */}
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-foreground">
-            Bem-vindo de volta, {user?.email?.split('@')[0] || 'Usuário'}!
+            Bem-vindo de volta, {user?.email?.split("@")[0] || "Usuário"}!
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Gerencie seus projetos de construção em um só lugar
-          </p>
+          <p className="text-lg text-muted-foreground">Gerencie seus projetos de construção em um só lugar</p>
         </div>
 
         {/* Stats Dashboard */}
@@ -94,7 +88,7 @@ const Home = () => {
                   : "Nenhum projeto cadastrado"}
               </p>
             </div>
-            <Button onClick={() => navigate("/criar-projeto")} className="gap-2">
+            <Button onClick={() => navigate("/projetos/criar")} className="gap-2">
               <Plus className="w-4 h-4" />
               Novo Projeto
             </Button>
@@ -118,12 +112,8 @@ const Home = () => {
               <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
                 <Folder className="w-16 h-16 text-muted-foreground/50" />
                 <div className="text-center space-y-2">
-                  <p className="text-lg font-medium text-muted-foreground">
-                    Nenhum projeto ainda
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Comece criando seu primeiro projeto de construção
-                  </p>
+                  <p className="text-lg font-medium text-muted-foreground">Nenhum projeto ainda</p>
+                  <p className="text-sm text-muted-foreground">Comece criando seu primeiro projeto de construção</p>
                 </div>
                 <Button onClick={() => navigate("/criar-projeto")} className="gap-2 mt-4">
                   <Plus className="w-4 h-4" />
@@ -153,15 +143,11 @@ const Home = () => {
                   className="text-primary hover:underline font-medium"
                 >
                   gustavo.corbucci@gmail.com
-                </a>
-                {" "}com o título [Plani] Assunto
+                </a>{" "}
+                com o título [Plani] Assunto
               </p>
-              <p className="text-muted-foreground font-medium">
-                Aceitamos sugestões!
-              </p>
-              <p className="text-muted-foreground">
-                Obrigado por usar Plani, construindo com você!
-              </p>
+              <p className="text-muted-foreground font-medium">Aceitamos sugestões!</p>
+              <p className="text-muted-foreground">Obrigado por usar Plani, construindo com você!</p>
             </CardContent>
           </Card>
         </div>
