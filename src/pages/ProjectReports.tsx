@@ -12,6 +12,7 @@ import FollowUpReport from "@/components/FollowUpReport";
 import { useProjectData } from "@/hooks/useProjectData";
 import { ProjectHeader } from "@/components/ProjectHeader";
 import { useFinancialData } from "@/hooks/useFinancialData";
+import { logError } from "@/lib/errorHandler";
 
 interface ProjectPhoto {
   id: string;
@@ -69,12 +70,27 @@ const ProjectReports = () => {
         setPhotoUrls(urls);
       }
     } catch (error) {
-      console.error('Error loading photos:', error);
+      logError('ProjectReports.loadPhotos', error);
       toast.error('Erro ao carregar fotos');
     }
   };
 
   const handleFileUpload = async (etapaId: string, file: File) => {
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+    // Validate file size
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error('Imagem muito grande. Máximo 5MB');
+      return;
+    }
+
+    // Validate image type
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast.error('Apenas JPEG, PNG e WebP são permitidos');
+      return;
+    }
+
     try {
       setUploading(etapaId);
       
@@ -103,7 +119,7 @@ const ProjectReports = () => {
       toast.success('Foto adicionada com sucesso');
       loadPhotos();
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      logError('ProjectReports.handleFileUpload', error);
       toast.error('Erro ao fazer upload da foto');
     } finally {
       setUploading(null);
@@ -130,7 +146,7 @@ const ProjectReports = () => {
       toast.success('Foto removida com sucesso');
       loadPhotos();
     } catch (error) {
-      console.error('Error deleting photo:', error);
+      logError('ProjectReports.deletePhoto', error);
       toast.error('Erro ao remover foto');
     }
   };

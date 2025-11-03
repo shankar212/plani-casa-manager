@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Download, Trash2, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/lib/errorHandler";
 
 interface TechnicalDocument {
   id: string;
@@ -33,7 +34,18 @@ export const TechnicalDocumentUpload = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.type !== 'application/pdf') {
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "Erro",
+        description: "Arquivo muito grande. Máximo 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.type !== 'application/pdf' || !file.name.toLowerCase().endsWith('.pdf')) {
       toast({
         title: "Erro",
         description: "Apenas arquivos PDF são permitidos",
@@ -73,10 +85,10 @@ export const TechnicalDocumentUpload = ({
         description: "Documento técnico enviado com sucesso",
       });
     } catch (error) {
-      console.error('Error uploading file:', error);
+      logError('TechnicalDocumentUpload.handleFileUpload', error);
       toast({
         title: "Erro",
-        description: "Erro ao enviar documento",
+        description: "Não foi possível enviar o documento",
         variant: "destructive",
       });
     } finally {
@@ -101,10 +113,10 @@ export const TechnicalDocumentUpload = ({
       a.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading file:', error);
+      logError('TechnicalDocumentUpload.handleDownload', error);
       toast({
         title: "Erro",
-        description: "Erro ao baixar documento",
+        description: "Não foi possível baixar o documento",
         variant: "destructive",
       });
     }
@@ -133,10 +145,10 @@ export const TechnicalDocumentUpload = ({
         description: "Documento excluído com sucesso",
       });
     } catch (error) {
-      console.error('Error deleting file:', error);
+      logError('TechnicalDocumentUpload.handleDelete', error);
       toast({
         title: "Erro",
-        description: "Erro ao excluir documento",
+        description: "Não foi possível excluir o documento",
         variant: "destructive",
       });
     }
