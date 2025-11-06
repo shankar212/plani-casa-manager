@@ -6,7 +6,7 @@ import { useMaterials, Material, NewMaterial } from "@/hooks/useMaterials";
 import { useProjects } from "@/hooks/useProjects";
 import { useMaterialSuppliers } from "@/hooks/useSuppliers";
 import { useAuth } from "@/contexts/AuthContext";
-import { Trash2, Check, Search, Package, DollarSign, TrendingUp, CheckCircle2, Clock, AlertCircle, Plus } from "lucide-react";
+import { Trash2, Check, Search, Package, DollarSign, TrendingUp, CheckCircle2, Clock, AlertCircle, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -61,6 +61,7 @@ export const EditableMaterialsTable: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [addMaterialDialogOpen, setAddMaterialDialogOpen] = useState(false);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   // Fetch all stages accessible to the user
   useEffect(() => {
@@ -300,6 +301,16 @@ export const EditableMaterialsTable: React.FC = () => {
       }
     }
     setBulkStatusDialogOpen(false);
+  };
+
+  const toggleRowExpansion = (materialId: string) => {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(materialId)) {
+      newExpanded.delete(materialId);
+    } else {
+      newExpanded.add(materialId);
+    }
+    setExpandedRows(newExpanded);
   };
 
   // Filter and search materials
@@ -628,164 +639,253 @@ export const EditableMaterialsTable: React.FC = () => {
                     </TableHead>
                     <TableHead className="w-[150px]">Projeto</TableHead>
                     <TableHead className="w-[120px]">Etapa</TableHead>
-
-                <TableHead className="w-[100px]">Status</TableHead>
-                <TableHead className="w-[200px]">Material</TableHead>
-                <TableHead className="w-[100px]">Quantidade</TableHead>
-                <TableHead className="w-[80px]">Unidade</TableHead>
-                <TableHead className="w-[150px]">Fornecedor</TableHead>
-                <TableHead className="w-[120px]">Custo Total Est.</TableHead>
-                <TableHead className="w-[120px]">Custo Unit. Est.</TableHead>
-                <TableHead className="w-[120px]">Data de Pagamento</TableHead>
-                <TableHead className="w-[80px]">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
+                    <TableHead className="w-[100px]">Status</TableHead>
+                    <TableHead className="w-[200px]">Material</TableHead>
+                    <TableHead className="w-[100px]">Quantidade</TableHead>
+                    <TableHead className="w-[80px] hidden md:table-cell">Unidade</TableHead>
+                    <TableHead className="w-[150px] hidden md:table-cell">Fornecedor</TableHead>
+                    <TableHead className="w-[120px] hidden md:table-cell">Custo Total Est.</TableHead>
+                    <TableHead className="w-[120px] hidden md:table-cell">Custo Unit. Est.</TableHead>
+                    <TableHead className="w-[120px] hidden md:table-cell">Data de Pagamento</TableHead>
+                    <TableHead className="w-[80px]">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
             <TableBody>
               {/* Existing materials */}
               {filteredMaterials.map((material, materialIndex) => {
                 const rowIndex = materialIndex;
+                const isExpanded = expandedRows.has(material.id);
                 return (
-                  <TableRow key={material.id}>
-                    <TableCell className="p-2">
-                      <Checkbox
-                        checked={selectedMaterials.has(material.id)}
-                        onCheckedChange={(checked) => handleSelectMaterial(material.id, checked as boolean)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-1`}
-                        value={material.project_id || null}
-                        onSave={(value) => {
-                          // Clear stage when project changes
-                          if (value !== material.project_id) {
-                            handleUpdateField(material.id, "stage_id", "");
-                          }
-                          handleUpdateField(material.id, "project_id", value);
-                        }}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
-                        type="select"
-                        options={projectOptions}
-                        tabIndex={getTabIndex(rowIndex, 1)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-2`}
-                        value={material.stage_id || ""}
-                        onSave={(value) => handleUpdateField(material.id, "stage_id", value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
-                        type="select"
-                        options={getStageOptions(material.project_id || "")}
-                        tabIndex={getTabIndex(rowIndex, 2)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-3`}
-                        value={material.status}
-                        onSave={(value) => handleUpdateField(material.id, "status", value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
-                        type="select"
-                        options={[
-                          { value: "requested", label: "Solicitado" },
-                          { value: "delivered", label: "Entregue" },
-                          { value: "used", label: "Usado" },
-                        ]}
-                        tabIndex={getTabIndex(rowIndex, 3)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-4`}
-                        value={material.material_name}
-                        onSave={(value) => handleUpdateField(material.id, "material_name", value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
-                        placeholder="Nome do material"
-                        tabIndex={getTabIndex(rowIndex, 4)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-5`}
-                        value={material.quantity?.toString() || ""}
-                        onSave={(value) => handleUpdateField(material.id, "quantity", Number(value))}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
-                        type="number"
-                        placeholder="0"
-                        tabIndex={getTabIndex(rowIndex, 5)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-6`}
-                        value={material.unit}
-                        onSave={(value) => handleUpdateField(material.id, "unit", value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
-                        placeholder="un"
-                        tabIndex={getTabIndex(rowIndex, 6)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <Select
-                        value={material.supplier_id || "none"}
-                        onValueChange={(value) => handleSupplierChange(material.id, value)}
-                      >
-                        <SelectTrigger className="w-full border-0 h-full">
-                          <SelectValue placeholder="Selecionar..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Sem fornecedor</SelectItem>
-                          <SelectItem value="new">+ Novo Fornecedor</SelectItem>
-                          {materialSuppliers.map((supplier) => (
-                            <SelectItem key={supplier.id} value={supplier.id}>
-                              {supplier.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-8`}
-                        value={material.estimated_total_cost?.toString() || ""}
-                        onSave={(value) => handleUpdateField(material.id, "estimated_total_cost", Number(value))}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 8, direction)}
-                        type="number"
-                        placeholder="0.00"
-                        tabIndex={getTabIndex(rowIndex, 8)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
-                        {material.estimated_unit_cost
-                          ? `R$ ${material.estimated_unit_cost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                          : "-"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="p-0">
-                      <EditableCell
-                        id={`cell-${rowIndex}-10`}
-                        value={material.delivery_date || ""}
-                        onSave={(value) => handleUpdateField(material.id, "delivery_date", value)}
-                        onNavigate={(direction) => handleCellNavigation(rowIndex, 10, direction)}
-                        type="date"
-                        placeholder="DD/MM/AAAA"
-                        tabIndex={getTabIndex(rowIndex, 10)}
-                      />
-                    </TableCell>
-                    <TableCell className="p-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteMaterial(material.id)}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        tabIndex={-1}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <React.Fragment key={material.id}>
+                    <TableRow>
+                      <TableCell className="p-2">
+                        <Checkbox
+                          checked={selectedMaterials.has(material.id)}
+                          onCheckedChange={(checked) => handleSelectMaterial(material.id, checked as boolean)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0">
+                        <EditableCell
+                          id={`cell-${rowIndex}-1`}
+                          value={material.project_id || null}
+                          onSave={(value) => {
+                            // Clear stage when project changes
+                            if (value !== material.project_id) {
+                              handleUpdateField(material.id, "stage_id", "");
+                            }
+                            handleUpdateField(material.id, "project_id", value);
+                          }}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 1, direction)}
+                          type="select"
+                          options={projectOptions}
+                          tabIndex={getTabIndex(rowIndex, 1)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0">
+                        <EditableCell
+                          id={`cell-${rowIndex}-2`}
+                          value={material.stage_id || ""}
+                          onSave={(value) => handleUpdateField(material.id, "stage_id", value)}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 2, direction)}
+                          type="select"
+                          options={getStageOptions(material.project_id || "")}
+                          tabIndex={getTabIndex(rowIndex, 2)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0">
+                        <EditableCell
+                          id={`cell-${rowIndex}-3`}
+                          value={material.status}
+                          onSave={(value) => handleUpdateField(material.id, "status", value)}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 3, direction)}
+                          type="select"
+                          options={[
+                            { value: "requested", label: "Solicitado" },
+                            { value: "delivered", label: "Entregue" },
+                            { value: "used", label: "Usado" },
+                          ]}
+                          tabIndex={getTabIndex(rowIndex, 3)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0">
+                        <EditableCell
+                          id={`cell-${rowIndex}-4`}
+                          value={material.material_name}
+                          onSave={(value) => handleUpdateField(material.id, "material_name", value)}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
+                          placeholder="Nome do material"
+                          tabIndex={getTabIndex(rowIndex, 4)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0">
+                        <EditableCell
+                          id={`cell-${rowIndex}-5`}
+                          value={material.quantity?.toString() || ""}
+                          onSave={(value) => handleUpdateField(material.id, "quantity", Number(value))}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 5, direction)}
+                          type="number"
+                          placeholder="0"
+                          tabIndex={getTabIndex(rowIndex, 5)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0 hidden md:table-cell">
+                        <EditableCell
+                          id={`cell-${rowIndex}-6`}
+                          value={material.unit}
+                          onSave={(value) => handleUpdateField(material.id, "unit", value)}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
+                          placeholder="un"
+                          tabIndex={getTabIndex(rowIndex, 6)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0 hidden md:table-cell">
+                        <Select
+                          value={material.supplier_id || "none"}
+                          onValueChange={(value) => handleSupplierChange(material.id, value)}
+                        >
+                          <SelectTrigger className="w-full border-0 h-full">
+                            <SelectValue placeholder="Selecionar..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Sem fornecedor</SelectItem>
+                            <SelectItem value="new">+ Novo Fornecedor</SelectItem>
+                            {materialSuppliers.map((supplier) => (
+                              <SelectItem key={supplier.id} value={supplier.id}>
+                                {supplier.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="p-0 hidden md:table-cell">
+                        <EditableCell
+                          id={`cell-${rowIndex}-8`}
+                          value={material.estimated_total_cost?.toString() || ""}
+                          onSave={(value) => handleUpdateField(material.id, "estimated_total_cost", Number(value))}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 8, direction)}
+                          type="number"
+                          placeholder="0.00"
+                          tabIndex={getTabIndex(rowIndex, 8)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-0 hidden md:table-cell">
+                        <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
+                          {material.estimated_unit_cost
+                            ? `R$ ${material.estimated_unit_cost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : "-"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="p-0 hidden md:table-cell">
+                        <EditableCell
+                          id={`cell-${rowIndex}-10`}
+                          value={material.delivery_date || ""}
+                          onSave={(value) => handleUpdateField(material.id, "delivery_date", value)}
+                          onNavigate={(direction) => handleCellNavigation(rowIndex, 10, direction)}
+                          type="date"
+                          placeholder="DD/MM/AAAA"
+                          tabIndex={getTabIndex(rowIndex, 10)}
+                        />
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleRowExpansion(material.id)}
+                            className="h-8 w-8 p-0 md:hidden"
+                            tabIndex={-1}
+                          >
+                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteMaterial(material.id)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            tabIndex={-1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    {/* Expanded details for mobile */}
+                    {isExpanded && (
+                      <TableRow className="md:hidden">
+                        <TableCell colSpan={7} className="p-0 bg-muted/30">
+                          <div className="p-4 space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Unidade</Label>
+                                <EditableCell
+                                  id={`cell-expanded-${rowIndex}-6`}
+                                  value={material.unit}
+                                  onSave={(value) => handleUpdateField(material.id, "unit", value)}
+                                  onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
+                                  placeholder="un"
+                                  tabIndex={getTabIndex(rowIndex, 6)}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Custo Total Est.</Label>
+                                <EditableCell
+                                  id={`cell-expanded-${rowIndex}-8`}
+                                  value={material.estimated_total_cost?.toString() || ""}
+                                  onSave={(value) => handleUpdateField(material.id, "estimated_total_cost", Number(value))}
+                                  onNavigate={(direction) => handleCellNavigation(rowIndex, 8, direction)}
+                                  type="number"
+                                  placeholder="0.00"
+                                  tabIndex={getTabIndex(rowIndex, 8)}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Fornecedor</Label>
+                              <Select
+                                value={material.supplier_id || "none"}
+                                onValueChange={(value) => handleSupplierChange(material.id, value)}
+                              >
+                                <SelectTrigger className="w-full mt-1">
+                                  <SelectValue placeholder="Selecionar..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">Sem fornecedor</SelectItem>
+                                  <SelectItem value="new">+ Novo Fornecedor</SelectItem>
+                                  {materialSuppliers.map((supplier) => (
+                                    <SelectItem key={supplier.id} value={supplier.id}>
+                                      {supplier.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Custo Unit. Est.</Label>
+                                <div className="p-2 text-sm text-muted-foreground italic bg-background border rounded-md mt-1">
+                                  {material.estimated_unit_cost
+                                    ? `R$ ${material.estimated_unit_cost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                    : "-"}
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Data de Pagamento</Label>
+                                <EditableCell
+                                  id={`cell-expanded-${rowIndex}-10`}
+                                  value={material.delivery_date || ""}
+                                  onSave={(value) => handleUpdateField(material.id, "delivery_date", value)}
+                                  onNavigate={(direction) => handleCellNavigation(rowIndex, 10, direction)}
+                                  type="date"
+                                  placeholder="DD/MM/AAAA"
+                                  tabIndex={getTabIndex(rowIndex, 10)}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
                 );
               })}
             </TableBody>
