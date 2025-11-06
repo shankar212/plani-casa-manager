@@ -637,17 +637,12 @@ export const EditableMaterialsTable: React.FC = () => {
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
-                    <TableHead className="w-[150px]">Projeto</TableHead>
-                    <TableHead className="w-[120px]">Etapa</TableHead>
-                    <TableHead className="w-[100px]">Status</TableHead>
-                    <TableHead className="w-[200px]">Material</TableHead>
-                    <TableHead className="w-[100px]">Quantidade</TableHead>
-                    <TableHead className="w-[80px] hidden md:table-cell">Unidade</TableHead>
-                    <TableHead className="w-[150px] hidden md:table-cell">Fornecedor</TableHead>
-                    <TableHead className="w-[120px] hidden md:table-cell">Custo Total Est.</TableHead>
-                    <TableHead className="w-[120px] hidden md:table-cell">Custo Unit. Est.</TableHead>
-                    <TableHead className="w-[120px] hidden md:table-cell">Data de Pagamento</TableHead>
-                    <TableHead className="w-[80px]">Ações</TableHead>
+                    <TableHead>Projeto</TableHead>
+                    <TableHead>Etapa</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Material</TableHead>
+                    <TableHead>Qtd</TableHead>
+                    <TableHead className="w-[100px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
             <TableBody>
@@ -669,7 +664,6 @@ export const EditableMaterialsTable: React.FC = () => {
                           id={`cell-${rowIndex}-1`}
                           value={material.project_id || null}
                           onSave={(value) => {
-                            // Clear stage when project changes
                             if (value !== material.project_id) {
                               handleUpdateField(material.id, "stage_id", "");
                             }
@@ -728,71 +722,13 @@ export const EditableMaterialsTable: React.FC = () => {
                           tabIndex={getTabIndex(rowIndex, 5)}
                         />
                       </TableCell>
-                      <TableCell className="p-0 hidden md:table-cell">
-                        <EditableCell
-                          id={`cell-${rowIndex}-6`}
-                          value={material.unit}
-                          onSave={(value) => handleUpdateField(material.id, "unit", value)}
-                          onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
-                          placeholder="un"
-                          tabIndex={getTabIndex(rowIndex, 6)}
-                        />
-                      </TableCell>
-                      <TableCell className="p-0 hidden md:table-cell">
-                        <Select
-                          value={material.supplier_id || "none"}
-                          onValueChange={(value) => handleSupplierChange(material.id, value)}
-                        >
-                          <SelectTrigger className="w-full border-0 h-full">
-                            <SelectValue placeholder="Selecionar..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Sem fornecedor</SelectItem>
-                            <SelectItem value="new">+ Novo Fornecedor</SelectItem>
-                            {materialSuppliers.map((supplier) => (
-                              <SelectItem key={supplier.id} value={supplier.id}>
-                                {supplier.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="p-0 hidden md:table-cell">
-                        <EditableCell
-                          id={`cell-${rowIndex}-8`}
-                          value={material.estimated_total_cost?.toString() || ""}
-                          onSave={(value) => handleUpdateField(material.id, "estimated_total_cost", Number(value))}
-                          onNavigate={(direction) => handleCellNavigation(rowIndex, 8, direction)}
-                          type="number"
-                          placeholder="0.00"
-                          tabIndex={getTabIndex(rowIndex, 8)}
-                        />
-                      </TableCell>
-                      <TableCell className="p-0 hidden md:table-cell">
-                        <div className="p-2 text-sm text-muted-foreground italic bg-muted/30" tabIndex={-1}>
-                          {material.estimated_unit_cost
-                            ? `R$ ${material.estimated_unit_cost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : "-"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="p-0 hidden md:table-cell">
-                        <EditableCell
-                          id={`cell-${rowIndex}-10`}
-                          value={material.delivery_date || ""}
-                          onSave={(value) => handleUpdateField(material.id, "delivery_date", value)}
-                          onNavigate={(direction) => handleCellNavigation(rowIndex, 10, direction)}
-                          type="date"
-                          placeholder="DD/MM/AAAA"
-                          tabIndex={getTabIndex(rowIndex, 10)}
-                        />
-                      </TableCell>
                       <TableCell className="p-2">
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => toggleRowExpansion(material.id)}
-                            className="h-8 w-8 p-0 md:hidden"
+                            className="h-8 w-8 p-0"
                             tabIndex={-1}
                           >
                             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -809,12 +745,12 @@ export const EditableMaterialsTable: React.FC = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                    {/* Expanded details for mobile */}
+                    {/* Expanded details */}
                     {isExpanded && (
-                      <TableRow className="md:hidden">
-                        <TableCell colSpan={7} className="p-0 bg-muted/30">
-                          <div className="p-4 space-y-3">
-                            <div className="grid grid-cols-2 gap-3">
+                      <TableRow className="bg-muted/30 animate-accordion-down">
+                        <TableCell colSpan={7} className="p-0">
+                          <div className="p-4 space-y-3 border-t">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                               <div>
                                 <Label className="text-xs text-muted-foreground">Unidade</Label>
                                 <EditableCell
@@ -838,28 +774,6 @@ export const EditableMaterialsTable: React.FC = () => {
                                   tabIndex={getTabIndex(rowIndex, 8)}
                                 />
                               </div>
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Fornecedor</Label>
-                              <Select
-                                value={material.supplier_id || "none"}
-                                onValueChange={(value) => handleSupplierChange(material.id, value)}
-                              >
-                                <SelectTrigger className="w-full mt-1">
-                                  <SelectValue placeholder="Selecionar..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">Sem fornecedor</SelectItem>
-                                  <SelectItem value="new">+ Novo Fornecedor</SelectItem>
-                                  {materialSuppliers.map((supplier) => (
-                                    <SelectItem key={supplier.id} value={supplier.id}>
-                                      {supplier.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
                               <div>
                                 <Label className="text-xs text-muted-foreground">Custo Unit. Est.</Label>
                                 <div className="p-2 text-sm text-muted-foreground italic bg-background border rounded-md mt-1">
@@ -867,6 +781,28 @@ export const EditableMaterialsTable: React.FC = () => {
                                     ? `R$ ${material.estimated_unit_cost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                     : "-"}
                                 </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Fornecedor</Label>
+                                <Select
+                                  value={material.supplier_id || "none"}
+                                  onValueChange={(value) => handleSupplierChange(material.id, value)}
+                                >
+                                  <SelectTrigger className="w-full mt-1">
+                                    <SelectValue placeholder="Selecionar..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">Sem fornecedor</SelectItem>
+                                    <SelectItem value="new">+ Novo Fornecedor</SelectItem>
+                                    {materialSuppliers.map((supplier) => (
+                                      <SelectItem key={supplier.id} value={supplier.id}>
+                                        {supplier.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
                               <div>
                                 <Label className="text-xs text-muted-foreground">Data de Pagamento</Label>
