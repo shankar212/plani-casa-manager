@@ -725,13 +725,13 @@ export const EditableMaterialsTable: React.FC = () => {
                       <TableCell className="p-2">
                         <div className="flex items-center gap-1">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => toggleRowExpansion(material.id)}
-                            className="h-8"
+                            className="h-8 w-8 p-0"
                             tabIndex={-1}
                           >
-                            {isExpanded ? "Collapse" : "Expand"}
+                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                           </Button>
                           <Button
                             variant="ghost"
