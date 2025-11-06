@@ -641,7 +641,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     <TableHead>Etapa</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Material</TableHead>
-                    <TableHead>Qtd</TableHead>
+                    <TableHead>Amount</TableHead>
                     <TableHead className="w-[100px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
