@@ -723,7 +723,7 @@ export const EditableMaterialsTable: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell className="p-2">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-3">
                           <Button
                             variant="ghost"
                             size="sm"
