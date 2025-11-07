@@ -724,18 +724,25 @@ export const EditableMaterialsTable: React.FC = () => {
                       </TableCell>
                       <TableCell className="p-2">
                         <div className="flex items-center gap-3">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleRowExpansion(material.id)}
-                            className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-full border-2 border-black shadow-md hover:shadow-lg transition-all"
-                            tabIndex={-1}
-                          >
-                            <ChevronDown 
-                              className={`h-3 w-3 text-black transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
-                              strokeWidth={3}
-                            />
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleRowExpansion(material.id)}
+                                className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-full border-2 border-black shadow-md hover:shadow-lg transition-all"
+                                tabIndex={-1}
+                              >
+                                <ChevronDown 
+                                  className={`h-3 w-3 text-black transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
+                                  strokeWidth={3}
+                                />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {isExpanded ? 'Collapse' : 'Expand'}
+                            </TooltipContent>
+                          </Tooltip>
                           <Button
                             variant="ghost"
                             size="sm"
