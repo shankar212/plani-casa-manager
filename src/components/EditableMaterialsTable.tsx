@@ -728,10 +728,12 @@ export const EditableMaterialsTable: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => toggleRowExpansion(material.id)}
-                            className="h-8 w-8 p-0 bg-white hover:bg-white/90 rounded-full border border-black shadow-md hover:shadow-lg transition-shadow"
+                            className="h-8 w-8 p-0 bg-white hover:bg-white/90 rounded-full border border-black shadow-md hover:shadow-lg transition-all"
                             tabIndex={-1}
                           >
-                            {isExpanded ? <ChevronUp className="h-4 w-4 text-black" /> : <ChevronDown className="h-4 w-4 text-black" />}
+                            <ChevronDown 
+                              className={`h-4 w-4 text-black transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
+                            />
                           </Button>
                           <Button
                             variant="ghost"
