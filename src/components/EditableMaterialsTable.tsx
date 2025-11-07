@@ -743,22 +743,15 @@ export const EditableMaterialsTable: React.FC = () => {
                               {isExpanded ? 'Collapse' : 'Expand'}
                             </TooltipContent>
                           </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteMaterial(material.id)}
-                                className="h-6 w-6 p-0 bg-red-600 hover:bg-red-700 rounded-full border-2 border-red-600 shadow-md hover:shadow-lg transition-all"
-                                tabIndex={-1}
-                              >
-                                <Trash2 className="h-3 w-3 text-white" strokeWidth={3} />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Delete
-                            </TooltipContent>
-                          </Tooltip>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteMaterial(material.id)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            tabIndex={-1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
