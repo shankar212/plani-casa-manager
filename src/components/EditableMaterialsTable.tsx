@@ -757,9 +757,9 @@ export const EditableMaterialsTable: React.FC = () => {
                     </TableRow>
                     {/* Expanded details */}
                     {isExpanded && (
-                      <TableRow className="bg-muted/50 animate-accordion-down">
+                      <TableRow className="bg-muted/50">
                         <TableCell colSpan={7} className="p-0">
-                          <div className="p-4 space-y-3 border-t-2 border-l-4 border-l-primary/30 bg-accent/20">
+                          <div className="p-4 space-y-3 border-t-2 border-l-4 border-l-primary/30 bg-accent/20 animate-in fade-in slide-in-from-top-2 duration-300">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                               <div>
                                 <Label className="text-xs text-muted-foreground">Unidade</Label>
