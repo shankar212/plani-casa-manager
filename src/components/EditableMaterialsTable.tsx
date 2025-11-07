@@ -327,6 +327,16 @@ export const EditableMaterialsTable: React.FC = () => {
     });
   }, [materials, searchQuery, statusFilter, projectFilter]);
 
+  const handleExpandAll = () => {
+    setExpandedRows(new Set(filteredMaterials.map(m => m.id)));
+  };
+
+  const handleCollapseAll = () => {
+    setExpandedRows(new Set());
+  };
+
+  const allExpanded = filteredMaterials.length > 0 && expandedRows.size === filteredMaterials.length;
+
   // Calculate summary stats
   const summaryStats = useMemo(() => {
     const totalMaterials = filteredMaterials.length;
@@ -642,7 +652,32 @@ export const EditableMaterialsTable: React.FC = () => {
                     <TableHead>Status</TableHead>
                     <TableHead>Material</TableHead>
                     <TableHead>Amount</TableHead>
-                    <TableHead className="w-[100px]">Ações</TableHead>
+                    <TableHead className="w-[100px]">
+                      <div className="flex items-center gap-2">
+                        <span>Ações</span>
+                        {filteredMaterials.length > 0 && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={allExpanded ? handleCollapseAll : handleExpandAll}
+                                className="h-6 w-6 p-0"
+                              >
+                                {allExpanded ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {allExpanded ? 'Collapse All' : 'Expand All'}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
             <TableBody>
