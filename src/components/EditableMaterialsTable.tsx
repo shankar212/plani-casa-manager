@@ -789,12 +789,12 @@ export const EditableMaterialsTable: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => toggleRowExpansion(material.id)}
-                                    className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-full border-2 border-black shadow-md hover:shadow-lg transition-all"
+                                    className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-full border border-black shadow-md hover:shadow-lg transition-all"
                                     tabIndex={-1}
                                   >
                                     <ChevronDown
                                       className={`h-3 w-3 text-black transition-transform duration-300 ${isExpanded ? "rotate-180" : "rotate-0"}`}
-                                      strokeWidth={2}
+                                      strokeWidth={3}
                                     />
                                   </Button>
                                 </TooltipTrigger>
