@@ -652,7 +652,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 const isExpanded = expandedRows.has(material.id);
                 return (
                   <React.Fragment key={material.id}>
-                    <TableRow>
+                    <TableRow className="hover:bg-muted/30 transition-colors duration-150">
                       <TableCell className="p-2">
                         <Checkbox
                           checked={selectedMaterials.has(material.id)}
