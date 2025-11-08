@@ -23,7 +23,7 @@ const DigitalWarehouse = () => {
               <div className="space-y-3">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                   Almoxarifado{" "}
-                  <span className="bg-gradient-to-r from-primary via-black-700 to-black dark:from-primary dark:via-black-600 dark:to-black bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-primary via-black-700 to-black dark:from-primary dark:via-black-600 dark:to-black-700 bg-clip-text text-transparent">
   Digital
 </span>
 
