@@ -619,10 +619,10 @@ export const EditableMaterialsTable: React.FC = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="destructive"
+                        variant="outline"
                         size="sm"
                         onClick={handleBulkDelete}
-                        className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm"
+                        className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20 hover:border-destructive/50"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="hidden sm:inline">Excluir ({selectedMaterials.size})</span>
