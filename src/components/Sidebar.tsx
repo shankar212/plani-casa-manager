@@ -5,6 +5,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
@@ -24,95 +25,77 @@ export const Sidebar = () => {
 
   return (
     <div className={cn(
-      "fixed left-0 top-0 h-screen gradient-primary shadow-xl transition-all duration-300 z-50 hidden md:flex flex-col",
-      collapsed ? "w-20" : "w-72"
+      "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 z-50 hidden md:block",
+      collapsed ? "w-16" : "w-60"
     )}>
-      {/* Logo Section */}
-      <div className="p-6 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white shadow-lg flex items-center justify-center">
-              <span className="text-primary text-xl font-bold">P</span>
-            </div>
-            {!collapsed && (
-              <div>
-                <span className="font-bold text-xl text-white">Plani</span>
-                <p className="text-xs text-white/70">Gestão de Projetos</p>
-              </div>
-            )}
+      <div className="p-4">
+        <div className="flex items-center mb-6">
+          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+            <span className="text-white text-sm font-bold">P</span>
+          </div>
+          {!collapsed && <span className="font-bold text-lg">Plani</span>}
+        </div>
+        
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder={collapsed ? "" : "Pesquisar"}
+              className={cn(
+                "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm",
+                collapsed && "pl-8"
+              )}
+            />
           </div>
         </div>
-      </div>
 
-      {/* Navigation Section */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        <nav className="space-y-1">
+        <nav className="space-y-2">
           {navigationItems.map((item) => (
             <NavLink
               key={item.title}
               to={item.url}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group",
-                  "hover:bg-white/10 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
-                  isActive 
-                    ? "bg-white text-primary shadow-lg font-semibold" 
-                    : "text-white/90 hover:text-white"
+                  "flex items-center p-3 rounded-lg transition-colors hover:bg-gray-100",
+                  isActive && "bg-gray-100 font-medium"
                 )
               }
             >
-              {({ isActive }) => (
-                <>
-                  <item.icon className={cn(
-                    "w-5 h-5 transition-transform group-hover:scale-110",
-                    collapsed ? "mx-auto" : ""
-                  )} />
-                  {!collapsed && (
-                    <span className="flex-1 text-base">{item.title}</span>
-                  )}
-                  {!collapsed && isActive && (
-                    <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  )}
-                </>
-              )}
+              <item.icon className="w-5 h-5 mr-3" />
+              {!collapsed && <span>{item.title}</span>}
             </NavLink>
           ))}
         </nav>
-      </div>
-      
-      {/* User Section */}
-      <div className="p-4 border-t border-white/10 space-y-2">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 text-white/90">
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-            <User className="w-4 h-4" />
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.email?.split('@')[0] || 'Usuário'}</p>
-              <p className="text-xs text-white/60 truncate">{user?.email}</p>
-            </div>
-          )}
-        </div>
         
-        <Button
-          onClick={signOut}
-          variant="ghost"
-          className={cn(
-            "w-full justify-start gap-3 p-3 h-auto text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition-all",
-            collapsed && "justify-center"
-          )}
-        >
-          <LogOut className="w-5 h-5" />
-          {!collapsed && <span className="text-base">Sair</span>}
-        </Button>
+        <Separator className="my-4" />
+        
+        {/* User info and logout */}
+        <div className="space-y-2">
+          <div className="flex items-center p-3 text-sm text-muted-foreground">
+            <User className="w-4 h-4 mr-3" />
+            {!collapsed && (
+              <div className="truncate">
+                {user?.email}
+              </div>
+            )}
+          </div>
+          <Button
+            onClick={signOut}
+            variant="ghost"
+            className="w-full justify-start p-3 h-auto hover:bg-gray-100"
+          >
+            <LogOut className="w-4 h-4 mr-3" />
+            {!collapsed && <span>Sair</span>}
+          </Button>
+        </div>
       </div>
       
-      {/* Collapse Toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-4 top-24 w-8 h-8 bg-white border-2 border-primary/20 rounded-full flex items-center justify-center text-primary shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200"
+        className="absolute -right-3 top-20 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50"
       >
-        <span className="text-lg font-bold">{collapsed ? "›" : "‹"}</span>
+        {collapsed ? "›" : "‹"}
       </button>
     </div>
   );

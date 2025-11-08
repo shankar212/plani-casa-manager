@@ -17,7 +17,7 @@ export const Layout = ({ children }: LayoutProps) => {
       <Sidebar />
       <main className={cn(
         "min-h-screen animate-fade-in",
-        isMobile ? "ml-0 pb-20" : "ml-72"
+        isMobile ? "ml-0 pb-20" : "ml-60"
       )}>
         {children}
       </main>
