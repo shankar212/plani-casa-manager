@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EditableCell } from "./EditableCell";
 import { useMaterials, Material, NewMaterial } from "@/hooks/useMaterials";
@@ -502,14 +503,9 @@ export const EditableMaterialsTable: React.FC = () => {
 
   if (loading || stagesLoading) {
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-24 rounded-lg" />
-          ))}
-        </div>
-        <Skeleton className="h-12 rounded-lg" />
-        <Skeleton className="h-96 rounded-lg" />
+      <div className="space-y-6">
+        <Skeleton className="h-12 rounded-lg animate-pulse" style={{ animationDuration: '0.8s' }} />
+        <Skeleton className="h-96 rounded-lg animate-pulse" style={{ animationDuration: '0.8s' }} />
       </div>
     );
   }
@@ -517,42 +513,8 @@ export const EditableMaterialsTable: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Package className="h-4 w-4" />
-              <span>Total de Materiais</span>
-            </div>
-            <p className="text-2xl font-bold">{summaryStats.totalMaterials}</p>
-          </div>
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <DollarSign className="h-4 w-4" />
-              <span>Custo Total Est.</span>
-            </div>
-            <p className="text-2xl font-bold">
-              R${" "}
-              {summaryStats.totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-          </div>
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Entregues</span>
-            </div>
-            <p className="text-2xl font-bold">{summaryStats.deliveredCount}</p>
-          </div>
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <TrendingUp className="h-4 w-4" />
-              <span>Taxa de Entrega</span>
-            </div>
-            <p className="text-2xl font-bold">{summaryStats.deliveryRate.toFixed(0)}%</p>
-          </div>
-        </div>
-
         {/* Filters and Actions */}
+        <Card className="p-6 border-border/50 bg-gradient-to-br from-card to-muted/10 shadow-sm">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex flex-col md:flex-row gap-3 flex-1 w-full md:w-auto">
             <div className="relative flex-1 md:max-w-xs">
@@ -634,55 +596,60 @@ export const EditableMaterialsTable: React.FC = () => {
             </Button>
           </div>
         </div>
+        </Card>
 
         {filteredMaterials.length === 0 && materials.length === 0 ? (
-          <div className="border rounded-lg p-12 text-center space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-              <Package className="h-6 w-6 text-muted-foreground" />
+          <Card className="border-dashed border-2 border-border/50 bg-muted/20 hover:border-primary/30 transition-all duration-300">
+            <div className="p-12 text-center space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center">
+                <Package className="h-8 w-8 text-primary/40" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">Nenhum material cadastrado</h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Comece adicionando seu primeiro material clicando no botão "Novo Material".
+                </p>
+              </div>
+              <Button onClick={() => setAddMaterialDialogOpen(true)} className="mt-4" size="lg">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Primeiro Material
+              </Button>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Nenhum material cadastrado</h3>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Comece adicionando seu primeiro material clicando no botão "Novo Material".
-              </p>
-            </div>
-            <Button onClick={() => setAddMaterialDialogOpen(true)} className="mt-4">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Primeiro Material
-            </Button>
-          </div>
+          </Card>
         ) : filteredMaterials.length === 0 ? (
-          <div className="border rounded-lg p-12 text-center space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-              <AlertCircle className="h-6 w-6 text-muted-foreground" />
+          <Card className="border-dashed border-2 border-border/50 bg-muted/20">
+            <div className="p-12 text-center space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                <AlertCircle className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">Nenhum material encontrado</h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Tente ajustar os filtros de busca para encontrar os materiais desejados.
+                </p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Nenhum material encontrado</h3>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Tente ajustar os filtros de busca para encontrar os materiais desejados.
-              </p>
-            </div>
-          </div>
+          </Card>
         ) : (
-          <div className="border rounded-lg overflow-hidden">
+          <Card className="border-border/50 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-muted/50 hover:bg-muted/50">
                     <TableHead className="w-[50px]">
                       <Checkbox
                         checked={selectedMaterials.size === filteredMaterials.length && filteredMaterials.length > 0}
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
-                    <TableHead>Projeto</TableHead>
-                    <TableHead>Etapa</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Material</TableHead>
-                    <TableHead>Amount</TableHead>
+                    <TableHead className="font-semibold">Projeto</TableHead>
+                    <TableHead className="font-semibold">Etapa</TableHead>
+                    <TableHead className="font-semibold">Status</TableHead>
+                    <TableHead className="font-semibold">Material</TableHead>
+                    <TableHead className="font-semibold">Quantidade</TableHead>
                     <TableHead className="w-[100px]">
                       <div className="flex items-center gap-2">
-                        <span>Ações</span>
+                        <span className="font-semibold">Ações</span>
                         {filteredMaterials.length > 0 && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -690,12 +657,12 @@ export const EditableMaterialsTable: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={allExpanded ? handleCollapseAll : handleExpandAll}
-                                className="h-6 w-6 p-0"
+                                className="h-6 w-6 p-0 hover:bg-primary/10"
                               >
                                 {allExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>{allExpanded ? "Collapse All" : "Expand All"}</TooltipContent>
+                            <TooltipContent>{allExpanded ? "Recolher Tudo" : "Expandir Tudo"}</TooltipContent>
                           </Tooltip>
                         )}
                       </div>
@@ -710,7 +677,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     return (
                       <React.Fragment key={material.id}>
                         <TableRow
-                          className={`hover:bg-muted/30 transition-colors duration-150 ${materialIndex % 2 === 0 ? "bg-background" : "bg-muted/20"}`}
+                          className={`hover:bg-muted/30 transition-all duration-200 ${materialIndex % 2 === 0 ? "bg-background" : "bg-muted/10"} ${isExpanded ? 'border-l-4 border-l-primary' : ''}`}
                         >
                           <TableCell className="p-2">
                             <Checkbox
@@ -896,7 +863,7 @@ export const EditableMaterialsTable: React.FC = () => {
                 </TableBody>
               </Table>
             </div>
-          </div>
+          </Card>
         )}
       </div>
 
