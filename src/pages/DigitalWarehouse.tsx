@@ -9,7 +9,7 @@ const DigitalWarehouse = () => {
         {/* Hero Section with Gradient */}
         <div className="gradient-hero border-b border-border/50">
           <div className="p-4 md:p-8 lg:p-12 space-y-6 max-w-7xl mx-auto">
-            <div className="space-y-4 animate-fade-in-up">
+            <div className="space-y-4 animate-fade-in-up" style={{ animationDuration: '0.15s' }}>
               <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
                 Gestão de Materiais
               </div>

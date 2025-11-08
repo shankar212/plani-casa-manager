@@ -24,7 +24,7 @@ export const useProjects = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
+        .select('id, name, description, status, start_date, end_date, sale_value, total_budget, created_at, updated_at, user_id')
         .order('created_at', { ascending: false });
 
       if (error) throw error;

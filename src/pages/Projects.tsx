@@ -3,7 +3,7 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, SlidersHorizontal, Package, TrendingUp, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjects } from '@/hooks/useProjects';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,23 +16,25 @@ const Projects = () => {
   const navigate = useNavigate();
   const { projects, loading } = useProjects();
 
-  const filteredProjects = projects
-    .filter(project => {
-      const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === "all" || project.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "name":
-          return a.name.localeCompare(b.name);
-        case "oldest":
-          return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
-        case "recent":
-        default:
-          return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-      }
-    });
+  const filteredProjects = useMemo(() => {
+    return projects
+      .filter(project => {
+        const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = statusFilter === "all" || project.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "name":
+            return a.name.localeCompare(b.name);
+          case "oldest":
+            return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+          case "recent":
+          default:
+            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        }
+      });
+  }, [projects, searchTerm, statusFilter, sortBy]);
 
   return (
     <Layout>
@@ -181,17 +183,17 @@ const Projects = () => {
               {loading ? (
                 // Loading skeletons with stagger
                 Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className={`animate-fade-in-up animate-stagger-${Math.min(i % 4 + 1, 4)}`}>
+                  <div key={i} className={`animate-fade-in-up animate-stagger-${Math.min(i % 3 + 1, 3)}`}>
                     <Card className="p-6 border-border/50">
-                      <Skeleton className="h-7 w-3/4 mb-4" />
-                      <Skeleton className="h-4 w-1/2 mb-2" />
-                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-7 w-3/4 mb-4 animate-pulse" style={{ animationDuration: '0.8s' }} />
+                      <Skeleton className="h-4 w-1/2 mb-2 animate-pulse" style={{ animationDuration: '0.8s' }} />
+                      <Skeleton className="h-4 w-2/3 animate-pulse" style={{ animationDuration: '0.8s' }} />
                     </Card>
                   </div>
                 ))
               ) : filteredProjects.length > 0 ? (
                 filteredProjects.map((project, index) => (
-                  <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 4 + 1, 4)}`}>
+                  <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 3 + 1, 3)}`}>
                     <Card 
                       className="group p-6 hover:shadow-xl transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/30 bg-gradient-to-br from-card to-muted/10 hover:scale-[1.02] active:scale-[0.98]"
                       onClick={() => navigate(`/projetos/${project.id}`)}

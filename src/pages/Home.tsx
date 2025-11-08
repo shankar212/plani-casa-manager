@@ -9,6 +9,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Plus, Folder } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Project = Tables<"projects">;
 
@@ -24,7 +25,10 @@ const Home = () => {
 
   const fetchProjects = async () => {
     try {
-      const { data, error } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, name, description, status, start_date, end_date, sale_value, total_budget, created_at, updated_at, user_id")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setProjects(data || []);
@@ -53,15 +57,6 @@ const Home = () => {
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="p-4 md:p-8">
-          <div className="text-center text-muted-foreground">Carregando projetos...</div>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
@@ -107,10 +102,23 @@ const Home = () => {
               </Button>
             </div>
 
-            {projects.length > 0 ? (
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className={`animate-fade-in-up animate-stagger-${Math.min(i % 3 + 1, 3)}`}>
+                    <Card className="p-6 border-border/50">
+                      <Skeleton className="h-7 w-3/4 mb-4 animate-pulse" style={{ animationDuration: '0.8s' }} />
+                      <Skeleton className="h-5 w-1/2 mb-3 animate-pulse" style={{ animationDuration: '0.8s' }} />
+                      <Skeleton className="h-4 w-2/3 mb-2 animate-pulse" style={{ animationDuration: '0.8s' }} />
+                      <Skeleton className="h-4 w-1/2 animate-pulse" style={{ animationDuration: '0.8s' }} />
+                    </Card>
+                  </div>
+                ))}
+              </div>
+            ) : projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {projects.slice(0, 6).map((project, index) => (
-                  <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index + 1, 4)}`}>
+                  <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 3 + 1, 3)}`}>
                     <ProjectCard
                       id={project.id}
                       title={project.name}
