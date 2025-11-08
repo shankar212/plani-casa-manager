@@ -23,10 +23,9 @@ const DigitalWarehouse = () => {
               <div className="space-y-3">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                   Almoxarifado{" "}
-                  <span className="bg-gradient-to-r from-primary via-black-700 to-black dark:from-primary dark:via-black-600 dark:to-black-700 bg-clip-text text-transparent">
-  Digital
-</span>
-
+                  <span className="bg-gradient-to-r from-primary via-black-600 to-black-700 dark:from-primary dark:via-black-400 dark:to-black-500 bg-clip-text text-transparent">
+                    Digital
+                  </span>
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground max-w-3xl leading-relaxed">
                   Gerencie seus materiais de forma eficiente com controle completo de estoque, custos e fornecedores
