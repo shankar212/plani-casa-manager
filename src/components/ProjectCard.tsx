@@ -21,19 +21,31 @@ export const ProjectCard = ({ id, title, phase, startDate, totalCost }: ProjectC
 
   return (
     <Card 
-      className="p-6 hover:shadow-md transition-shadow cursor-pointer" 
+      className="group p-6 hover:shadow-xl transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/30 bg-card hover:scale-[1.02] active:scale-[0.98]" 
       onClick={handleClick}
     >
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <div className="space-y-2 text-sm text-gray-600">
-        <div>
-          <strong>Fase:</strong> {phase}
+      <div className="space-y-4">
+        <div className="flex items-start justify-between">
+          <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+            {title}
+          </h3>
         </div>
-        <div>
-          <strong>Início:</strong> {startDate}
-        </div>
-        <div>
-          <strong>Gasto total:</strong> {totalCost}
+        
+        <div className="space-y-3 pt-2 border-t border-border/30">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">Fase</span>
+            <span className="text-sm font-semibold text-foreground bg-primary/10 px-3 py-1 rounded-full">
+              {phase}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-muted-foreground">Início</span>
+            <span className="text-sm font-semibold text-foreground">{startDate}</span>
+          </div>
+          <div className="flex items-center justify-between pt-2 border-t border-border/30">
+            <span className="text-sm font-medium text-muted-foreground">Gasto Total</span>
+            <span className="text-base font-bold text-primary">{totalCost}</span>
+          </div>
         </div>
       </div>
     </Card>

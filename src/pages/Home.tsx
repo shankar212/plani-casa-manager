@@ -65,91 +65,117 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="p-4 md:p-8 space-y-8">
-        {/* Hero Section */}
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold text-foreground">
-            Bem-vindo de volta, {user?.email?.split("@")[0] || "Usuário"}!
-          </h1>
-          <p className="text-lg text-muted-foreground">Gerencie seus projetos de construção em um só lugar</p>
+      <div className="min-h-screen">
+        {/* Hero Section with Gradient */}
+        <div className="gradient-hero border-b border-border/50">
+          <div className="p-4 md:p-8 lg:p-12 space-y-6 max-w-7xl mx-auto">
+            <div className="space-y-4 animate-fade-in-up">
+              <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                Plataforma de Gestão de Projetos
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+                Bem-vindo de volta,<br />
+                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  {user?.email?.split("@")[0] || "Usuário"}
+                </span>
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
+                Gerencie seus projetos de construção de forma eficiente e moderna, tudo em um só lugar
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Stats Dashboard */}
-        <DashboardStats {...stats} />
+        <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
+          <DashboardStats {...stats} />
 
-        {/* Recent Projects Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold text-foreground">Projetos Recentes</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {projects.length > 0
-                  ? `Você tem ${projects.length} ${projects.length === 1 ? "projeto" : "projetos"}`
-                  : "Nenhum projeto cadastrado"}
-              </p>
-            </div>
-            <Button onClick={() => navigate("/projetos/criar")} className="gap-2">
-              <Plus className="w-4 h-4" />
-              Novo Projeto
-            </Button>
-          </div>
-
-          {projects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.slice(0, 6).map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  id={project.id}
-                  title={project.name}
-                  phase={project.status}
-                  startDate={project.start_date ? formatDate(project.start_date) : "-"}
-                  totalCost={project.total_budget ? formatCurrency(Number(project.total_budget)) : "-"}
-                />
-              ))}
-            </div>
-          ) : (
-            <Card className="border-dashed border-2 border-border/50">
-              <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
-                <Folder className="w-16 h-16 text-muted-foreground/50" />
-                <div className="text-center space-y-2">
-                  <p className="text-lg font-medium text-muted-foreground">Nenhum projeto ainda</p>
-                  <p className="text-sm text-muted-foreground">Comece criando seu primeiro projeto de construção</p>
-                </div>
-                <Button onClick={() => navigate("/criar-projeto")} className="gap-2 mt-4">
-                  <Plus className="w-4 h-4" />
-                  Criar Primeiro Projeto
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {projects.length > 6 && (
-            <div className="text-center">
-              <Button variant="outline" onClick={() => navigate("/projetos")}>
-                Ver Todos os Projetos
+          {/* Recent Projects Section */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">Projetos Recentes</h2>
+                <p className="text-sm md:text-base text-muted-foreground mt-2">
+                  {projects.length > 0
+                    ? `Você tem ${projects.length} ${projects.length === 1 ? "projeto" : "projetos"}`
+                    : "Nenhum projeto cadastrado"}
+                </p>
+              </div>
+              <Button onClick={() => navigate("/projetos/criar")} className="gap-2 shadow-md hover:shadow-lg">
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Novo Projeto</span>
               </Button>
             </div>
-          )}
-        </div>
 
-        {/* Contact Support Section */}
-        <div className="mt-16 pt-8 border-t border-border">
-          <Card className="bg-muted/30 border-border/50">
-            <CardContent className="p-6 text-center space-y-3">
-              <p className="text-muted-foreground">
-                Entrem em contato com o suporte via{" "}
-                <a
-                  href="mailto:gustavo.corbucci@gmail.com?subject=[Plani] Assunto"
-                  className="text-primary hover:underline font-medium"
-                >
-                  gustavo.corbucci@gmail.com
-                </a>{" "}
-                com o título [Plani] Assunto
-              </p>
-              <p className="text-muted-foreground font-medium">Aceitamos sugestões!</p>
-              <p className="text-muted-foreground">Obrigado por usar Plani, construindo com você!</p>
-            </CardContent>
-          </Card>
+            {projects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.slice(0, 6).map((project, index) => (
+                  <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index + 1, 4)}`}>
+                    <ProjectCard
+                      id={project.id}
+                      title={project.name}
+                      phase={project.status}
+                      startDate={project.start_date ? formatDate(project.start_date) : "-"}
+                      totalCost={project.total_budget ? formatCurrency(Number(project.total_budget)) : "-"}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Card className="border-dashed border-2 border-border/50 bg-muted/20 hover:border-primary/30 transition-all duration-300">
+                <CardContent className="flex flex-col items-center justify-center py-16 space-y-6">
+                  <div className="p-6 rounded-full bg-primary/5">
+                    <Folder className="w-16 h-16 text-primary/40" />
+                  </div>
+                  <div className="text-center space-y-3">
+                    <p className="text-xl font-semibold text-foreground">Nenhum projeto ainda</p>
+                    <p className="text-base text-muted-foreground max-w-md">
+                      Comece sua jornada criando seu primeiro projeto de construção
+                    </p>
+                  </div>
+                  <Button onClick={() => navigate("/criar-projeto")} className="gap-2 mt-4 shadow-md hover:shadow-lg" size="lg">
+                    <Plus className="w-5 h-5" />
+                    Criar Primeiro Projeto
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {projects.length > 6 && (
+              <div className="text-center pt-4">
+                <Button variant="outline" onClick={() => navigate("/projetos")} size="lg" className="shadow-sm hover:shadow-md">
+                  Ver Todos os Projetos
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Contact Support Section */}
+          <div className="mt-16 pt-8 border-t border-border">
+            <Card className="gradient-accent border-border/50 shadow-md hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-8 text-center space-y-4">
+                <h3 className="text-xl font-semibold text-foreground">Precisa de Ajuda?</h3>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Entre em contato com o suporte via{" "}
+                  <a
+                    href="mailto:gustavo.corbucci@gmail.com?subject=[Plani] Assunto"
+                    className="text-primary hover:underline font-semibold transition-colors"
+                  >
+                    gustavo.corbucci@gmail.com
+                  </a>{" "}
+                  com o título [Plani] Assunto
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <div className="h-1 w-1 rounded-full bg-primary/40"></div>
+                  <p className="text-sm text-muted-foreground font-medium">Aceitamos sugestões!</p>
+                  <div className="h-1 w-1 rounded-full bg-primary/40"></div>
+                </div>
+                <p className="text-sm text-muted-foreground pt-2">
+                  Obrigado por usar <span className="font-semibold text-primary">Plani</span>, construindo com você!
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </Layout>

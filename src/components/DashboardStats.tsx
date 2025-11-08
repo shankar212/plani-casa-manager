@@ -10,17 +10,19 @@ interface StatsCardProps {
 
 const StatsCard = ({ title, value, icon, description }: StatsCardProps) => {
   return (
-    <Card className="border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+    <Card className="group border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:scale-[1.03] bg-gradient-to-br from-card to-muted/20">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <div className="space-y-2 flex-1">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold text-foreground">{value}</p>
+          <div className="space-y-3 flex-1">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{title}</p>
+            <p className="text-3xl md:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
+              {value}
+            </p>
             {description && (
               <p className="text-xs text-muted-foreground">{description}</p>
             )}
           </div>
-          <div className="ml-4 p-3 rounded-lg bg-primary/10 text-primary">
+          <div className="ml-4 p-4 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 group-hover:scale-110 shadow-sm">
             {icon}
           </div>
         </div>
@@ -81,7 +83,9 @@ export const DashboardStats = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
-        <StatsCard key={index} {...stat} />
+        <div key={index} className={`animate-fade-in-up animate-stagger-${index + 1}`}>
+          <StatsCard {...stat} />
+        </div>
       ))}
     </div>
   );
