@@ -152,6 +152,12 @@ All colors MUST be HSL.
     background: var(--gradient-hero);
   }
   
+  /* Grid background pattern */
+  .bg-grid-white {
+    background-image: linear-gradient(to right, hsl(0 0% 100% / 0.02) 1px, transparent 1px),
+                      linear-gradient(to bottom, hsl(0 0% 100% / 0.02) 1px, transparent 1px);
+  }
+  
   .animate-fade-in-up {
     animation: fadeInUp 0.3s ease-out;
   }

@@ -516,171 +516,199 @@ export const EditableMaterialsTable: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in" style={{ animationDuration: '0.5s' }}>
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <Package className="h-4 w-4" />
-              <span>Total de Materiais</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                  <Package className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">Total de Materiais</span>
+              </div>
+              <p className="text-3xl font-bold text-foreground">{summaryStats.totalMaterials}</p>
             </div>
-            <p className="text-2xl font-bold">{summaryStats.totalMaterials}</p>
           </div>
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <DollarSign className="h-4 w-4" />
-              <span>Custo Total Est.</span>
+          
+          <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-accent/30 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-accent/10 border border-accent/20">
+                  <DollarSign className="h-4 w-4 text-accent" />
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">Custo Total Est.</span>
+              </div>
+              <p className="text-3xl font-bold text-foreground">
+                R$ {summaryStats.totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
             </div>
-            <p className="text-2xl font-bold">
-              R${" "}
-              {summaryStats.totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
           </div>
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Entregues</span>
+          
+          <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-green-500/30 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">Entregues</span>
+              </div>
+              <p className="text-3xl font-bold text-foreground">{summaryStats.deliveredCount}</p>
             </div>
-            <p className="text-2xl font-bold">{summaryStats.deliveredCount}</p>
           </div>
-          <div className="bg-card border rounded-lg p-4 space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <TrendingUp className="h-4 w-4" />
-              <span>Taxa de Entrega</span>
+          
+          <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">Taxa de Entrega</span>
+              </div>
+              <p className="text-3xl font-bold text-foreground">{summaryStats.deliveryRate.toFixed(0)}%</p>
             </div>
-            <p className="text-2xl font-bold">{summaryStats.deliveryRate.toFixed(0)}%</p>
           </div>
         </div>
 
         {/* Filters and Actions */}
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="flex flex-col md:flex-row gap-3 flex-1 w-full md:w-auto">
-            <div className="relative flex-1 md:max-w-xs">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar materiais..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-sm">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+            <div className="flex flex-col md:flex-row gap-3 flex-1 w-full md:w-auto">
+              <div className="relative flex-1 md:max-w-xs">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar materiais..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 border-border/60 focus:border-primary"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-[160px] border-border/60">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos Status</SelectItem>
+                  <SelectItem value="requested">Solicitado</SelectItem>
+                  <SelectItem value="delivered">Entregue</SelectItem>
+                  <SelectItem value="used">Usado</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={projectFilter} onValueChange={setProjectFilter}>
+                <SelectTrigger className="w-full md:w-[200px] border-border/60">
+                  <SelectValue placeholder="Projeto" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos Projetos</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[160px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos Status</SelectItem>
-                <SelectItem value="requested">Solicitado</SelectItem>
-                <SelectItem value="delivered">Entregue</SelectItem>
-                <SelectItem value="used">Usado</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={projectFilter} onValueChange={setProjectFilter}>
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue placeholder="Projeto" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos Projetos</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
-          <div className="flex gap-2 w-full md:w-auto">
-            {selectedMaterials.size > 0 && (
-              <>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleBulkDelete}
-                      className="flex items-center gap-2 flex-1 md:flex-initial"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="hidden sm:inline">Excluir ({selectedMaterials.size})</span>
-                      <span className="sm:hidden">({selectedMaterials.size})</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Excluir materiais selecionados</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={handleBulkStatusChange}
-                      className="flex items-center gap-2 flex-1 md:flex-initial"
-                    >
-                      <Check className="h-4 w-4" />
-                      <span className="hidden sm:inline">Marcar ({selectedMaterials.size})</span>
-                      <span className="sm:hidden">({selectedMaterials.size})</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Marcar materiais como entregues</TooltipContent>
-                </Tooltip>
-              </>
-            )}
-            <Button
-              onClick={() => setAddMaterialDialogOpen(true)}
-              className="flex items-center gap-2 flex-1 md:flex-initial"
-            >
-              <Plus className="h-4 w-4" />
-              Novo Material
-            </Button>
+            <div className="flex gap-2 w-full md:w-auto">
+              {selectedMaterials.size > 0 && (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleBulkDelete}
+                        className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="hidden sm:inline">Excluir ({selectedMaterials.size})</span>
+                        <span className="sm:hidden">({selectedMaterials.size})</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Excluir materiais selecionados</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={handleBulkStatusChange}
+                        className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm"
+                      >
+                        <Check className="h-4 w-4" />
+                        <span className="hidden sm:inline">Marcar ({selectedMaterials.size})</span>
+                        <span className="sm:hidden">({selectedMaterials.size})</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Marcar materiais como entregues</TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+              <Button
+                onClick={() => setAddMaterialDialogOpen(true)}
+                className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm hover:shadow-md transition-shadow"
+              >
+                <Plus className="h-4 w-4" />
+                Novo Material
+              </Button>
+            </div>
           </div>
         </div>
 
         {filteredMaterials.length === 0 && materials.length === 0 ? (
-          <div className="border rounded-lg p-12 text-center space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-              <Package className="h-6 w-6 text-muted-foreground" />
+          <div className="bg-card/50 border border-border/50 rounded-xl p-12 text-center space-y-6 backdrop-blur-sm animate-fade-in">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 flex items-center justify-center">
+              <Package className="h-8 w-8 text-primary" />
             </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Nenhum material cadastrado</h3>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Comece adicionando seu primeiro material clicando no botão "Novo Material".
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-foreground">Nenhum material cadastrado</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                Comece adicionando seu primeiro material para começar a gerenciar seu estoque de forma eficiente.
               </p>
             </div>
-            <Button onClick={() => setAddMaterialDialogOpen(true)} className="mt-4">
+            <Button 
+              onClick={() => setAddMaterialDialogOpen(true)} 
+              size="lg"
+              className="mt-2 shadow-md hover:shadow-lg transition-shadow"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Adicionar Primeiro Material
             </Button>
           </div>
         ) : filteredMaterials.length === 0 ? (
-          <div className="border rounded-lg p-12 text-center space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-              <AlertCircle className="h-6 w-6 text-muted-foreground" />
+          <div className="bg-card/50 border border-border/50 rounded-xl p-12 text-center space-y-6 backdrop-blur-sm animate-fade-in">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20 flex items-center justify-center">
+              <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
             </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Nenhum material encontrado</h3>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Tente ajustar os filtros de busca para encontrar os materiais desejados.
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-foreground">Nenhum material encontrado</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                Tente ajustar os filtros de busca ou limpar os filtros para encontrar os materiais desejados.
               </p>
             </div>
           </div>
         ) : (
-          <div className="border rounded-lg overflow-hidden">
+          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]">
+                  <TableRow className="border-b border-border/60 bg-muted/30 hover:bg-muted/30">
+                    <TableHead className="w-[50px] font-semibold">
                       <Checkbox
                         checked={selectedMaterials.size === filteredMaterials.length && filteredMaterials.length > 0}
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
-                    <TableHead>Projeto</TableHead>
-                    <TableHead>Etapa</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Material</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead className="w-[100px]">
+                    <TableHead className="font-semibold text-foreground">Projeto</TableHead>
+                    <TableHead className="font-semibold text-foreground">Etapa</TableHead>
+                    <TableHead className="font-semibold text-foreground">Status</TableHead>
+                    <TableHead className="font-semibold text-foreground">Material</TableHead>
+                    <TableHead className="font-semibold text-foreground">Quantidade</TableHead>
+                    <TableHead className="w-[100px] font-semibold text-foreground">
                       <div className="flex items-center gap-2">
                         <span>Ações</span>
                         {filteredMaterials.length > 0 && (
@@ -690,12 +718,12 @@ export const EditableMaterialsTable: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={allExpanded ? handleCollapseAll : handleExpandAll}
-                                className="h-6 w-6 p-0"
+                                className="h-6 w-6 p-0 hover:bg-primary/10"
                               >
                                 {allExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>{allExpanded ? "Collapse All" : "Expand All"}</TooltipContent>
+                            <TooltipContent>{allExpanded ? "Recolher Todos" : "Expandir Todos"}</TooltipContent>
                           </Tooltip>
                         )}
                       </div>
@@ -710,7 +738,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     return (
                       <React.Fragment key={material.id}>
                         <TableRow
-                          className={`hover:bg-muted/30 transition-colors duration-150 ${materialIndex % 2 === 0 ? "bg-background" : "bg-muted/20"}`}
+                          className={`group hover:bg-muted/40 transition-all duration-200 ${materialIndex % 2 === 0 ? "bg-background" : "bg-muted/20"} ${isExpanded ? "border-l-4 border-l-primary shadow-sm" : ""}`}
                         >
                           <TableCell className="p-2">
                             <Checkbox
@@ -814,9 +842,9 @@ export const EditableMaterialsTable: React.FC = () => {
                         </TableRow>
                         {/* Expanded details */}
                         {isExpanded && (
-                          <TableRow className="bg-muted/50">
+                          <TableRow className="bg-gradient-to-br from-muted/60 to-muted/30 border-l-4 border-l-primary">
                             <TableCell colSpan={7} className="p-0">
-                              <div className="p-4 space-y-3 border-t-2 border-l-4 border-l-primary/30 bg-accent/20 animate-in fade-in slide-in-from-top-2 duration-300">
+                              <div className="p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                   <div>
                                     <Label className="text-xs text-muted-foreground">Unidade</Label>
