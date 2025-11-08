@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AnimatedRoutes } from "./components/AnimatedRoutes";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import CreateProject from "./pages/CreateProject";
@@ -31,65 +32,67 @@ const App = () => (
       <AuthProvider>
         <ProjectProvider>
           <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos" element={
-              <ProtectedRoute>
-                <Projects />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos/criar" element={
-              <ProtectedRoute>
-                <CreateProject />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos/:id" element={
-              <ProtectedRoute>
-                <ProjectDetail />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos/:id/financeiro" element={
-              <ProtectedRoute>
-                <ProjectFinancial />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos/:id/tecnico" element={
-              <ProtectedRoute>
-                <ProjectTechnical />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos/:id/conformidade-legal" element={
-              <ProtectedRoute>
-                <ProjectLegal />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos/:id/relatorios" element={
-              <ProtectedRoute>
-                <ProjectReports />
-              </ProtectedRoute>
-            } />
-            <Route path="/projetos/:id/adicionar-etapa" element={
-              <ProtectedRoute>
-                <AddStep />
-              </ProtectedRoute>
-            } />
-            <Route path="/almoxarifado" element={
-              <ProtectedRoute>
-                <DigitalWarehouse />
-              </ProtectedRoute>
-            } />
-            <Route path="/notificacoes" element={
-              <ProtectedRoute>
-                <Notifications />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <AnimatedRoutes>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos" element={
+                  <ProtectedRoute>
+                    <Projects />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos/criar" element={
+                  <ProtectedRoute>
+                    <CreateProject />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos/:id" element={
+                  <ProtectedRoute>
+                    <ProjectDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos/:id/financeiro" element={
+                  <ProtectedRoute>
+                    <ProjectFinancial />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos/:id/tecnico" element={
+                  <ProtectedRoute>
+                    <ProjectTechnical />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos/:id/conformidade-legal" element={
+                  <ProtectedRoute>
+                    <ProjectLegal />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos/:id/relatorios" element={
+                  <ProtectedRoute>
+                    <ProjectReports />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos/:id/adicionar-etapa" element={
+                  <ProtectedRoute>
+                    <AddStep />
+                  </ProtectedRoute>
+                } />
+                <Route path="/almoxarifado" element={
+                  <ProtectedRoute>
+                    <DigitalWarehouse />
+                  </ProtectedRoute>
+                } />
+                <Route path="/notificacoes" element={
+                  <ProtectedRoute>
+                    <Notifications />
+                  </ProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatedRoutes>
           </BrowserRouter>
         </ProjectProvider>
       </AuthProvider>
