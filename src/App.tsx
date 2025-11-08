@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AnimatedRoutes } from "./components/AnimatedRoutes";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import CreateProject from "./pages/CreateProject";
@@ -31,8 +32,9 @@ const App = () => (
       <AuthProvider>
         <ProjectProvider>
           <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
+          <AnimatedRoutes>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
             <Route path="/" element={
               <ProtectedRoute>
                 <Home />
@@ -88,8 +90,9 @@ const App = () => (
                 <Notifications />
               </ProtectedRoute>
             } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AnimatedRoutes>
           </BrowserRouter>
         </ProjectProvider>
       </AuthProvider>
