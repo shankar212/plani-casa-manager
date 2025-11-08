@@ -5,15 +5,27 @@ import { EditableMaterialsTable } from "@/components/EditableMaterialsTable";
 const DigitalWarehouse = () => {
   return (
     <Layout>
-      <div className="p-4 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-700">
-          <h1 className="text-3xl font-bold mb-2">Almoxarifado Digital</h1>
-          <p className="text-muted-foreground">
-            Gerencie seus materiais de forma eficiente. Use os filtros para buscar e organize por status ou projeto.
-          </p>
+      <div className="min-h-screen">
+        {/* Hero Section with Gradient */}
+        <div className="gradient-hero border-b border-border/50">
+          <div className="p-4 md:p-8 lg:p-12 space-y-6 max-w-7xl mx-auto">
+            <div className="space-y-4 animate-fade-in-up">
+              <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                Gestão de Materiais
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+                Almoxarifado <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Digital</span>
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
+                Gerencie seus materiais de forma eficiente com controle completo de estoque e custos
+              </p>
+            </div>
+          </div>
         </div>
 
-        <EditableMaterialsTable />
+        <div className="p-4 md:p-8 max-w-7xl mx-auto">
+          <EditableMaterialsTable />
+        </div>
       </div>
     </Layout>
   );
