@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/Layout";
 import { EditableMaterialsTable } from "@/components/EditableMaterialsTable";
 import { Package, TrendingUp } from "lucide-react";
@@ -11,7 +10,7 @@ const DigitalWarehouse = () => {
         <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/5 via-background to-accent/5">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
           <div className="relative p-4 md:p-8 lg:p-12 max-w-7xl mx-auto">
-            <div className="space-y-6 animate-fade-in-up" style={{ animationDuration: '0.4s' }}>
+            <div className="space-y-6 animate-fade-in-up" style={{ animationDuration: "0.4s" }}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
                   <Package className="h-5 w-5 text-primary" />
@@ -23,7 +22,7 @@ const DigitalWarehouse = () => {
               <div className="space-y-3">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                   Almoxarifado{" "}
-                  <span className="bg-gradient-to-r from-primary via-black-600 to-black-700 dark:from-primary dark:via-black-400 dark:to-black-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-primary via-black-600 to-black-700 dark:from-primary dark:via-black-600 dark:to-black-700 bg-clip-text text-transparent">
                     Digital
                   </span>
                 </h1>
