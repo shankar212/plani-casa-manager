@@ -229,7 +229,9 @@ export const EditableMaterialsTable: React.FC = () => {
         material_name: updatedMaterial.material_name,
         quantity: Number(updatedMaterial.quantity),
         unit: updatedMaterial.unit,
-        estimated_unit_cost: updatedMaterial.estimated_unit_cost ? Number(updatedMaterial.estimated_unit_cost) : undefined,
+        estimated_unit_cost: updatedMaterial.estimated_unit_cost
+          ? Number(updatedMaterial.estimated_unit_cost)
+          : undefined,
         notes: updatedMaterial.notes || undefined,
         invoice_number: updatedMaterial.invoice_number || undefined,
       };
@@ -558,7 +560,7 @@ export const EditableMaterialsTable: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="space-y-6 animate-fade-in" style={{ animationDuration: '0.5s' }}>
+      <div className="space-y-6 animate-fade-in" style={{ animationDuration: "0.5s" }}>
         {/* Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
@@ -573,7 +575,7 @@ export const EditableMaterialsTable: React.FC = () => {
               <p className="text-3xl font-bold text-foreground">{summaryStats.totalMaterials}</p>
             </div>
           </div>
-          
+
           <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-accent/30 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative space-y-3">
@@ -584,11 +586,12 @@ export const EditableMaterialsTable: React.FC = () => {
                 <span className="text-sm font-medium text-muted-foreground">Custo Total Est.</span>
               </div>
               <p className="text-3xl font-bold text-foreground">
-                R$ {summaryStats.totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                R${" "}
+                {summaryStats.totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           </div>
-          
+
           <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-green-500/30 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative space-y-3">
@@ -601,7 +604,7 @@ export const EditableMaterialsTable: React.FC = () => {
               <p className="text-3xl font-bold text-foreground">{summaryStats.deliveredCount}</p>
             </div>
           </div>
-          
+
           <div className="group relative overflow-hidden bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative space-y-3">
@@ -712,8 +715,8 @@ export const EditableMaterialsTable: React.FC = () => {
                 Comece adicionando seu primeiro material para começar a gerenciar seu estoque de forma eficiente.
               </p>
             </div>
-            <Button 
-              onClick={() => setAddMaterialDialogOpen(true)} 
+            <Button
+              onClick={() => setAddMaterialDialogOpen(true)}
               size="lg"
               className="mt-2 shadow-md hover:shadow-lg transition-shadow"
             >
@@ -752,7 +755,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     <TableHead className="font-semibold text-foreground">Quantidade</TableHead>
                     <TableHead className="w-[100px] font-semibold text-foreground">
                       <div className="flex items-center gap-2">
-                        <span>Ações</span>
+                        <span>Detalhes</span>
                         {filteredMaterials.length > 0 && (
                           <Tooltip>
                             <TooltipTrigger asChild>
