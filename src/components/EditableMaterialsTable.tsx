@@ -6,6 +6,7 @@ import { useMaterials, Material, NewMaterial } from "@/hooks/useMaterials";
 import { useProjects } from "@/hooks/useProjects";
 import { useMaterialSuppliers } from "@/hooks/useSuppliers";
 import { useAuth } from "@/contexts/AuthContext";
+import { materialSchema } from "@/lib/validationSchemas";
 import {
   Trash2,
   Check,
@@ -207,17 +208,39 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const handleUpdateField = async (id: string, field: keyof Material, value: string | number | null) => {
     try {
+      const material = materials.find((m) => m.id === id);
+      if (!material) return;
+
       const updates: any = { [field]: value };
 
       // If updating total cost or quantity, recalculate unit cost
-      const material = materials.find((m) => m.id === id);
-      if (material && (field === "estimated_total_cost" || field === "quantity")) {
+      if (field === "estimated_total_cost" || field === "quantity") {
         const newTotalCost = field === "estimated_total_cost" ? Number(value) : material.estimated_total_cost;
         const newQuantity = field === "quantity" ? Number(value) : material.quantity;
 
         if (newTotalCost && newQuantity) {
           updates.estimated_unit_cost = calculateUnitCost(Number(newTotalCost), Number(newQuantity));
         }
+      }
+
+      // Build complete material object for validation
+      const updatedMaterial = { ...material, ...updates };
+      const materialData = {
+        material_name: updatedMaterial.material_name,
+        quantity: Number(updatedMaterial.quantity),
+        unit: updatedMaterial.unit,
+        estimated_unit_cost: updatedMaterial.estimated_unit_cost ? Number(updatedMaterial.estimated_unit_cost) : undefined,
+        notes: updatedMaterial.notes || undefined,
+        invoice_number: updatedMaterial.invoice_number || undefined,
+      };
+
+      // Validate the updated material data
+      const validation = materialSchema.safeParse(materialData);
+      if (!validation.success) {
+        toast.error("Erro de validação", {
+          description: validation.error.errors[0].message,
+        });
+        return;
       }
 
       await updateMaterial(id, updates);
@@ -230,6 +253,25 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const createNewMaterial = async (newMaterial: NewMaterial) => {
     try {
+      // Prepare material data for validation
+      const materialData = {
+        material_name: newMaterial.material_name,
+        quantity: Number(newMaterial.quantity),
+        unit: newMaterial.unit,
+        estimated_unit_cost: newMaterial.estimated_unit_cost ? Number(newMaterial.estimated_unit_cost) : undefined,
+        notes: newMaterial.notes || undefined,
+        invoice_number: newMaterial.invoice_number || undefined,
+      };
+
+      // Validate material data before creation
+      const validation = materialSchema.safeParse(materialData);
+      if (!validation.success) {
+        toast.error("Erro de validação", {
+          description: validation.error.errors[0].message,
+        });
+        throw new Error(validation.error.errors[0].message);
+      }
+
       await createMaterial(newMaterial);
       // Force refetch to ensure the new material appears
       setTimeout(() => {
