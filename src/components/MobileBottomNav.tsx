@@ -76,8 +76,8 @@ export const MobileBottomNav = () => {
               
               <Button
                 onClick={handleLogout}
-                variant="outline"
-                className="w-full justify-start bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border-red-200"
+                variant="destructive"
+                className="w-full justify-start"
                 size="lg"
               >
                 <LogOut className="w-4 h-4 mr-3" />
