@@ -77,12 +77,12 @@ const ProjectDetail = () => {
 
   return (
     <Layout>
-      <div className="p-4 md:p-6 lg:p-8">
-        <div className="mb-4 md:mb-6">
+      <div className="p-4 md:p-6 lg:p-8 max-w-full">
+        <div className="mb-4 md:mb-6 max-w-full">
           <div className="text-xs md:text-sm text-gray-600 mb-2">
             <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {project.name}
           </div>
-          <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">{project.name}</h1>
+          <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 break-words">{project.name}</h1>
           
           <div className="flex overflow-x-auto space-x-2 md:space-x-4 border-b border-gray-200 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
             <NavLink 

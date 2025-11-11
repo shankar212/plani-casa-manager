@@ -225,7 +225,7 @@ const ProjectFinancial = () => {
 
   return (
     <Layout>
-      <div className="p-4 md:p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8 max-w-full overflow-x-hidden">
         <ProjectHeader 
           projectId={id} 
           projectName={project?.name || "Carregando..."} 
