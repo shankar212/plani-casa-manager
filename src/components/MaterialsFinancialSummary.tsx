@@ -117,8 +117,8 @@ export const MaterialsFinancialSummary = ({
 
   if (projectMaterials.length === 0) {
     return (
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">materiais</h2>
+      <Card className="p-4 md:p-6 w-full max-w-full">
+        <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4 break-words">materiais</h2>
         <p className="text-muted-foreground text-center py-8">
           Nenhum material cadastrado para este projeto
         </p>
@@ -127,12 +127,12 @@ export const MaterialsFinancialSummary = ({
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">materiais</h2>
-        <div className="text-right">
-          <div className="text-lg font-semibold">{formatCurrency(totalMaterialsCost)}</div>
-          <div className="text-sm text-muted-foreground">total em materiais</div>
+    <Card className="p-4 md:p-6 w-full max-w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+        <h2 className="text-base md:text-lg font-semibold break-words">materiais</h2>
+        <div className="text-left sm:text-right">
+          <div className="text-base md:text-lg font-semibold">{formatCurrency(totalMaterialsCost)}</div>
+          <div className="text-xs md:text-sm text-muted-foreground">total em materiais</div>
         </div>
       </div>
 
@@ -141,20 +141,20 @@ export const MaterialsFinancialSummary = ({
           const isSupplierExpanded = expandedSuppliers.has(supplierId);
           
           return (
-            <div key={supplierId} className="border rounded-lg">
+            <div key={supplierId} className="border rounded-lg w-full max-w-full">
               <button
                 onClick={() => toggleSupplier(supplierId)}
-                className="w-full flex items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors"
+                className="w-full flex items-center justify-between p-2 md:p-3 text-left hover:bg-muted/50 transition-colors gap-2"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 min-w-0">
                   {isSupplierExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
                   ) : (
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4 flex-shrink-0" />
                   )}
-                  <span className="font-medium">{supplierGroup.supplier.name}</span>
+                  <span className="font-medium text-xs md:text-sm truncate">{supplierGroup.supplier.name}</span>
                 </div>
-                <span className="font-medium">{formatCurrency(supplierGroup.totalCost)}</span>
+                <span className="font-medium text-xs md:text-sm flex-shrink-0">{formatCurrency(supplierGroup.totalCost)}</span>
               </button>
 
               {isSupplierExpanded && (
@@ -164,33 +164,33 @@ export const MaterialsFinancialSummary = ({
                     const isStageExpanded = expandedStages.has(stageKey);
                     
                     return (
-                      <div key={stageKey} className="border-b last:border-b-0">
+                      <div key={stageKey} className="border-b last:border-b-0 w-full max-w-full">
                         <button
                           onClick={() => toggleStage(stageKey)}
-                          className="w-full flex items-center justify-between p-3 pl-8 text-left hover:bg-muted/50 transition-colors"
+                          className="w-full flex items-center justify-between p-2 md:p-3 pl-6 md:pl-8 text-left hover:bg-muted/50 transition-colors gap-2"
                         >
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 min-w-0">
                             {isStageExpanded ? (
-                              <ChevronDown className="h-3 w-3" />
+                              <ChevronDown className="h-3 w-3 flex-shrink-0" />
                             ) : (
-                              <ChevronRight className="h-3 w-3" />
+                              <ChevronRight className="h-3 w-3 flex-shrink-0" />
                             )}
-                            <span className="text-sm">{stageGroup.stage?.name}</span>
+                            <span className="text-xs md:text-sm truncate">{stageGroup.stage?.name}</span>
                           </div>
-                          <span className="text-sm font-medium">{formatCurrency(stageGroup.totalCost)}</span>
+                          <span className="text-xs md:text-sm font-medium flex-shrink-0">{formatCurrency(stageGroup.totalCost)}</span>
                         </button>
 
                         {isStageExpanded && (
                           <div className="bg-muted/30">
                             {stageGroup.materials.map((material) => (
-                              <div key={material.id} className="flex justify-between items-center p-3 pl-12 text-sm border-b last:border-b-0">
-                                <div>
-                                  <span className="font-medium">{material.material_name}</span>
-                                  <span className="text-muted-foreground ml-2">
+                              <div key={material.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2 md:p-3 pl-8 md:pl-12 text-xs md:text-sm border-b last:border-b-0 gap-1 sm:gap-2">
+                                <div className="min-w-0 w-full sm:w-auto">
+                                  <span className="font-medium break-words">{material.material_name}</span>
+                                  <span className="text-muted-foreground ml-2 text-xs">
                                     {material.quantity} {material.unit}
                                   </span>
                                 </div>
-                                <span className="font-medium">
+                                <span className="font-medium flex-shrink-0 text-xs md:text-sm">
                                   {formatCurrency(material.estimated_total_cost || 0)}
                                 </span>
                               </div>

@@ -129,10 +129,10 @@ const ProjectDetail = () => {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6 w-full max-w-full">
           {/* Finalizados */}
           <Collapsible open={finalizadosOpen} onOpenChange={setFinalizadosOpen}>
-            <Card className="p-6">
+            <Card className="p-4 md:p-6 w-full max-w-full">
               <CollapsibleTrigger className="flex items-center justify-between w-full">
                 <h2 className="text-lg font-semibold">Finalizados</h2>
                 <div className="flex items-center space-x-2">
@@ -181,7 +181,7 @@ const ProjectDetail = () => {
 
           {/* Em andamento */}
           <Collapsible open={andamentoOpen} onOpenChange={setAndamentoOpen}>
-            <Card className="p-6">
+            <Card className="p-4 md:p-6 w-full max-w-full">
               <CollapsibleTrigger className="flex items-center justify-between w-full">
                 <h2 className="text-lg font-semibold">Em andamento</h2>
                 {andamentoOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -229,7 +229,7 @@ const ProjectDetail = () => {
 
           {/* Próximos */}
           <Collapsible open={proximosOpen} onOpenChange={setProximosOpen}>
-            <Card className="p-6">
+            <Card className="p-4 md:p-6 w-full max-w-full">
               <CollapsibleTrigger className="flex items-center justify-between w-full">
                 <h2 className="text-lg font-semibold">Próximos</h2>
                 {proximosOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -269,7 +269,7 @@ const ProjectDetail = () => {
             </Card>
           </Collapsible>
 
-          <Card className="p-4 md:p-8">
+          <Card className="p-4 md:p-8 w-full max-w-full">
             <Button 
               className="w-full py-4 md:py-6 text-base md:text-lg"
               onClick={() => window.location.href = `/projetos/${id}/adicionar-etapa`}
