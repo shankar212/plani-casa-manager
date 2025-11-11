@@ -254,11 +254,11 @@ const ProjectFinancial = () => {
           {/* Payments and Contracts */}
           <Card className="p-4 md:p-6 w-full max-w-full">
             <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4 break-words">pagamentos e contratos confirmados</h2>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-4 md:mx-0">
               {loading ? (
-                <div className="text-center py-8">Carregando...</div>
+                <div className="text-center py-8 px-4">Carregando...</div>
               ) : (
-                <div className="border rounded-lg overflow-hidden">
+                <div className="border rounded-lg overflow-x-auto min-w-0">
                   <table className="w-full min-w-[640px]">
                     <thead className="bg-muted/50">
                       <tr>
