@@ -83,36 +83,36 @@ const ProjectTechnical = () => {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <ProjectHeader 
           projectId={id} 
           projectName={project?.name || "Carregando..."} 
           loading={projectLoading}
         />
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Physical Financial Schedule */}
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">cronograma físico financeiro</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+          <Card className="p-4 md:p-6">
+            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">cronograma físico financeiro</h2>
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 text-gray-600">etapa</th>
-                    <th className="text-left py-2 text-gray-600">início</th>
-                    <th className="text-left py-2 text-gray-600">fim</th>
-                    <th className="text-left py-2 text-gray-600">progresso</th>
-                    <th className="text-left py-2 text-gray-600">custo (R$)</th>
+                    <th className="text-left py-2 px-2 md:px-0 text-xs md:text-sm text-gray-600">etapa</th>
+                    <th className="text-left py-2 px-2 md:px-0 text-xs md:text-sm text-gray-600">início</th>
+                    <th className="text-left py-2 px-2 md:px-0 text-xs md:text-sm text-gray-600">fim</th>
+                    <th className="text-left py-2 px-2 md:px-0 text-xs md:text-sm text-gray-600">progresso</th>
+                    <th className="text-left py-2 px-2 md:px-0 text-xs md:text-sm text-gray-600">custo (R$)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {etapas.map((etapa) => (
                     <tr key={etapa.id} className="border-b">
-                      <td className="py-3">{etapa.nome}</td>
-                      <td className="py-3">{etapa.dataInicio || '-'}</td>
-                      <td className="py-3">{calculateEndDate(etapa.dataInicio, etapa.prazoEstimado)}</td>
-                      <td className="py-3">{etapa.progresso}</td>
-                      <td className="py-3">{etapa.custo || '-'}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-0 text-xs md:text-sm">{etapa.nome}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-0 text-xs md:text-sm">{etapa.dataInicio || '-'}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-0 text-xs md:text-sm">{calculateEndDate(etapa.dataInicio, etapa.prazoEstimado)}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-0 text-xs md:text-sm">{etapa.progresso}</td>
+                      <td className="py-2 md:py-3 px-2 md:px-0 text-xs md:text-sm">{etapa.custo || '-'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -121,16 +121,16 @@ const ProjectTechnical = () => {
           </Card>
 
           {/* Technical Plans and Projects */}
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">plantas e projetos técnicos</h2>
+          <Card className="p-4 md:p-6">
+            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">plantas e projetos técnicos</h2>
             
             {/* Tab Navigation */}
-            <div className="flex space-x-2 mb-6">
+            <div className="flex overflow-x-auto space-x-2 mb-4 md:mb-6 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
               {documentTypes.map(type => (
                 <button
                   key={type.key}
                   onClick={() => setActiveTab(type.key)}
-                  className={`px-3 py-1 rounded text-sm transition-colors ${
+                  className={`px-3 py-1 rounded text-xs md:text-sm transition-colors whitespace-nowrap flex-shrink-0 ${
                     activeTab === type.key 
                       ? "bg-primary text-primary-foreground" 
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -153,7 +153,7 @@ const ProjectTechnical = () => {
               {/* PDF Preview */}
               {documents[activeTab] && (
                 <div>
-                  <h3 className="font-medium mb-3">Visualização do Documento</h3>
+                  <h3 className="text-sm md:text-base font-medium mb-3">Visualização do Documento</h3>
                   <PDFViewer filePath={documents[activeTab]!.file_path} />
                 </div>
               )}

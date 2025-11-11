@@ -135,7 +135,7 @@ const ProjectLegal = () => {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <ProjectHeader 
           projectId={id} 
           projectName={project?.name || "Carregando..."} 
@@ -143,7 +143,7 @@ const ProjectLegal = () => {
         />
 
         {getTotalDocuments() > 0 && (
-          <div className="mb-4 flex justify-end space-x-2">
+          <div className="mb-4 flex flex-col sm:flex-row justify-end gap-2">
             <Button 
               variant="outline" 
               size="sm"
@@ -180,26 +180,27 @@ const ProjectLegal = () => {
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           {sectors.map((sector, index) => (
-            <Card key={index} className="p-4 w-full">
-              <h3 className="font-semibold mb-4 border-b pb-2">{sector}</h3>
+            <Card key={index} className="p-3 md:p-4 w-full">
+              <h3 className="text-sm md:text-base font-semibold mb-3 md:mb-4 border-b pb-2">{sector}</h3>
               
               {documents[sector] && documents[sector].length > 0 && (
-                <div className="mb-4 space-y-2">
+                <div className="mb-3 md:mb-4 space-y-2">
                   {documents[sector].map((doc, docIndex) => {
                     const docKey = `${sector}-${docIndex}`;
                     const isSelected = selectedDocuments.has(docKey);
                     
                     return (
-                      <div key={docIndex} className="text-sm flex items-center space-x-2">
+                      <div key={docIndex} className="text-xs md:text-sm flex items-center space-x-2">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={(checked) => handleDocumentSelection(docKey, checked as boolean)}
+                          className="flex-shrink-0"
                         />
                         <span className="w-2 h-2 bg-black rounded-full flex-shrink-0"></span>
                         <button
-                          className="truncate hover:text-blue-600 text-left flex-1"
+                          className="truncate hover:text-blue-600 text-left flex-1 min-w-0"
                           title={doc}
                           onClick={() => handleDownloadDocument(doc)}
                         >
@@ -208,7 +209,7 @@ const ProjectLegal = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="p-1 h-auto"
+                          className="p-1 h-auto flex-shrink-0"
                           onClick={() => handleDownloadDocument(doc)}
                         >
                           <Download className="w-3 h-3" />
@@ -222,10 +223,10 @@ const ProjectLegal = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="w-fit"
+                className="w-full sm:w-fit text-xs md:text-sm"
                 onClick={() => handleAddDocument(sector)}
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                 Adicionar Documento
               </Button>
             </Card>

@@ -225,47 +225,48 @@ const ProjectFinancial = () => {
 
   return (
     <Layout>
-      <div className="p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <ProjectHeader 
           projectId={id} 
           projectName={project?.name || "Carregando..."} 
           loading={projectLoading}
         />
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Budget Overview */}
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">orçamento total do projeto</h2>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">{usedPercentage}% utilizado</span>
-              <span className="text-lg font-semibold">R$ {totalBudget.toLocaleString('pt-BR')}</span>
+          <Card className="p-4 md:p-6">
+            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">orçamento total do projeto</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+              <span className="text-xs md:text-sm text-gray-600">{usedPercentage}% utilizado</span>
+              <span className="text-base md:text-lg font-semibold">R$ {totalBudget.toLocaleString('pt-BR')}</span>
             </div>
-            <Progress value={usedPercentage} className="h-3" />
-            <div className="mt-2 text-sm text-gray-600 space-y-1">
+            <Progress value={usedPercentage} className="h-2 md:h-3" />
+            <div className="mt-2 text-xs md:text-sm text-gray-600 space-y-1">
               <div>Usado: R$ {usedAmount.toLocaleString('pt-BR')}</div>
-              <div className="text-xs text-muted-foreground">
-                Contratos: R$ {contractsAmount.toLocaleString('pt-BR')} • 
-                Materiais: R$ {materialsAmount.toLocaleString('pt-BR')}
+              <div className="text-xs text-muted-foreground flex flex-col sm:flex-row sm:gap-1">
+                <span>Contratos: R$ {contractsAmount.toLocaleString('pt-BR')}</span>
+                <span className="hidden sm:inline">•</span>
+                <span>Materiais: R$ {materialsAmount.toLocaleString('pt-BR')}</span>
               </div>
             </div>
           </Card>
 
           {/* Payments and Contracts */}
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4">pagamentos e contratos confirmados</h2>
-            <div className="overflow-x-auto">
+          <Card className="p-4 md:p-6">
+            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">pagamentos e contratos confirmados</h2>
+            <div className="overflow-x-auto -mx-4 md:mx-0">
               {loading ? (
                 <div className="text-center py-8">Carregando...</div>
               ) : (
                 <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full">
+                  <table className="w-full min-w-[640px]">
                     <thead className="bg-muted/50">
                       <tr>
-                        <th className="text-left py-3 px-4 font-medium">contrato</th>
-                        <th className="text-left py-3 px-4 font-medium">tipo de serviço</th>
-                        <th className="text-left py-3 px-4 font-medium">etapa</th>
-                        <th className="text-left py-3 px-4 font-medium">valor</th>
-                        <th className="text-left py-3 px-4 font-medium">status</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm">contrato</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm">tipo de serviço</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm">etapa</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm">valor</th>
+                        <th className="text-left py-2 md:py-3 px-2 md:px-4 font-medium text-xs md:text-sm">status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -437,12 +438,14 @@ const ProjectFinancial = () => {
           </Card>
 
           {/* Materials Section */}
-          <MaterialsFinancialSummary 
-            materials={materials}
-            suppliers={suppliers}
-            stages={stages}
-            projectId={id || ''}
-          />
+          <div className="-mx-4 md:mx-0">
+            <MaterialsFinancialSummary 
+              materials={materials}
+              suppliers={suppliers}
+              stages={stages}
+              projectId={id || ''}
+            />
+          </div>
         </div>
       </div>
     </Layout>
