@@ -145,21 +145,21 @@ export default function Notifications() {
 
   return (
     <Layout>
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-4 md:p-6 lg:p-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6 mb-6">
           <div className="flex items-center gap-3">
-            <Bell className="h-8 w-8 text-primary" />
+            <Bell className="h-6 w-6 md:h-8 md:w-8 text-primary flex-shrink-0" />
             <div>
-              <h1 className="text-3xl font-bold">Notificações</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold">Notificações</h1>
+              <p className="text-sm md:text-base text-muted-foreground">
                 {unreadCount > 0 ? `${unreadCount} não lidas` : "Todas as notificações estão em dia"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
@@ -174,9 +174,10 @@ export default function Notifications() {
             </Select>
 
             {unreadCount > 0 && (
-              <Button onClick={markAllAsRead} variant="outline">
+              <Button onClick={markAllAsRead} variant="outline" className="w-full sm:w-auto">
                 <Check className="h-4 w-4 mr-2" />
-                Marcar todas como lidas
+                <span className="hidden sm:inline">Marcar todas como lidas</span>
+                <span className="sm:hidden">Marcar todas</span>
               </Button>
             )}
           </div>
@@ -204,27 +205,27 @@ export default function Notifications() {
                 }`}
                 onClick={() => !notification.read && markAsRead(notification.id)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3 md:p-4">
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <Badge 
                           variant="secondary" 
-                          className={`${typeColors[notification.type as keyof typeof typeColors]} text-white`}
+                          className={`${typeColors[notification.type as keyof typeof typeColors]} text-white text-xs`}
                         >
                           {typeLabels[notification.type as keyof typeof typeLabels]}
                         </Badge>
                         {notification.projects?.name && (
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             {notification.projects.name}
                           </Badge>
                         )}
                         {!notification.read && (
-                          <div className="h-2 w-2 bg-primary rounded-full"></div>
+                          <div className="h-2 w-2 bg-primary rounded-full flex-shrink-0"></div>
                         )}
                       </div>
                       
-                      <p className="text-sm font-medium mb-1">{notification.message}</p>
+                      <p className="text-sm md:text-base font-medium mb-1 break-words">{notification.message}</p>
                       
                       <p className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(notification.created_at), {

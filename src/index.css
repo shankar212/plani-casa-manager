@@ -109,6 +109,16 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
+  
+  /* Hide scrollbar for mobile horizontal scrolling */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
   body {
     @apply bg-background text-foreground;

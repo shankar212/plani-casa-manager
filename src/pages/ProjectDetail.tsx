@@ -77,19 +77,19 @@ const ProjectDetail = () => {
 
   return (
     <Layout>
-      <div className="p-8">
-        <div className="mb-6">
-          <div className="text-sm text-gray-600 mb-2">
+      <div className="p-4 md:p-6 lg:p-8">
+        <div className="mb-4 md:mb-6">
+          <div className="text-xs md:text-sm text-gray-600 mb-2">
             <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {project.name}
           </div>
-          <h1 className="text-2xl font-bold mb-4">{project.name}</h1>
+          <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">{project.name}</h1>
           
-          <div className="flex space-x-4 border-b border-gray-200">
+          <div className="flex overflow-x-auto space-x-2 md:space-x-4 border-b border-gray-200 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
             <NavLink 
               to={`/projetos/${id}`} 
               end
               className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               gestão
@@ -97,7 +97,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/financeiro`}
               className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               financeiro
@@ -105,7 +105,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/tecnico`}
               className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               técnico
@@ -113,7 +113,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/conformidade-legal`}
               className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               conformidade legal
@@ -121,7 +121,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/relatorios`}
               className={({ isActive }) => 
-                `pb-2 px-1 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               relatórios e indicadores
@@ -146,31 +146,31 @@ const ProjectDetail = () => {
                 ) : (
                   <div className="space-y-2">
                      {finalizados.map((etapa) => (
-                       <div key={etapa.id} className="space-y-2">
-                          <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
-                            <span>{etapa.nome}</span>
-                            <div className="flex items-center gap-2">
-                              <ChangeStatusDialog
-                                etapaName={etapa.nome}
-                                currentStatus="finalizado"
-                                targetStatus="andamento"
-                                onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
-                              />
-                              <DeleteEtapaDialog
-                                etapaName={etapa.nome}
-                                onConfirm={() => deleteEtapa(etapa.id)}
-                              />
-                            </div>
-                          </div>
-                        {etapa.tarefas.map((tarefa) => (
-                          <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
-                            <span className="text-sm">{tarefa.nome}</span>
-                            <DeleteTarefaDialog
-                              tarefaName={tarefa.nome}
-                              onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                     <div key={etapa.id} className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg font-medium flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <span className="text-sm md:text-base break-words">{etapa.nome}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="finalizado"
+                              targetStatus="andamento"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
+                            />
+                            <DeleteEtapaDialog
+                              etapaName={etapa.nome}
+                              onConfirm={() => deleteEtapa(etapa.id)}
                             />
                           </div>
-                        ))}
+                        </div>
+                      {etapa.tarefas.map((tarefa) => (
+                        <div key={tarefa.id} className="ml-2 md:ml-4 p-2 bg-gray-100 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <span className="text-xs md:text-sm break-words">{tarefa.nome}</span>
+                          <DeleteTarefaDialog
+                            tarefaName={tarefa.nome}
+                            onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                          />
+                        </div>
+                      ))}
                       </div>
                     ))}
                   </div>
@@ -190,9 +190,9 @@ const ProjectDetail = () => {
                 <div className="space-y-2">
                    {emAndamento.map((etapa) => (
                      <div key={etapa.id} className="space-y-2">
-                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium flex justify-between items-center">
-                          <span>{etapa.nome}</span>
-                          <div className="flex items-center gap-2">
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <span className="text-sm md:text-base break-words">{etapa.nome}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                             <ChangeStatusDialog
                               etapaName={etapa.nome}
                               currentStatus="andamento"
@@ -212,8 +212,8 @@ const ProjectDetail = () => {
                           </div>
                         </div>
                       {etapa.tarefas.map((tarefa) => (
-                        <div key={tarefa.id} className="ml-4 p-2 bg-blue-100 rounded flex justify-between items-center">
-                          <span className="text-sm">{tarefa.nome}</span>
+                        <div key={tarefa.id} className="ml-2 md:ml-4 p-2 bg-blue-100 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <span className="text-xs md:text-sm break-words">{tarefa.nome}</span>
                           <DeleteTarefaDialog
                             tarefaName={tarefa.nome}
                             onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
@@ -238,9 +238,9 @@ const ProjectDetail = () => {
                 <div className="space-y-2">
                    {proximos.map((etapa) => (
                      <div key={etapa.id} className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg font-medium flex justify-between items-center">
-                          <span>{etapa.nome}</span>
-                          <div className="flex items-center gap-2">
+                        <div className="p-3 bg-gray-50 rounded-lg font-medium flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <span className="text-sm md:text-base break-words">{etapa.nome}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             <ChangeStatusDialog
                               etapaName={etapa.nome}
                               currentStatus="proximo"
@@ -254,8 +254,8 @@ const ProjectDetail = () => {
                           </div>
                         </div>
                       {etapa.tarefas.map((tarefa) => (
-                        <div key={tarefa.id} className="ml-4 p-2 bg-gray-100 rounded flex justify-between items-center">
-                          <span className="text-sm">{tarefa.nome}</span>
+                        <div key={tarefa.id} className="ml-2 md:ml-4 p-2 bg-gray-100 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <span className="text-xs md:text-sm break-words">{tarefa.nome}</span>
                           <DeleteTarefaDialog
                             tarefaName={tarefa.nome}
                             onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
@@ -269,9 +269,9 @@ const ProjectDetail = () => {
             </Card>
           </Collapsible>
 
-          <Card className="p-8">
+          <Card className="p-4 md:p-8">
             <Button 
-              className="w-full py-6 text-lg"
+              className="w-full py-4 md:py-6 text-base md:text-lg"
               onClick={() => window.location.href = `/projetos/${id}/adicionar-etapa`}
             >
               Adicionar Etapa/Tarefa

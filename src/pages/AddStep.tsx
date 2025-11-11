@@ -91,13 +91,13 @@ const AddStep = () => {
 
   return (
     <Layout>
-      <div className="p-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-4">Nova Etapa/Tarefa</h1>
+      <div className="p-4 md:p-6 lg:p-8">
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Nova Etapa/Tarefa</h1>
           <hr className="border-gray-300" />
         </div>
 
-        <Card className="p-6 max-w-4xl">
+        <Card className="p-4 md:p-6 max-w-4xl">
           <h2 className="text-lg font-semibold mb-6">Dados</h2>
           
           <div className="space-y-6">
@@ -151,9 +151,9 @@ const AddStep = () => {
 
             {/* Date and Duration - Only show for new etapa */}
             {isNewEtapa && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="startDate" className="text-base font-medium">
+                  <Label htmlFor="startDate" className="text-sm md:text-base font-medium">
                     data de início
                   </Label>
                   <div className="relative mt-2">
@@ -168,7 +168,7 @@ const AddStep = () => {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="estimatedDuration" className="text-base font-medium">
+                  <Label htmlFor="estimatedDuration" className="text-sm md:text-base font-medium">
                     Prazo estimado
                   </Label>
                   <Input 
@@ -209,10 +209,10 @@ const AddStep = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button 
                 onClick={handleSave}
-                className="flex-1 bg-black text-white hover:bg-gray-800 py-3 text-base"
+                className="flex-1 bg-black text-white hover:bg-gray-800 py-3 text-sm md:text-base"
                 disabled={(!isNewEtapa && !selectedEtapaId) || (isNewEtapa && !newEtapaName.trim())}
               >
                 salvar dados
@@ -220,7 +220,7 @@ const AddStep = () => {
               <Button 
                 onClick={handleCancel}
                 variant="outline"
-                className="flex-1 py-3 text-base"
+                className="flex-1 py-3 text-sm md:text-base"
               >
                 voltar ao projeto
               </Button>
