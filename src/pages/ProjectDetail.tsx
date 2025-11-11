@@ -84,12 +84,12 @@ const ProjectDetail = () => {
           </div>
           <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 break-words">{project.name}</h1>
           
-          <div className="flex overflow-x-auto space-x-2 md:space-x-4 border-b border-gray-200 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+          <div className="flex flex-wrap gap-2 md:gap-0 md:space-x-4 border-b border-gray-200">
             <NavLink 
               to={`/projetos/${id}`} 
               end
               className={({ isActive }) => 
-                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base whitespace-nowrap ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               gestão
@@ -97,7 +97,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/financeiro`}
               className={({ isActive }) => 
-                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base whitespace-nowrap ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               financeiro
@@ -105,7 +105,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/tecnico`}
               className={({ isActive }) => 
-                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base whitespace-nowrap ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               técnico
@@ -113,7 +113,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/conformidade-legal`}
               className={({ isActive }) => 
-                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base whitespace-nowrap ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               conformidade legal
@@ -121,7 +121,7 @@ const ProjectDetail = () => {
             <NavLink 
               to={`/projetos/${id}/relatorios`}
               className={({ isActive }) => 
-                `pb-2 px-2 md:px-1 text-sm md:text-base whitespace-nowrap flex-shrink-0 ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+                `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base whitespace-nowrap ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
               }
             >
               relatórios e indicadores
