@@ -19,6 +19,11 @@ export const MobileBottomNav = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleLogout = async () => {
+    // Haptic feedback for mobile devices
+    if (navigator.vibrate) {
+      navigator.vibrate(50); // 50ms vibration
+    }
+    
     await signOut();
     setIsSheetOpen(false);
   };
@@ -77,7 +82,7 @@ export const MobileBottomNav = () => {
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="w-full justify-start bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border-red-200"
+                className="w-full justify-start bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border-red-200 active:scale-95 transition-transform duration-150"
                 size="lg"
               >
                 <LogOut className="w-4 h-4 mr-3" />
