@@ -3,26 +3,88 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, SlidersHorizontal, Package, TrendingUp, CheckCircle2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjects } from '@/hooks/useProjects';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AccountShareDialog } from "@/components/AccountShareDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { ProjectAccessLevel } from "@/hooks/useProjectAccess";
+import { ProjectAccessBadge } from "@/components/ProjectAccessBadge";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("recent");
+  const [ownershipFilter, setOwnershipFilter] = useState<string>("all");
   const navigate = useNavigate();
   const { projects, loading } = useProjects();
+  const { user } = useAuth();
+  const [projectAccessMap, setProjectAccessMap] = useState<Map<string, ProjectAccessLevel>>(new Map());
+
+  // Fetch project access levels
+  useEffect(() => {
+    const fetchProjectAccess = async () => {
+      if (!user?.id || projects.length === 0) return;
+
+      const accessMap = new Map<string, ProjectAccessLevel>();
+
+      for (const project of projects) {
+        try {
+          if (project.user_id === user.id) {
+            accessMap.set(project.id, 'owner');
+            continue;
+          }
+
+          const { data: share } = await supabase
+            .from('project_shares')
+            .select('access_level')
+            .eq('project_id', project.id)
+            .eq('shared_with_user_id', user.id)
+            .maybeSingle();
+
+          if (share) {
+            accessMap.set(project.id, share.access_level as ProjectAccessLevel);
+            continue;
+          }
+
+          const { data: accountShare } = await supabase
+            .from('account_shares')
+            .select('account_shares.id')
+            .eq('owner_user_id', project.user_id)
+            .eq('shared_with_user_id', user.id)
+            .limit(1)
+            .maybeSingle();
+
+          if (accountShare) {
+            accessMap.set(project.id, 'view');
+          } else {
+            accessMap.set(project.id, 'none');
+          }
+        } catch (error) {
+          accessMap.set(project.id, 'none');
+        }
+      }
+
+      setProjectAccessMap(accessMap);
+    };
+
+    fetchProjectAccess();
+  }, [user, projects]);
 
   const filteredProjects = useMemo(() => {
     return projects
       .filter(project => {
         const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === "all" || project.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        const accessLevel = projectAccessMap.get(project.id);
+        const matchesOwnership = 
+          ownershipFilter === "all" ||
+          (ownershipFilter === "owned" && accessLevel === "owner") ||
+          (ownershipFilter === "shared" && accessLevel !== "owner");
+        return matchesSearch && matchesStatus && matchesOwnership;
       })
       .sort((a, b) => {
         switch (sortBy) {
@@ -35,7 +97,7 @@ const Projects = () => {
             return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
         }
       });
-  }, [projects, searchTerm, statusFilter, sortBy]);
+  }, [projects, searchTerm, statusFilter, sortBy, ownershipFilter, projectAccessMap]);
 
   return (
     <Layout>
@@ -123,6 +185,17 @@ const Projects = () => {
                 <span className="text-sm font-semibold">Filtros:</span>
               </div>
               
+              <Select value={ownershipFilter} onValueChange={setOwnershipFilter}>
+                <SelectTrigger className="w-[180px] shadow-sm">
+                  <SelectValue placeholder="Propriedade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os projetos</SelectItem>
+                  <SelectItem value="owned">Meus projetos</SelectItem>
+                  <SelectItem value="shared">Compartilhados</SelectItem>
+                </SelectContent>
+              </Select>
+              
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[180px] shadow-sm">
                   <SelectValue placeholder="Status" />
@@ -148,11 +221,12 @@ const Projects = () => {
                 </SelectContent>
               </Select>
 
-              {(statusFilter !== "all" || sortBy !== "recent" || searchTerm) && (
+              {(ownershipFilter !== "all" || statusFilter !== "all" || sortBy !== "recent" || searchTerm) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => {
+                    setOwnershipFilter("all");
                     setStatusFilter("all");
                     setSortBy("recent");
                     setSearchTerm("");
@@ -198,18 +272,21 @@ const Projects = () => {
               ) : filteredProjects.length > 0 ? (
                 filteredProjects.map((project, index) => (
                   <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 3 + 1, 3)}`}>
-                    <Card 
+                     <Card 
                       className="group p-6 hover:shadow-xl transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/30 bg-gradient-to-br from-card to-muted/10 hover:scale-[1.02] active:scale-[0.98]"
                       onClick={() => navigate(`/projetos/${project.id}`)}
                     >
                       <div className="space-y-4">
-                        <div>
-                          <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
-                            {project.name}
-                          </h3>
-                          <div className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary/10 text-primary">
-                            {project.status}
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
+                              {project.name}
+                            </h3>
+                            <div className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-primary/10 text-primary">
+                              {project.status}
+                            </div>
                           </div>
+                          <ProjectAccessBadge accessLevel={projectAccessMap.get(project.id) || 'none'} />
                         </div>
                         
                         <div className="pt-4 border-t border-border/30 space-y-2">
