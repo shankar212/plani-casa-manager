@@ -69,13 +69,18 @@ const CreateProject = () => {
       });
       
       navigate(`/projetos/${project.id}`);
-    } catch (error) {
+    } catch (error: any) {
+      const e = error?.error ?? error;
+      const code = e?.code;
+      const message = e?.message ?? String(e);
+      const details = e?.details;
+      const hint = e?.hint;
       if (import.meta.env.DEV) {
-        console.error('Error creating project:', error);
+        console.error('Error creating project:', error, { code, message, details, hint });
       }
       toast({
-        title: "Erro",
-        description: "Não foi possível criar o projeto. Tente novamente.",
+        title: "Erro ao criar projeto",
+        description: `${message}${code ? ` (código ${code})` : ''}${details ? ` — ${details}` : ''}${hint ? ` — ${hint}` : ''}`,
         variant: "destructive"
       });
     }
