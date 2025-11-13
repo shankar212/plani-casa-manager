@@ -53,7 +53,8 @@ export const useProjects = () => {
 
       const { data, error } = await supabase
         .from('projects')
-        .insert([{ ...(project as any), user_id: user.id }])
+        // Rely on DB default to set user_id = auth.uid() to satisfy RLS
+        .insert([project as any])
         .select()
         .single();
 
