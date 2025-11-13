@@ -1190,7 +1190,11 @@ export const EditableMaterialsTable: React.FC = () => {
         open={addMaterialDialogOpen}
         onOpenChange={setAddMaterialDialogOpen}
         onSubmit={createNewMaterial}
-        projects={projects}
+        projects={projects.map(p => ({ 
+          id: p.id, 
+          name: p.name, 
+          accessLevel: projectAccessMap.get(p.id) 
+        }))}
         stages={stages}
         suppliers={materialSuppliers}
         userId={user?.id}

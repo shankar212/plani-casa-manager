@@ -15,7 +15,7 @@ interface AddMaterialDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (material: NewMaterial) => Promise<void>;
-  projects: Array<{ id: string; name: string }>;
+  projects: Array<{ id: string; name: string; accessLevel?: string }>;
   stages: Array<{ id: string; name: string; project_id: string }>;
   suppliers: Array<{ id: string; name: string }>;
   userId: string | undefined;
@@ -56,6 +56,11 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
       setFormData((prev) => ({ ...prev, stage_id: "" }));
     }
   };
+
+  // Filter projects to only show those with edit or owner access
+  const editableProjects = projects.filter(
+    (project) => project.accessLevel === 'owner' || project.accessLevel === 'edit'
+  );
 
   const getStageOptions = () => {
     if (!formData.project_id) {
@@ -217,11 +222,17 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Sem Projeto</SelectItem>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
+                  {editableProjects.length === 0 ? (
+                    <SelectItem value="" disabled>
+                      Nenhum projeto com permissão de edição
                     </SelectItem>
-                  ))}
+                  ) : (
+                    editableProjects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
