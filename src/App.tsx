@@ -22,7 +22,6 @@ import Notifications from "./pages/Notifications";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
 import AccountSettings from "./pages/AccountSettings";
-import ProjectTemplates from "./pages/ProjectTemplates";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
@@ -86,11 +85,6 @@ const App = () => (
             <Route path="/almoxarifado" element={
               <ProtectedRoute>
                 <DigitalWarehouse />
-              </ProtectedRoute>
-            } />
-            <Route path="/templates" element={
-              <ProtectedRoute>
-                <ProjectTemplates />
               </ProtectedRoute>
             } />
               <Route path="/notificacoes" element={

@@ -457,54 +457,6 @@ export type Database = {
           },
         ]
       }
-      project_templates: {
-        Row: {
-          construction_type: string | null
-          created_at: string
-          default_client: string | null
-          default_engineer: string | null
-          default_status: string | null
-          default_team: string | null
-          description: string | null
-          estimated_duration_days: number | null
-          id: string
-          name: string
-          template_stages: Json | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          construction_type?: string | null
-          created_at?: string
-          default_client?: string | null
-          default_engineer?: string | null
-          default_status?: string | null
-          default_team?: string | null
-          description?: string | null
-          estimated_duration_days?: number | null
-          id?: string
-          name: string
-          template_stages?: Json | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          construction_type?: string | null
-          created_at?: string
-          default_client?: string | null
-          default_engineer?: string | null
-          default_status?: string | null
-          default_team?: string | null
-          description?: string | null
-          estimated_duration_days?: number | null
-          id?: string
-          name?: string
-          template_stages?: Json | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       projects: {
         Row: {
           created_at: string | null
