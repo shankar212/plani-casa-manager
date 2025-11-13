@@ -37,19 +37,26 @@ export const useProjectShares = (projectId: string | undefined) => {
 
       if (error) throw error;
 
-      // Transform data to match our type
-      const sharesData: ProjectShare[] = (data || []).map((share: any) => ({
-        id: share.id,
-        project_id: share.project_id,
-        shared_with_user_id: share.shared_with_user_id,
-        shared_by_user_id: share.shared_by_user_id,
-        access_level: share.access_level as 'view' | 'edit' | 'admin',
-        created_at: share.created_at,
-        shared_with_email: share.shared_with_user_id, // Will fetch separately if needed
-        shared_with_name: share.profiles?.full_name
-      }));
+      // Fetch emails for each user
+      const sharesWithEmails = await Promise.all(
+        (data || []).map(async (share: any) => {
+          const { data: email } = await supabase
+            .rpc('get_user_email_by_id', { _user_id: share.shared_with_user_id });
+          
+          return {
+            id: share.id,
+            project_id: share.project_id,
+            shared_with_user_id: share.shared_with_user_id,
+            shared_by_user_id: share.shared_by_user_id,
+            access_level: share.access_level as 'view' | 'edit' | 'admin',
+            created_at: share.created_at,
+            shared_with_email: email || 'Email não disponível',
+            shared_with_name: share.profiles?.full_name
+          };
+        })
+      );
 
-      setShares(sharesData);
+      setShares(sharesWithEmails);
     } catch (error: any) {
       console.error('Error fetching shares:', error);
       toast.error('Erro ao carregar compartilhamentos');
