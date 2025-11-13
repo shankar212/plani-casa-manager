@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useProjects } from './useProjects';
+import { logger } from '@/lib/logger';
 
 interface FinancialData {
   materialCost: number;
@@ -66,7 +67,7 @@ export const useFinancialData = (projectId: string | undefined) => {
       });
 
     } catch (error) {
-      console.error('Error fetching financial data:', error);
+      logger.error('Error fetching financial data:', error);
       toast.error('Erro ao carregar dados financeiros');
     } finally {
       setLoading(false);
@@ -81,7 +82,7 @@ export const useFinancialData = (projectId: string | undefined) => {
       setFinancialData(prev => ({ ...prev, saleValue: newSaleValue }));
       toast.success('Valor de venda atualizado');
     } catch (error) {
-      console.error('Error updating sale value:', error);
+      logger.error('Error updating sale value:', error);
       toast.error('Erro ao atualizar valor de venda');
     }
   };

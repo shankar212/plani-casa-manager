@@ -5,6 +5,7 @@ import type { ProjectStage, ProjectTask } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { normalizeStageStatus } from '@/lib/status';
+import { logger } from '@/lib/logger';
 
 
 export interface Tarefa {
@@ -96,9 +97,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
         completed: task.completed || false
       })) : []
     }));
-    if (import.meta.env.DEV) {
-      console.log('ProjectContext: Converted etapas from stages:', convertedEtapas);
-    }
+    logger.log('ProjectContext: Converted etapas from stages:', convertedEtapas);
     setEtapas(convertedEtapas);
   }, [stages, allTasks]);
 

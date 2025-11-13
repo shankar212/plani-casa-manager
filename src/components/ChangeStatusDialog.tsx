@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { logger } from "@/lib/logger";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,13 +55,13 @@ export const ChangeStatusDialog = ({ etapaName, currentStatus, targetStatus, onC
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleConfirm = async () => {
-    console.log('ChangeStatusDialog: Confirming status change from', currentStatus, 'to', targetStatus);
+    logger.log('ChangeStatusDialog: Confirming status change from', currentStatus, 'to', targetStatus);
     try {
       setIsSubmitting(true);
       await Promise.resolve(onConfirm());
       setOpen(false);
     } catch (err) {
-      console.error('ChangeStatusDialog: Failed to change status', err);
+      logger.error('ChangeStatusDialog: Failed to change status', err);
     } finally {
       setIsSubmitting(false);
     }

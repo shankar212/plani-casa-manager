@@ -12,7 +12,7 @@ import FollowUpReport from "@/components/FollowUpReport";
 import { useProjectData } from "@/hooks/useProjectData";
 import { ProjectHeader } from "@/components/ProjectHeader";
 import { useFinancialData } from "@/hooks/useFinancialData";
-import { logError } from "@/lib/errorHandler";
+import { logger } from "@/lib/logger";
 
 interface ProjectPhoto {
   id: string;
@@ -70,7 +70,7 @@ const ProjectReports = () => {
         setPhotoUrls(urls);
       }
     } catch (error) {
-      logError('ProjectReports.loadPhotos', error);
+      logger.error('ProjectReports.loadPhotos', error);
       toast.error('Erro ao carregar fotos');
     }
   };
@@ -119,7 +119,7 @@ const ProjectReports = () => {
       toast.success('Foto adicionada com sucesso');
       loadPhotos();
     } catch (error) {
-      logError('ProjectReports.handleFileUpload', error);
+      logger.error('ProjectReports.handleFileUpload', error);
       toast.error('Erro ao fazer upload da foto');
     } finally {
       setUploading(null);
@@ -146,7 +146,7 @@ const ProjectReports = () => {
       toast.success('Foto removida com sucesso');
       loadPhotos();
     } catch (error) {
-      logError('ProjectReports.deletePhoto', error);
+      logger.error('ProjectReports.deletePhoto', error);
       toast.error('Erro ao remover foto');
     }
   };

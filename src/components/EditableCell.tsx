@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface EditableCellProps {
   id?: string;
@@ -77,9 +78,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (import.meta.env.DEV) {
-      console.log('Key pressed:', e.key, 'Cell ID:', id, 'Is editing:', isEditing);
-    }
+    logger.log('Key pressed:', e.key, 'Cell ID:', id, 'Is editing:', isEditing);
     
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -89,9 +88,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       } else {
         handleSave();
         if (onNavigate) {
-          if (import.meta.env.DEV) {
-            console.log('Navigating down from Enter');
-          }
+          logger.log('Navigating down from Enter');
           onNavigate('down');
         }
       }
@@ -100,9 +97,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       handleCancel();
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      if (import.meta.env.DEV) {
-        console.log('Tab pressed, Shift key:', e.shiftKey);
-      }
+      logger.log('Tab pressed, Shift key:', e.shiftKey);
       
       // Always save current value when pressing Tab
       if (isNewRow) {
@@ -120,9 +115,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({
       
       if (onNavigate) {
         const direction = e.shiftKey ? 'prev' : 'next';
-        if (import.meta.env.DEV) {
-          console.log('Navigating:', direction);
-        }
+        logger.log('Navigating:', direction);
         onNavigate(direction);
       }
       

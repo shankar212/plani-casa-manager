@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import { logger } from '@/lib/logger';
 
 export type Material = Tables<'materials'> & {
   projects?: { name: string } | null;
@@ -31,7 +32,7 @@ export const useMaterials = () => {
       if (error) throw error;
       setMaterials(data || []);
     } catch (error) {
-      console.error('Error fetching materials:', error);
+      logger.error('Error fetching materials:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os materiais",
@@ -72,7 +73,7 @@ export const useMaterials = () => {
       
       return data;
     } catch (error) {
-      console.error('Error creating material:', error);
+      logger.error('Error creating material:', error);
       toast({
         title: "Erro",
         description: "Não foi possível criar o material",
@@ -99,7 +100,7 @@ export const useMaterials = () => {
       setMaterials(prev => prev.map(m => m.id === id ? data : m));
       return data;
     } catch (error) {
-      console.error('Error updating material:', error);
+      logger.error('Error updating material:', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o material",
@@ -124,7 +125,7 @@ export const useMaterials = () => {
         description: "Material excluído com sucesso!"
       });
     } catch (error) {
-      console.error('Error deleting material:', error);
+      logger.error('Error deleting material:', error);
       toast({
         title: "Erro",
         description: "Não foi possível excluir o material",

@@ -7,6 +7,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useMaterialSuppliers } from "@/hooks/useSuppliers";
 import { useAuth } from "@/contexts/AuthContext";
 import { materialSchema } from "@/lib/validationSchemas";
+import { logger } from "@/lib/logger";
 import {
   Trash2,
   Check,
@@ -87,9 +88,7 @@ export const EditableMaterialsTable: React.FC = () => {
         if (error) throw error;
         setStages(data || []);
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error("Error fetching stages:", error);
-        }
+        logger.error("Error fetching stages:", error);
       } finally {
         setStagesLoading(false);
       }
