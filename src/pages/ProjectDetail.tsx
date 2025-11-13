@@ -10,6 +10,7 @@ import { useProject } from "@/contexts/ProjectContext";
 import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
 import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
 import { ChangeStatusDialog } from "@/components/ChangeStatusDialog";
+import { ProjectShareDialog } from "@/components/ProjectShareDialog";
 import { useProjects } from "@/hooks/useProjects";
 import type { Project } from "@/hooks/useProjects";
 
@@ -82,7 +83,10 @@ const ProjectDetail = () => {
           <div className="text-xs md:text-sm text-gray-600 mb-2">
             <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {project.name}
           </div>
-          <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 break-words">{project.name}</h1>
+          <div className="flex items-center justify-between mb-3 md:mb-4 gap-4">
+            <h1 className="text-xl md:text-2xl font-bold break-words">{project.name}</h1>
+            <ProjectShareDialog projectId={id!} projectName={project.name} />
+          </div>
           
           <div className="flex flex-wrap gap-2 md:gap-0 md:space-x-4 border-b border-gray-200">
             <NavLink 
