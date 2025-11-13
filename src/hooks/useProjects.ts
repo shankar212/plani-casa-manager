@@ -4,7 +4,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { normalizeStageStatus } from '@/lib/status';
-import { logger } from '@/lib/logger';
 
 
 export type Project = Tables<'projects'>;
@@ -31,7 +30,9 @@ export const useProjects = () => {
       if (error) throw error;
       setProjects(data || []);
     } catch (error) {
-      logger.error('Error fetching projects:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching projects:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível carregar os projetos",
@@ -42,18 +43,21 @@ export const useProjects = () => {
     }
   };
 
-  const createProject = async (project: NewProject) => {
+  const createProject = async (project: Omit<NewProject, 'user_id'>) => {
     try {
       if (!user) {
         throw new Error("User not authenticated");
       }
 
-      // Don't send user_id - let the database trigger set it automatically
+      console.log('Attempting to create project:', project);
+
       const { data, error } = await supabase
         .from('projects')
-        .insert([project])
+        .insert([{ ...(project as any), user_id: user.id }])
         .select()
         .single();
+
+      console.log('Create project result:', { data, error });
 
       if (error) throw error;
       
@@ -65,7 +69,9 @@ export const useProjects = () => {
       
       return data;
     } catch (error) {
-      logger.error('Error creating project:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error creating project:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível criar o projeto",
@@ -94,7 +100,9 @@ export const useProjects = () => {
       
       return data;
     } catch (error) {
-      logger.error('Error updating project:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error updating project:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o projeto",
@@ -119,7 +127,9 @@ export const useProjects = () => {
         description: "Projeto excluído com sucesso!"
       });
     } catch (error) {
-      logger.error('Error deleting project:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting project:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível excluir o projeto",
@@ -144,7 +154,9 @@ export const useProjects = () => {
       if (error) throw error;
       return data;
     } catch (error) {
-      logger.error('Error fetching project:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching project:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível carregar o projeto",
@@ -197,7 +209,9 @@ export const useProjectStages = (projectId?: string) => {
       if (error) throw error;
       setStages(data || []);
     } catch (error) {
-      logger.error('Error fetching stages:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching stages:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível carregar as etapas",
@@ -226,7 +240,9 @@ export const useProjectStages = (projectId?: string) => {
       
       return data;
     } catch (error) {
-      logger.error('Error creating stage:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error creating stage:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível criar a etapa",
@@ -238,13 +254,17 @@ export const useProjectStages = (projectId?: string) => {
 
   const updateStage = async (id: string, updates: TablesUpdate<'project_stages'>) => {
     try {
-      logger.log('useProjects: updateStage called with id:', id, 'updates:', updates);
+      if (import.meta.env.DEV) {
+        console.log('useProjects: updateStage called with id:', id, 'updates:', updates);
+      }
 
       // Normalize status if present
       const safeUpdates: any = { ...updates };
       if (typeof safeUpdates.status === 'string') {
         const normalized = normalizeStageStatus(safeUpdates.status);
-        logger.log('useProjects: normalized status:', normalized, 'from:', safeUpdates.status);
+        if (import.meta.env.DEV) {
+          console.log('useProjects: normalized status:', normalized, 'from:', safeUpdates.status);
+        }
         if (!normalized) {
           throw new Error(`Invalid stage status: ${safeUpdates.status}`);
         }
@@ -262,21 +282,29 @@ export const useProjectStages = (projectId?: string) => {
       error = result.error;
 
       if (error) {
-        logger.error('useProjects: Supabase error on updateStage:', error);
+        if (import.meta.env.DEV) {
+          console.error('useProjects: Supabase error on updateStage:', error);
+        }
         throw error;
       }
       
       if (!data) {
-        logger.warn('useProjects: updateStage returned no data. Refetching stages...');
+        if (import.meta.env.DEV) {
+          console.warn('useProjects: updateStage returned no data. Refetching stages...');
+        }
         await fetchStages();
         return null as unknown as ProjectStage;
       }
       
       const updated = data as ProjectStage;
-      logger.log('useProjects: Successfully updated stage:', updated);
+      if (import.meta.env.DEV) {
+        console.log('useProjects: Successfully updated stage:', updated);
+      }
       setStages(prev => {
         const newStages = prev.map(s => s.id === id ? updated : s);
-        logger.log('useProjects: Updated stages array:', newStages);
+        if (import.meta.env.DEV) {
+          console.log('useProjects: Updated stages array:', newStages);
+        }
         return newStages;
       });
       toast({
@@ -286,7 +314,9 @@ export const useProjectStages = (projectId?: string) => {
       
       return updated;
     } catch (error: any) {
-      logger.error('Error updating stage:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error updating stage:', error);
+      }
       const message = error?.message || String(error);
       toast({
         title: "Erro",
@@ -312,7 +342,9 @@ export const useProjectStages = (projectId?: string) => {
         description: "Etapa excluída com sucesso!"
       });
     } catch (error) {
-      logger.error('Error deleting stage:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting stage:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível excluir a etapa",
@@ -359,7 +391,9 @@ export const useProjectTasks = (stageId?: string) => {
       if (error) throw error;
       setTasks(data || []);
     } catch (error) {
-      logger.error('Error fetching tasks:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error fetching tasks:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível carregar as tarefas",
@@ -388,7 +422,9 @@ export const useProjectTasks = (stageId?: string) => {
       
       return data;
     } catch (error) {
-      logger.error('Error creating task:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error creating task:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível criar a tarefa",
@@ -412,7 +448,9 @@ export const useProjectTasks = (stageId?: string) => {
       setTasks(prev => prev.map(t => t.id === id ? data : t));
       return data;
     } catch (error) {
-      logger.error('Error updating task:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error updating task:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível atualizar a tarefa",
@@ -437,7 +475,9 @@ export const useProjectTasks = (stageId?: string) => {
         description: "Tarefa excluída com sucesso!"
       });
     } catch (error) {
-      logger.error('Error deleting task:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error deleting task:', error);
+      }
       toast({
         title: "Erro",
         description: "Não foi possível excluir a tarefa",

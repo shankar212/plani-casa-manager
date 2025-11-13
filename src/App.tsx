@@ -18,6 +18,7 @@ import ProjectReports from "./pages/ProjectReports";
 import AddStep from "./pages/AddStep";
 import DigitalWarehouse from "./pages/DigitalWarehouse";
 import Notifications from "./pages/Notifications";
+import AccountSettings from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
@@ -83,12 +84,17 @@ const App = () => (
                 <DigitalWarehouse />
               </ProtectedRoute>
             } />
-            <Route path="/notificacoes" element={
-              <ProtectedRoute>
-                <Notifications />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
+              <Route path="/notificacoes" element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              } />
+              <Route path="/conta" element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
           </Routes>
           </BrowserRouter>
         </ProjectProvider>

@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Plus, Download, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { logger } from "@/lib/logger";
 
 interface FollowUpNote {
   id: string;
@@ -46,7 +45,7 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
       if (error) throw error;
       setNotes(data as unknown as FollowUpNote[] || []);
     } catch (error) {
-      logger.error('Error loading notes:', error);
+      console.error('Error loading notes:', error);
     }
   };
 
@@ -73,7 +72,7 @@ const FollowUpReport = ({ projectId, projectName }: FollowUpReportProps) => {
       setIsAdding(false);
       loadNotes();
     } catch (error) {
-      logger.error('Error saving note:', error);
+      console.error('Error saving note:', error);
       toast.error('Erro ao salvar nota');
     } finally {
       setLoading(false);

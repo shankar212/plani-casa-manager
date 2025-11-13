@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useProjects } from '@/hooks/useProjects';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AccountShareDialog } from "@/components/AccountShareDialog";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -166,17 +167,20 @@ const Projects = () => {
 
           {/* Projects Grid */}
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
               <h2 className="text-2xl font-bold text-foreground">
                 {filteredProjects.length > 0 ? `${filteredProjects.length} ${filteredProjects.length === 1 ? 'Projeto' : 'Projetos'}` : 'Projetos'}
               </h2>
-              <Button 
-                onClick={() => navigate('/projetos/criar')}
-                className="gap-2 shadow-md hover:shadow-lg"
-              >
-                <Plus className="w-4 h-4" />
-                Novo Projeto
-              </Button>
+              <div className="flex gap-2">
+                <AccountShareDialog />
+                <Button 
+                  onClick={() => navigate('/projetos/criar')}
+                  className="gap-2 shadow-md hover:shadow-lg"
+                >
+                  <Plus className="w-4 h-4" />
+                  Novo Projeto
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

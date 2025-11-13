@@ -49,6 +49,8 @@ const CreateProject = () => {
       return;
     }
 
+    console.log('Creating project with user:', user.id, 'values:', values);
+
     try {
       const description = `Tipo: ${values.constructionType}\nCliente: ${values.client}\nEngenheiro: ${values.engineer}${values.team ? `\nEquipe: ${values.team}` : ''}`;
       
@@ -227,9 +229,10 @@ const CreateProject = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="Pré-projeto">Pré-projeto</SelectItem>
-                        <SelectItem value="Em andamento">Em andamento</SelectItem>
-                        <SelectItem value="Finalizado">Finalizado</SelectItem>
-                        <SelectItem value="Pausado">Pausado</SelectItem>
+                        <SelectItem value="Projeto">Projeto</SelectItem>
+                        <SelectItem value="Obras">Obras</SelectItem>
+                        <SelectItem value="Pós obra">Pós obra</SelectItem>
+                        <SelectItem value="Financiamento">Financiamento</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

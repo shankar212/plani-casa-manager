@@ -5,7 +5,7 @@ import type { ProjectStage, ProjectTask } from '@/hooks/useProjects';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { normalizeStageStatus } from '@/lib/status';
-import { logger } from '@/lib/logger';
+import { useRealtimeProject } from '@/hooks/useRealtimeProject';
 
 
 export interface Tarefa {
@@ -71,6 +71,18 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
   
   const { stages, loading: stagesLoading, createStage, updateStage, deleteStage, refetch: refetchStages } = useProjectStages(projectId || undefined);
 
+  // Set up real-time subscriptions for project updates
+  useRealtimeProject({
+    projectId: projectId || undefined,
+    onProjectUpdate: refetchStages,
+    onStageUpdate: refetchStages,
+    onTaskUpdate: refetchStages,
+    onMaterialUpdate: () => {
+      // Material updates handled separately but could trigger notifications
+      console.log('Material updated in project');
+    }
+  });
+
   // Clear etapas when project changes to prevent showing stale data
   const setProjectIdWithClear = (id: string | null) => {
     if (id !== projectId) {
@@ -97,7 +109,9 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
         completed: task.completed || false
       })) : []
     }));
-    logger.log('ProjectContext: Converted etapas from stages:', convertedEtapas);
+    if (import.meta.env.DEV) {
+      console.log('ProjectContext: Converted etapas from stages:', convertedEtapas);
+    }
     setEtapas(convertedEtapas);
   }, [stages, allTasks]);
 

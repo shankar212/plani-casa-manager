@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Download, Trash2, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { logger } from "@/lib/logger";
+import { logError } from "@/lib/errorHandler";
 
 interface TechnicalDocument {
   id: string;
@@ -85,7 +85,7 @@ export const TechnicalDocumentUpload = ({
         description: "Documento técnico enviado com sucesso",
       });
     } catch (error) {
-      logger.error('TechnicalDocumentUpload.handleFileUpload', error);
+      logError('TechnicalDocumentUpload.handleFileUpload', error);
       toast({
         title: "Erro",
         description: "Não foi possível enviar o documento",
@@ -113,7 +113,7 @@ export const TechnicalDocumentUpload = ({
       a.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      logger.error('TechnicalDocumentUpload.handleDownload', error);
+      logError('TechnicalDocumentUpload.handleDownload', error);
       toast({
         title: "Erro",
         description: "Não foi possível baixar o documento",
@@ -145,7 +145,7 @@ export const TechnicalDocumentUpload = ({
         description: "Documento excluído com sucesso",
       });
     } catch (error) {
-      logger.error('TechnicalDocumentUpload.handleDelete', error);
+      logError('TechnicalDocumentUpload.handleDelete', error);
       toast({
         title: "Erro",
         description: "Não foi possível excluir o documento",

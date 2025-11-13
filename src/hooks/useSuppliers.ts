@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { useToast } from '@/components/ui/use-toast';
-import { logger } from '@/lib/logger';
 
 export type MaterialSupplier = Tables<'material_suppliers'>;
 export type ServiceProvider = Tables<'service_providers'> & {
@@ -31,7 +30,7 @@ export const useMaterialSuppliers = (projectId?: string) => {
       if (error) throw error;
       setSuppliers(data || []);
     } catch (error) {
-      logger.error('Error fetching material suppliers:', error);
+      console.error('Error fetching material suppliers:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os fornecedores de material.",
@@ -63,7 +62,7 @@ export const useMaterialSuppliers = (projectId?: string) => {
       
       return data;
     } catch (error) {
-      logger.error('Error creating material supplier:', error);
+      console.error('Error creating material supplier:', error);
       toast({
         title: "Erro",
         description: "Não foi possível criar o fornecedor de material.",
@@ -91,7 +90,7 @@ export const useMaterialSuppliers = (projectId?: string) => {
       
       return data;
     } catch (error) {
-      logger.error('Error updating material supplier:', error);
+      console.error('Error updating material supplier:', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o fornecedor de material.",
@@ -115,7 +114,7 @@ export const useMaterialSuppliers = (projectId?: string) => {
         description: "Fornecedor de material excluído com sucesso."
       });
     } catch (error) {
-      logger.error('Error deleting material supplier:', error);
+      console.error('Error deleting material supplier:', error);
       toast({
         title: "Erro",
         description: "Não foi possível excluir o fornecedor de material.",
@@ -163,7 +162,7 @@ export const useServiceProviders = (projectId?: string) => {
       if (error) throw error;
       setProviders(data || []);
     } catch (error) {
-      logger.error('Error fetching service providers:', error);
+      console.error('Error fetching service providers:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os prestadores de serviço.",
@@ -199,7 +198,7 @@ export const useServiceProviders = (projectId?: string) => {
       
       return data;
     } catch (error) {
-      logger.error('Error creating service provider:', error);
+      console.error('Error creating service provider:', error);
       toast({
         title: "Erro",
         description: "Não foi possível criar o prestador de serviço.",
@@ -231,7 +230,7 @@ export const useServiceProviders = (projectId?: string) => {
       
       return data;
     } catch (error) {
-      logger.error('Error updating service provider:', error);
+      console.error('Error updating service provider:', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o prestador de serviço.",
@@ -255,7 +254,7 @@ export const useServiceProviders = (projectId?: string) => {
         description: "Prestador de serviço excluído com sucesso."
       });
     } catch (error) {
-      logger.error('Error deleting service provider:', error);
+      console.error('Error deleting service provider:', error);
       toast({
         title: "Erro",
         description: "Não foi possível excluir o prestador de serviço.",

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { logger } from "@/lib/logger";
+import { logError } from "@/lib/errorHandler";
 
 interface PDFViewerProps {
   filePath: string;
@@ -17,15 +17,15 @@ export const PDFViewer = ({ filePath }: PDFViewerProps) => {
     try {
       const { data, error } = await supabase.storage
         .from('technical-documents')
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .createSignedUrl(filePath, 900); // 15 minutes expiry
 
       if (error) throw error;
       setPdfUrl(data.signedUrl);
-    } catch (error) {
-      logger.error('Error getting PDF URL:', error);
-    } finally {
-      setLoading(false);
-    }
+      } catch (error) {
+        logError('PDFViewer.getPdfUrl', error);
+      } finally {
+        setLoading(false);
+      }
   };
 
   // Get PDF URL when component mounts or filePath changes

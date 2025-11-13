@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/errorHandler';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
-import { logger } from '@/lib/logger';
 
 export type Material = Tables<'materials'> & {
   projects?: { name: string } | null;
@@ -32,7 +32,7 @@ export const useMaterials = () => {
       if (error) throw error;
       setMaterials(data || []);
     } catch (error) {
-      logger.error('Error fetching materials:', error);
+      logError('Material Fetching', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os materiais",
@@ -73,7 +73,7 @@ export const useMaterials = () => {
       
       return data;
     } catch (error) {
-      logger.error('Error creating material:', error);
+      logError('Material Creation', error);
       toast({
         title: "Erro",
         description: "Não foi possível criar o material",
@@ -100,7 +100,7 @@ export const useMaterials = () => {
       setMaterials(prev => prev.map(m => m.id === id ? data : m));
       return data;
     } catch (error) {
-      logger.error('Error updating material:', error);
+      logError('Material Update', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o material",
@@ -125,7 +125,7 @@ export const useMaterials = () => {
         description: "Material excluído com sucesso!"
       });
     } catch (error) {
-      logger.error('Error deleting material:', error);
+      logError('Material Deletion', error);
       toast({
         title: "Erro",
         description: "Não foi possível excluir o material",
@@ -137,6 +137,27 @@ export const useMaterials = () => {
 
   useEffect(() => {
     fetchMaterials();
+    
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('materials-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'materials'
+        },
+        (payload) => {
+          console.log('Material change detected:', payload);
+          fetchMaterials(); // Refetch to get updated data
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
