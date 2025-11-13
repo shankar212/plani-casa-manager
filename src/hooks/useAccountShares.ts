@@ -26,32 +26,34 @@ export const useAccountShares = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('account_shares')
-        .select(`
-          *,
-          profiles:shared_with_user_id (
-            id,
-            full_name
-          )
-        `)
+        .select('*')
         .eq('owner_user_id', user.id);
 
       if (error) throw error;
 
-      // Fetch emails for each user
-      const sharesWithEmails = await Promise.all(
+      // Fetch profile and email for each user
+      const sharesWithDetails = await Promise.all(
         (data || []).map(async (share: any) => {
+          // Get email
           const { data: email } = await supabase
             .rpc('get_user_email_by_id', { _user_id: share.shared_with_user_id });
+          
+          // Get profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', share.shared_with_user_id)
+            .maybeSingle();
           
           return {
             ...share,
             shared_with_email: email || 'Email não disponível',
-            shared_with_name: share.profiles?.full_name
+            shared_with_name: profile?.full_name
           };
         })
       );
 
-      setShares(sharesWithEmails);
+      setShares(sharesWithDetails);
     } catch (error: any) {
       console.error('Error fetching account shares:', error);
       toast.error('Erro ao carregar compartilhamentos da conta');
