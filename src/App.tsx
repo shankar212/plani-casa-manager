@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminRoute } from "./components/AdminRoute";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import CreateProject from "./pages/CreateProject";
@@ -18,6 +19,10 @@ import ProjectReports from "./pages/ProjectReports";
 import AddStep from "./pages/AddStep";
 import DigitalWarehouse from "./pages/DigitalWarehouse";
 import Notifications from "./pages/Notifications";
+import AdminPanel from "./pages/AdminPanel";
+import AdminLogin from "./pages/AdminLogin";
+import AccountSettings from "./pages/AccountSettings";
+import ProjectTemplates from "./pages/ProjectTemplates";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
@@ -83,12 +88,28 @@ const App = () => (
                 <DigitalWarehouse />
               </ProtectedRoute>
             } />
-            <Route path="/notificacoes" element={
+            <Route path="/templates" element={
               <ProtectedRoute>
-                <Notifications />
+                <ProjectTemplates />
               </ProtectedRoute>
             } />
-            <Route path="*" element={<NotFound />} />
+              <Route path="/notificacoes" element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              } />
+              <Route path="/conta" element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={
+                <AdminRoute>
+                  <AdminPanel />
+                </AdminRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
           </Routes>
           </BrowserRouter>
         </ProjectProvider>

@@ -188,7 +188,7 @@ const ProjectReports = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
           {/* Monthly Expenses Chart */}
-          <Card className="p-4 md:p-6">
+          <Card className="p-4 md:p-6 w-full max-w-full">
             <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Gastos mensais</h2>
             <div className="flex justify-center items-end space-x-2 h-24 md:h-32">
               {[80, 70, 85, 60, 50].map((height, i) => (
@@ -206,7 +206,7 @@ const ProjectReports = () => {
           </Card>
 
           {/* Financial Results */}
-          <Card className="p-4 md:p-6">
+          <Card className="p-4 md:p-6 w-full max-w-full">
             <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Resultados Financeiros</h2>
             {financialLoading ? (
               <div className="space-y-3">
@@ -299,7 +299,7 @@ const ProjectReports = () => {
         </div>
 
         {/* Photo Report by Etapa */}
-        <Card className="p-4 md:p-6">
+        <Card className="p-4 md:p-6 w-full max-w-full overflow-hidden">
           <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">relatório fotográfico</h2>
           <div className="space-y-4 md:space-y-6">
             {etapas.map((etapa) => {

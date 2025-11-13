@@ -1,9 +1,10 @@
 
-import { Home, Search, Settings, Bell, Folder, Archive, LogOut, User } from "lucide-react";
+import { Home, Search, Settings, Bell, Folder, Archive, LogOut, User, Shield, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -11,12 +12,14 @@ const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
   { title: "Notificações", icon: Bell, url: "/notificacoes" },
   { title: "Projetos", icon: Folder, url: "/projetos" },
+  { title: "Templates", icon: Sparkles, url: "/templates" },
   { title: "Almoxarifado Digital", icon: Archive, url: "/almoxarifado" },
 ];
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut, loading } = useAuth();
+  const { isAdmin } = useUserRole();
 
   // Don't render anything if auth is still loading
   if (loading) {
@@ -66,20 +69,44 @@ export const Sidebar = () => {
               {!collapsed && <span>{item.title}</span>}
             </NavLink>
           ))}
+          
+          {/* Admin Panel - only visible to admins */}
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center p-3 rounded-lg transition-colors hover:bg-gray-100",
+                  isActive && "bg-gray-100 font-medium"
+                )
+              }
+            >
+              <Shield className="w-5 h-5 mr-3" />
+              {!collapsed && <span>Admin Panel</span>}
+            </NavLink>
+          )}
         </nav>
         
         <Separator className="my-4" />
         
         {/* User info and logout */}
         <div className="space-y-2">
-          <div className="flex items-center p-3 text-sm text-muted-foreground">
+          <NavLink
+            to="/conta"
+            className={({ isActive }) =>
+              cn(
+                "flex items-center p-3 rounded-lg transition-colors hover:bg-gray-100",
+                isActive && "bg-gray-100 font-medium"
+              )
+            }
+          >
             <User className="w-4 h-4 mr-3" />
             {!collapsed && (
-              <div className="truncate">
+              <div className="truncate text-sm">
                 {user?.email}
               </div>
             )}
-          </div>
+          </NavLink>
           <Button
             onClick={signOut}
             variant="ghost"

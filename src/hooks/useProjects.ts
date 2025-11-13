@@ -43,22 +43,21 @@ export const useProjects = () => {
     }
   };
 
-  const createProject = async (project: NewProject) => {
+  const createProject = async (project: Omit<NewProject, 'user_id'>) => {
     try {
       if (!user) {
         throw new Error("User not authenticated");
       }
 
-      const projectWithUserId = {
-        ...project,
-        user_id: user.id,
-      };
+      console.log('Attempting to create project:', project);
 
       const { data, error } = await supabase
         .from('projects')
-        .insert([projectWithUserId])
+        .insert([project as any])
         .select()
         .single();
+
+      console.log('Create project result:', { data, error });
 
       if (error) throw error;
       

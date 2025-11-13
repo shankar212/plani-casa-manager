@@ -92,9 +92,9 @@ const ProjectTechnical = () => {
 
         <div className="space-y-4 md:space-y-6">
           {/* Physical Financial Schedule */}
-          <Card className="p-4 md:p-6">
-            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">cronograma físico financeiro</h2>
-            <div className="overflow-x-auto -mx-4 md:mx-0">
+          <Card className="p-4 md:p-6 w-full max-w-full overflow-hidden">
+            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4 break-words">cronograma físico financeiro</h2>
+            <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
               <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="border-b">
@@ -121,11 +121,11 @@ const ProjectTechnical = () => {
           </Card>
 
           {/* Technical Plans and Projects */}
-          <Card className="p-4 md:p-6">
-            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">plantas e projetos técnicos</h2>
+          <Card className="p-4 md:p-6 w-full max-w-full overflow-hidden">
+            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4 break-words">plantas e projetos técnicos</h2>
             
             {/* Tab Navigation */}
-            <div className="flex overflow-x-auto space-x-2 mb-4 md:mb-6 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+            <div className="flex overflow-x-auto space-x-2 mb-4 md:mb-6 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide w-full">
               {documentTypes.map(type => (
                 <button
                   key={type.key}

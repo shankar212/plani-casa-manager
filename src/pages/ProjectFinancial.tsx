@@ -234,7 +234,7 @@ const ProjectFinancial = () => {
 
         <div className="space-y-4 md:space-y-6">
           {/* Budget Overview */}
-          <Card className="p-4 md:p-6">
+          <Card className="p-4 md:p-6 w-full max-w-full">
             <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">orçamento total do projeto</h2>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
               <span className="text-xs md:text-sm text-gray-600">{usedPercentage}% utilizado</span>
@@ -252,13 +252,13 @@ const ProjectFinancial = () => {
           </Card>
 
           {/* Payments and Contracts */}
-          <Card className="p-4 md:p-6">
-            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">pagamentos e contratos confirmados</h2>
+          <Card className="p-4 md:p-6 w-full max-w-full">
+            <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4 break-words">pagamentos e contratos confirmados</h2>
             <div className="overflow-x-auto -mx-4 md:mx-0">
               {loading ? (
-                <div className="text-center py-8">Carregando...</div>
+                <div className="text-center py-8 px-4">Carregando...</div>
               ) : (
-                <div className="border rounded-lg overflow-hidden">
+                <div className="border rounded-lg overflow-x-auto min-w-0">
                   <table className="w-full min-w-[640px]">
                     <thead className="bg-muted/50">
                       <tr>
@@ -438,7 +438,7 @@ const ProjectFinancial = () => {
           </Card>
 
           {/* Materials Section */}
-          <div className="-mx-4 md:mx-0">
+          <div className="w-full max-w-full overflow-hidden">
             <MaterialsFinancialSummary 
               materials={materials}
               suppliers={suppliers}
