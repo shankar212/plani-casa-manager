@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { logError } from '@/lib/errorHandler';
 import { Loader2, Shield, User, Users } from 'lucide-react';
 import {
   Table,
@@ -77,7 +78,7 @@ export default function AdminPanel() {
 
       setUsers(usersWithRoles);
     } catch (error: any) {
-      console.error('Error fetching users:', error);
+      logError('User Fetching', error);
       toast({
         title: 'Error',
         description: error.message || 'Failed to load users',
@@ -123,7 +124,7 @@ export default function AdminPanel() {
       // Refresh users
       await fetchUsers();
     } catch (error: any) {
-      console.error('Error updating role:', error);
+      logError('Role Update', error);
       toast({
         title: 'Error',
         description: error.message || 'Failed to update role',
