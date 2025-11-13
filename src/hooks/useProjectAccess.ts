@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/errorHandler';
 
 export type ProjectAccessLevel = 'owner' | 'edit' | 'view' | 'none';
 
@@ -45,12 +46,12 @@ export const useProjectAccess = (projectId: string | undefined) => {
           return;
         }
 
-        // Check account shares
+        // Check account shares for this project's owner
         const { data: accountShare } = await supabase
           .from('account_shares')
           .select('account_shares.id')
           .eq('shared_with_user_id', user.id)
-          .limit(1)
+          .eq('owner_user_id', project.user_id)
           .maybeSingle();
 
         if (accountShare) {
@@ -61,7 +62,7 @@ export const useProjectAccess = (projectId: string | undefined) => {
 
         setAccessLevel('none');
       } catch (error) {
-        console.error('Error checking access:', error);
+        logError('useProjectAccess.checkAccess', error);
         setAccessLevel('none');
       } finally {
         setLoading(false);
