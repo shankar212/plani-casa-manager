@@ -530,7 +530,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["project_status"]
           total_budget?: number | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string
         }
         Update: {
           created_at?: string | null
