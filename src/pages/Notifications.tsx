@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, Settings, Check, Filter } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { useNavigate } from "react-router-dom";
 
 interface Notification {
   id: string;
@@ -18,113 +18,47 @@ interface Notification {
   project_id: string | null;
   created_at: string;
   read: boolean;
-  projects?: {
-    name: string;
-  };
 }
 
-const typeColors = {
+const typeColors: Record<string, string> = {
   gestao: "bg-blue-500",
   pedidos: "bg-orange-500", 
   entregas: "bg-green-500",
-  conformidade: "bg-purple-500"
+  conformidade: "bg-purple-500",
+  project_shared: "bg-indigo-500",
+  project_activity: "bg-teal-500",
+  task_update: "bg-amber-500",
+  stage_complete: "bg-emerald-500",
 };
 
-const typeLabels = {
+const typeLabels: Record<string, string> = {
   gestao: "Gestão",
   pedidos: "Pedidos",
   entregas: "Entregas", 
-  conformidade: "Conformidade"
+  conformidade: "Conformidade",
+  project_shared: "Compartilhamento",
+  project_activity: "Atividade",
+  task_update: "Tarefa",
+  stage_complete: "Etapa",
 };
 
 export default function Notifications() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
-  const { toast } = useToast();
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useRealtimeNotifications();
+  const navigate = useNavigate();
 
-  const fetchNotifications = async () => {
-    try {
-      let query = supabase
-        .from("notifications")
-        .select(`
-          *,
-          projects (
-            name
-          )
-        `)
-        .order("created_at", { ascending: false });
+  const filteredNotifications = notifications.filter(notification => {
+    if (filter === "all") return true;
+    if (filter === "unread") return !notification.read;
+    return notification.type === filter;
+  });
 
-      if (filter !== "all") {
-        if (filter === "unread") {
-          query = query.eq("read", false);
-        } else {
-          query = query.eq("type", filter);
-        }
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setNotifications(data || []);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar notificações",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+  const handleNotificationClick = async (notificationId: string, projectId: string | null) => {
+    await markAsRead(notificationId);
+    if (projectId) {
+      navigate(`/projetos/${projectId}`);
     }
   };
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [filter]);
-
-  const markAsRead = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read: true })
-        .eq("id", id);
-
-      if (error) throw error;
-
-      setNotifications(prev => 
-        prev.map(notif => 
-          notif.id === id ? { ...notif, read: true } : notif
-        )
-      );
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read: true })
-        .eq("read", false);
-
-      if (error) throw error;
-
-      setNotifications(prev => 
-        prev.map(notif => ({ ...notif, read: true }))
-      );
-
-      toast({
-        title: "Sucesso",
-        description: "Todas as notificações foram marcadas como lidas"
-      });
-    } catch (error) {
-      console.error("Error marking all as read:", error);
-    }
-  };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   if (loading) {
     return (
@@ -166,10 +100,13 @@ export default function Notifications() {
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="unread">Não lidas</SelectItem>
+                <SelectItem value="project_shared">Compartilhamento</SelectItem>
+                <SelectItem value="project_activity">Atividade</SelectItem>
+                <SelectItem value="task_update">Tarefas</SelectItem>
+                <SelectItem value="stage_complete">Etapas</SelectItem>
                 <SelectItem value="gestao">Gestão</SelectItem>
                 <SelectItem value="pedidos">Pedidos</SelectItem>
                 <SelectItem value="entregas">Entregas</SelectItem>
-                <SelectItem value="conformidade">Conformidade</SelectItem>
               </SelectContent>
             </Select>
 
@@ -184,7 +121,7 @@ export default function Notifications() {
         </div>
 
         <div className="space-y-3">
-          {notifications.length === 0 ? (
+          {filteredNotifications.length === 0 ? (
             <Card>
               <CardContent className="flex items-center justify-center py-12">
                 <div className="text-center">
@@ -197,13 +134,13 @@ export default function Notifications() {
               </CardContent>
             </Card>
           ) : (
-            notifications.map((notification) => (
+            filteredNotifications.map((notification) => (
               <Card 
                 key={notification.id} 
-                className={`cursor-pointer transition-colors ${
+                className={`cursor-pointer transition-colors hover:shadow-md ${
                   notification.read ? "bg-card" : "bg-card border-l-4 border-l-primary"
                 }`}
-                onClick={() => !notification.read && markAsRead(notification.id)}
+                onClick={() => handleNotificationClick(notification.id, notification.project_id)}
               >
                 <CardContent className="p-3 md:p-4">
                   <div className="flex items-start justify-between">
@@ -211,21 +148,17 @@ export default function Notifications() {
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <Badge 
                           variant="secondary" 
-                          className={`${typeColors[notification.type as keyof typeof typeColors]} text-white text-xs`}
+                          className={`${typeColors[notification.type]} text-white text-xs`}
                         >
-                          {typeLabels[notification.type as keyof typeof typeLabels]}
+                          {typeLabels[notification.type] || notification.type}
                         </Badge>
-                        {notification.projects?.name && (
-                          <Badge variant="outline" className="text-xs">
-                            {notification.projects.name}
-                          </Badge>
-                        )}
                         {!notification.read && (
                           <div className="h-2 w-2 bg-primary rounded-full flex-shrink-0"></div>
                         )}
                       </div>
                       
-                      <p className="text-sm md:text-base font-medium mb-1 break-words">{notification.message}</p>
+                      <h3 className="font-semibold mb-1">{notification.title}</h3>
+                      <p className="text-sm md:text-base text-muted-foreground mb-2 break-words">{notification.message}</p>
                       
                       <p className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(notification.created_at), {
