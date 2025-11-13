@@ -20,6 +20,7 @@ import AddStep from "./pages/AddStep";
 import DigitalWarehouse from "./pages/DigitalWarehouse";
 import Notifications from "./pages/Notifications";
 import AdminPanel from "./pages/AdminPanel";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
@@ -90,6 +91,7 @@ const App = () => (
                   <Notifications />
                 </ProtectedRoute>
               } />
+              <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={
                 <AdminRoute>
                   <AdminPanel />

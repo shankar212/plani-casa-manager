@@ -23,13 +23,13 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   if (!isAdmin) {
     const handleSignOut = async () => {
       await signOut();
-      navigate('/auth');
+      navigate('/admin/login');
     };
 
     return (
