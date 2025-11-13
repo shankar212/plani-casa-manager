@@ -12,6 +12,7 @@ import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
 import { ChangeStatusDialog } from "@/components/ChangeStatusDialog";
 import { ProjectShareDialog } from "@/components/ProjectShareDialog";
 import { useProjects } from "@/hooks/useProjects";
+import { useProjectRealtime } from "@/hooks/useProjectRealtime";
 import type { Project } from "@/hooks/useProjects";
 
 const ProjectDetail = () => {
@@ -51,6 +52,14 @@ const ProjectDetail = () => {
       setProjectLoading(false);
     }
   }, [id, setProjectId, getProjectById]);
+
+  // Set up realtime listeners for project updates
+  useProjectRealtime(id, () => {
+    // Refetch project data when changes are detected
+    if (id) {
+      getProjectById(id).then(setProject);
+    }
+  });
 
   const finalizados = getEtapasByStatus('finalizado');
   const emAndamento = getEtapasByStatus('andamento');
