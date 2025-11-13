@@ -229,9 +229,10 @@ const CreateProject = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="Pré-projeto">Pré-projeto</SelectItem>
-                        <SelectItem value="Em andamento">Em andamento</SelectItem>
-                        <SelectItem value="Finalizado">Finalizado</SelectItem>
-                        <SelectItem value="Pausado">Pausado</SelectItem>
+                        <SelectItem value="Projeto">Projeto</SelectItem>
+                        <SelectItem value="Obras">Obras</SelectItem>
+                        <SelectItem value="Pós obra">Pós obra</SelectItem>
+                        <SelectItem value="Financiamento">Financiamento</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
