@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useProjects } from './useProjects';
-import { logError } from '@/lib/errorHandler';
 
 export const useProjectData = (projectId: string | undefined) => {
   const { getProjectById } = useProjects();
@@ -21,7 +20,7 @@ export const useProjectData = (projectId: string | undefined) => {
         const projectData = await getProjectById(projectId);
         setProject(projectData);
       } catch (err) {
-        logError('Project Fetching', err);
+        console.error('Error fetching project:', err);
         setError('Failed to load project data');
       } finally {
         setLoading(false);

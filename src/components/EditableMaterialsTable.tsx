@@ -6,7 +6,6 @@ import { useMaterials, Material, NewMaterial } from "@/hooks/useMaterials";
 import { useProjects } from "@/hooks/useProjects";
 import { useMaterialSuppliers } from "@/hooks/useSuppliers";
 import { useAuth } from "@/contexts/AuthContext";
-import { ProjectAccessLevel } from "@/hooks/useProjectAccess";
 import { materialSchema } from "@/lib/validationSchemas";
 import {
   Trash2,
@@ -63,7 +62,6 @@ export const EditableMaterialsTable: React.FC = () => {
   const [stages, setStages] = useState<any[]>([]);
   const [stagesLoading, setStagesLoading] = useState(true);
   const { user } = useAuth();
-  const [projectAccessMap, setProjectAccessMap] = useState<Map<string, ProjectAccessLevel>>(new Map());
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
   const [selectedMaterials, setSelectedMaterials] = useState<Set<string>>(new Set());
@@ -99,62 +97,6 @@ export const EditableMaterialsTable: React.FC = () => {
 
     fetchStages();
   }, []);
-
-  // Fetch access levels for all projects
-  useEffect(() => {
-    const fetchProjectAccess = async () => {
-      if (!user?.id || projects.length === 0) return;
-
-      const accessMap = new Map<string, ProjectAccessLevel>();
-
-      for (const project of projects) {
-        try {
-          // Check if user is owner
-          if (project.user_id === user.id) {
-            accessMap.set(project.id, 'owner');
-            continue;
-          }
-
-          // Check project shares
-          const { data: share } = await supabase
-            .from('project_shares')
-            .select('access_level')
-            .eq('project_id', project.id)
-            .eq('shared_with_user_id', user.id)
-            .maybeSingle();
-
-          if (share) {
-            accessMap.set(project.id, share.access_level as ProjectAccessLevel);
-            continue;
-          }
-
-          // Check account shares
-          const { data: accountShare } = await supabase
-            .from('account_shares')
-            .select('account_shares.id')
-            .eq('owner_user_id', project.user_id)
-            .eq('shared_with_user_id', user.id)
-            .limit(1)
-            .maybeSingle();
-
-          if (accountShare) {
-            accessMap.set(project.id, 'view');
-          } else {
-            accessMap.set(project.id, 'none');
-          }
-        } catch (error) {
-          if (import.meta.env.DEV) {
-            console.error('Error checking access for project:', project.id, error);
-          }
-          accessMap.set(project.id, 'none');
-        }
-      }
-
-      setProjectAccessMap(accessMap);
-    };
-
-    fetchProjectAccess();
-  }, [user, projects]);
 
   // Set up real-time subscription for materials
   useEffect(() => {
@@ -269,13 +211,6 @@ export const EditableMaterialsTable: React.FC = () => {
       const material = materials.find((m) => m.id === id);
       if (!material) return;
 
-      // Check edit access
-      const accessLevel = projectAccessMap.get(material.project_id || '');
-      if (accessLevel !== 'owner' && accessLevel !== 'edit') {
-        toast.error('Você não tem permissão para editar este material');
-        return;
-      }
-
       const updates: any = { [field]: value };
 
       // If updating total cost or quantity, recalculate unit cost
@@ -353,16 +288,6 @@ export const EditableMaterialsTable: React.FC = () => {
   };
 
   const handleDeleteMaterial = async (id: string) => {
-    const material = materials.find((m) => m.id === id);
-    if (!material) return;
-
-    // Check edit access
-    const accessLevel = projectAccessMap.get(material.project_id || '');
-    if (accessLevel !== 'owner' && accessLevel !== 'edit') {
-      toast.error('Você não tem permissão para excluir este material');
-      return;
-    }
-
     setMaterialToDelete(id);
     setDeleteDialogOpen(true);
   };
@@ -382,9 +307,6 @@ export const EditableMaterialsTable: React.FC = () => {
   };
 
   const handleSelectMaterial = (materialId: string, checked: boolean) => {
-    const material = materials.find((m) => m.id === materialId);
-    if (!material || !canEditMaterial(material)) return;
-
     const newSelected = new Set(selectedMaterials);
     if (checked) {
       newSelected.add(materialId);
@@ -396,8 +318,7 @@ export const EditableMaterialsTable: React.FC = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      const editableMaterials = materials.filter(canEditMaterial).map((m) => m.id);
-      setSelectedMaterials(new Set(editableMaterials));
+      setSelectedMaterials(new Set(materials.map((m) => m.id)));
     } else {
       setSelectedMaterials(new Set());
     }
@@ -473,19 +394,6 @@ export const EditableMaterialsTable: React.FC = () => {
   };
 
   const allExpanded = filteredMaterials.length > 0 && expandedRows.size === filteredMaterials.length;
-
-  // Check if user has edit access to at least one project
-  const hasAnyEditAccess = useMemo(() => {
-    return Array.from(projectAccessMap.values()).some(
-      (access) => access === 'owner' || access === 'edit'
-    );
-  }, [projectAccessMap]);
-
-  // Check if a specific material can be edited
-  const canEditMaterial = (material: Material) => {
-    const accessLevel = projectAccessMap.get(material.project_id || '');
-    return accessLevel === 'owner' || accessLevel === 'edit';
-  };
 
   // Calculate summary stats
   const summaryStats = useMemo(() => {
@@ -751,7 +659,7 @@ export const EditableMaterialsTable: React.FC = () => {
             </div>
 
             <div className="flex gap-2 w-full md:w-auto">
-              {selectedMaterials.size > 0 && hasAnyEditAccess && (
+              {selectedMaterials.size > 0 && (
                 <>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -785,15 +693,13 @@ export const EditableMaterialsTable: React.FC = () => {
                   </Tooltip>
                 </>
               )}
-              {hasAnyEditAccess && (
-                <Button
-                  onClick={() => setAddMaterialDialogOpen(true)}
-                  className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <Plus className="h-4 w-4" />
-                  Novo Material
-                </Button>
-              )}
+              <Button
+                onClick={() => setAddMaterialDialogOpen(true)}
+                className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm hover:shadow-md transition-shadow"
+              >
+                <Plus className="h-4 w-4" />
+                Novo Material
+              </Button>
             </div>
           </div>
         </div>
@@ -809,16 +715,14 @@ export const EditableMaterialsTable: React.FC = () => {
                 Comece adicionando seu primeiro material para começar a gerenciar seu estoque de forma eficiente.
               </p>
             </div>
-            {hasAnyEditAccess && (
-              <Button
-                onClick={() => setAddMaterialDialogOpen(true)}
-                size="lg"
-                className="mt-2 shadow-md hover:shadow-lg transition-shadow"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Primeiro Material
-              </Button>
-            )}
+            <Button
+              onClick={() => setAddMaterialDialogOpen(true)}
+              size="lg"
+              className="mt-2 shadow-md hover:shadow-lg transition-shadow"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Primeiro Material
+            </Button>
           </div>
         ) : filteredMaterials.length === 0 ? (
           <div className="bg-card/50 border border-border/50 rounded-xl p-12 text-center space-y-6 backdrop-blur-sm animate-fade-in">
@@ -838,12 +742,12 @@ export const EditableMaterialsTable: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-border/60 bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="w-[50px] font-semibold">
-                    <Checkbox
-                      checked={selectedMaterials.size === filteredMaterials.filter(canEditMaterial).length && filteredMaterials.filter(canEditMaterial).length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
+                    <TableHead className="w-[50px] font-semibold">
+                      <Checkbox
+                        checked={selectedMaterials.size === filteredMaterials.length && filteredMaterials.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead className="font-semibold text-foreground">Projeto</TableHead>
                     <TableHead className="font-semibold text-foreground">Etapa</TableHead>
                     <TableHead className="font-semibold text-foreground">Status</TableHead>
@@ -885,7 +789,6 @@ export const EditableMaterialsTable: React.FC = () => {
                             <Checkbox
                               checked={selectedMaterials.has(material.id)}
                               onCheckedChange={(checked) => handleSelectMaterial(material.id, checked as boolean)}
-                              disabled={!canEditMaterial(material)}
                             />
                           </TableCell>
                           <TableCell className="p-0">
@@ -902,7 +805,6 @@ export const EditableMaterialsTable: React.FC = () => {
                               type="select"
                               options={projectOptions}
                               tabIndex={getTabIndex(rowIndex, 1)}
-                              disabled={!canEditMaterial(material)}
                             />
                           </TableCell>
                           <TableCell className="p-0">
@@ -914,7 +816,6 @@ export const EditableMaterialsTable: React.FC = () => {
                               type="select"
                               options={getStageOptions(material.project_id || "")}
                               tabIndex={getTabIndex(rowIndex, 2)}
-                              disabled={!canEditMaterial(material)}
                             />
                           </TableCell>
                           <TableCell className="p-0">
@@ -930,7 +831,6 @@ export const EditableMaterialsTable: React.FC = () => {
                                 { value: "used", label: "Usado" },
                               ]}
                               tabIndex={getTabIndex(rowIndex, 3)}
-                              disabled={!canEditMaterial(material)}
                             />
                           </TableCell>
                           <TableCell className="p-0">
@@ -941,7 +841,6 @@ export const EditableMaterialsTable: React.FC = () => {
                               onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
                               placeholder="Nome do material"
                               tabIndex={getTabIndex(rowIndex, 4)}
-                              disabled={!canEditMaterial(material)}
                             />
                           </TableCell>
                           <TableCell className="p-0">
@@ -953,7 +852,6 @@ export const EditableMaterialsTable: React.FC = () => {
                               type="number"
                               placeholder="0"
                               tabIndex={getTabIndex(rowIndex, 5)}
-                              disabled={!canEditMaterial(material)}
                             />
                           </TableCell>
                           <TableCell className="p-2">
@@ -975,17 +873,15 @@ export const EditableMaterialsTable: React.FC = () => {
                                 </TooltipTrigger>
                                 <TooltipContent>{isExpanded ? "Collapse" : "Expand"}</TooltipContent>
                               </Tooltip>
-                              {canEditMaterial(material) && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDeleteMaterial(material.id)}
-                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                  tabIndex={-1}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteMaterial(material.id)}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                tabIndex={-1}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -994,7 +890,7 @@ export const EditableMaterialsTable: React.FC = () => {
                           <TableRow className="bg-gradient-to-br from-muted/60 to-muted/30 border-l-4 border-l-primary">
                             <TableCell colSpan={7} className="p-0">
                               <div className="p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                   <div>
                                     <Label className="text-xs text-muted-foreground">Unidade</Label>
                                     <EditableCell
@@ -1004,7 +900,6 @@ export const EditableMaterialsTable: React.FC = () => {
                                       onNavigate={(direction) => handleCellNavigation(rowIndex, 6, direction)}
                                       placeholder="un"
                                       tabIndex={getTabIndex(rowIndex, 6)}
-                                      disabled={!canEditMaterial(material)}
                                     />
                                   </div>
                                   <div>
@@ -1019,7 +914,6 @@ export const EditableMaterialsTable: React.FC = () => {
                                       type="number"
                                       placeholder="0.00"
                                       tabIndex={getTabIndex(rowIndex, 8)}
-                                      disabled={!canEditMaterial(material)}
                                     />
                                   </div>
                                   <div>
@@ -1037,7 +931,6 @@ export const EditableMaterialsTable: React.FC = () => {
                                     <Select
                                       value={material.supplier_id || "none"}
                                       onValueChange={(value) => handleSupplierChange(material.id, value)}
-                                      disabled={!canEditMaterial(material)}
                                     >
                                       <SelectTrigger className="w-full mt-1">
                                         <SelectValue placeholder="Selecionar..." />
@@ -1063,7 +956,6 @@ export const EditableMaterialsTable: React.FC = () => {
                                       type="date"
                                       placeholder="DD/MM/AAAA"
                                       tabIndex={getTabIndex(rowIndex, 10)}
-                                      disabled={!canEditMaterial(material)}
                                     />
                                   </div>
                                 </div>

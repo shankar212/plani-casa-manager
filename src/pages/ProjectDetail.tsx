@@ -10,18 +10,13 @@ import { useProject } from "@/contexts/ProjectContext";
 import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
 import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
 import { ChangeStatusDialog } from "@/components/ChangeStatusDialog";
-import { ProjectShareDialog } from "@/components/ProjectShareDialog";
-import { ProjectAccessBadge } from "@/components/ProjectAccessBadge";
 import { useProjects } from "@/hooks/useProjects";
-import { useProjectRealtime } from "@/hooks/useProjectRealtime";
-import { useProjectAccess } from "@/hooks/useProjectAccess";
 import type { Project } from "@/hooks/useProjects";
 
 const ProjectDetail = () => {
   const { id } = useParams();
   const { getEtapasByStatus, deleteTarefa, deleteEtapa, updateEtapaStatus, setProjectId, loading } = useProject();
   const { getProjectById } = useProjects();
-  const { accessLevel, canEdit, isOwner } = useProjectAccess(id);
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
   const [andamentoOpen, setAndamentoOpen] = useState(true);
   const [proximosOpen, setProximosOpen] = useState(true);
@@ -56,14 +51,6 @@ const ProjectDetail = () => {
     }
   }, [id, setProjectId, getProjectById]);
 
-  // Set up realtime listeners for project updates
-  useProjectRealtime(id, () => {
-    // Refetch project data when changes are detected
-    if (id) {
-      getProjectById(id).then(setProject);
-    }
-  });
-
   const finalizados = getEtapasByStatus('finalizado');
   const emAndamento = getEtapasByStatus('andamento');
   const proximos = getEtapasByStatus('proximo');
@@ -95,13 +82,7 @@ const ProjectDetail = () => {
           <div className="text-xs md:text-sm text-gray-600 mb-2">
             <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {project.name}
           </div>
-          <div className="flex items-center justify-between mb-3 md:mb-4 gap-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-xl md:text-2xl font-bold break-words">{project.name}</h1>
-              <ProjectAccessBadge accessLevel={accessLevel} />
-            </div>
-            {isOwner && <ProjectShareDialog projectId={id!} projectName={project.name} />}
-          </div>
+          <h1 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 break-words">{project.name}</h1>
           
           <div className="flex flex-wrap gap-2 md:gap-0 md:space-x-4 border-b border-gray-200">
             <NavLink 
@@ -168,30 +149,26 @@ const ProjectDetail = () => {
                      <div key={etapa.id} className="space-y-2">
                         <div className="p-3 bg-gray-50 rounded-lg font-medium flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <span className="text-sm md:text-base break-words">{etapa.nome}</span>
-                          {canEdit && (
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <ChangeStatusDialog
-                                etapaName={etapa.nome}
-                                currentStatus="finalizado"
-                                targetStatus="andamento"
-                                onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
-                              />
-                              <DeleteEtapaDialog
-                                etapaName={etapa.nome}
-                                onConfirm={() => deleteEtapa(etapa.id)}
-                              />
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="finalizado"
+                              targetStatus="andamento"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
+                            />
+                            <DeleteEtapaDialog
+                              etapaName={etapa.nome}
+                              onConfirm={() => deleteEtapa(etapa.id)}
+                            />
+                          </div>
                         </div>
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-2 md:ml-4 p-2 bg-gray-100 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <span className="text-xs md:text-sm break-words">{tarefa.nome}</span>
-                          {canEdit && (
-                            <DeleteTarefaDialog
-                              tarefaName={tarefa.nome}
-                              onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
-                            />
-                          )}
+                          <DeleteTarefaDialog
+                            tarefaName={tarefa.nome}
+                            onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                          />
                         </div>
                       ))}
                       </div>
@@ -215,36 +192,32 @@ const ProjectDetail = () => {
                      <div key={etapa.id} className="space-y-2">
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg font-medium flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <span className="text-sm md:text-base break-words">{etapa.nome}</span>
-                          {canEdit && (
-                            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                              <ChangeStatusDialog
-                                etapaName={etapa.nome}
-                                currentStatus="andamento"
-                                targetStatus="finalizado"
-                                onConfirm={() => updateEtapaStatus(etapa.id, 'finalizado')}
-                              />
-                              <ChangeStatusDialog
-                                etapaName={etapa.nome}
-                                currentStatus="andamento"
-                                targetStatus="proximo"
-                                onConfirm={() => updateEtapaStatus(etapa.id, 'proximo')}
-                              />
-                              <DeleteEtapaDialog
-                                etapaName={etapa.nome}
-                                onConfirm={() => deleteEtapa(etapa.id)}
-                              />
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="andamento"
+                              targetStatus="finalizado"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'finalizado')}
+                            />
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="andamento"
+                              targetStatus="proximo"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'proximo')}
+                            />
+                            <DeleteEtapaDialog
+                              etapaName={etapa.nome}
+                              onConfirm={() => deleteEtapa(etapa.id)}
+                            />
+                          </div>
                         </div>
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-2 md:ml-4 p-2 bg-blue-100 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <span className="text-xs md:text-sm break-words">{tarefa.nome}</span>
-                          {canEdit && (
-                            <DeleteTarefaDialog
-                              tarefaName={tarefa.nome}
-                              onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
-                            />
-                          )}
+                          <DeleteTarefaDialog
+                            tarefaName={tarefa.nome}
+                            onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                          />
                         </div>
                       ))}
                     </div>
@@ -267,30 +240,26 @@ const ProjectDetail = () => {
                      <div key={etapa.id} className="space-y-2">
                         <div className="p-3 bg-gray-50 rounded-lg font-medium flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <span className="text-sm md:text-base break-words">{etapa.nome}</span>
-                          {canEdit && (
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <ChangeStatusDialog
-                                etapaName={etapa.nome}
-                                currentStatus="proximo"
-                                targetStatus="andamento"
-                                onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
-                              />
-                              <DeleteEtapaDialog
-                                etapaName={etapa.nome}
-                                onConfirm={() => deleteEtapa(etapa.id)}
-                              />
-                            </div>
-                          )}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <ChangeStatusDialog
+                              etapaName={etapa.nome}
+                              currentStatus="proximo"
+                              targetStatus="andamento"
+                              onConfirm={() => updateEtapaStatus(etapa.id, 'andamento')}
+                            />
+                            <DeleteEtapaDialog
+                              etapaName={etapa.nome}
+                              onConfirm={() => deleteEtapa(etapa.id)}
+                            />
+                          </div>
                         </div>
                       {etapa.tarefas.map((tarefa) => (
                         <div key={tarefa.id} className="ml-2 md:ml-4 p-2 bg-gray-100 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <span className="text-xs md:text-sm break-words">{tarefa.nome}</span>
-                          {canEdit && (
-                            <DeleteTarefaDialog
-                              tarefaName={tarefa.nome}
-                              onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
-                            />
-                          )}
+                          <DeleteTarefaDialog
+                            tarefaName={tarefa.nome}
+                            onConfirm={() => deleteTarefa(etapa.id, tarefa.id)}
+                          />
                         </div>
                       ))}
                     </div>
@@ -300,16 +269,14 @@ const ProjectDetail = () => {
             </Card>
           </Collapsible>
 
-          {canEdit && (
-            <Card className="p-4 md:p-8 w-full max-w-full">
-              <Button 
-                className="w-full py-4 md:py-6 text-base md:text-lg"
-                onClick={() => window.location.href = `/projetos/${id}/adicionar-etapa`}
-              >
-                Adicionar Etapa/Tarefa
-              </Button>
-            </Card>
-          )}
+          <Card className="p-4 md:p-8 w-full max-w-full">
+            <Button 
+              className="w-full py-4 md:py-6 text-base md:text-lg"
+              onClick={() => window.location.href = `/projetos/${id}/adicionar-etapa`}
+            >
+              Adicionar Etapa/Tarefa
+            </Button>
+          </Card>
         </div>
       </div>
     </Layout>

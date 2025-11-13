@@ -49,8 +49,6 @@ const CreateProject = () => {
       return;
     }
 
-    console.log('Creating project with user:', user.id, 'values:', values);
-
     try {
       const description = `Tipo: ${values.constructionType}\nCliente: ${values.client}\nEngenheiro: ${values.engineer}${values.team ? `\nEquipe: ${values.team}` : ''}`;
       
@@ -61,6 +59,7 @@ const CreateProject = () => {
         end_date: values.endDate ? values.endDate.toISOString().split('T')[0] : null,
         status: values.status as any,
         total_budget: null,
+        user_id: user.id,
       });
       
       toast({
@@ -229,10 +228,9 @@ const CreateProject = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="Pré-projeto">Pré-projeto</SelectItem>
-                        <SelectItem value="Projeto">Projeto</SelectItem>
-                        <SelectItem value="Obras">Obras</SelectItem>
-                        <SelectItem value="Pós obra">Pós obra</SelectItem>
-                        <SelectItem value="Financiamento">Financiamento</SelectItem>
+                        <SelectItem value="Em andamento">Em andamento</SelectItem>
+                        <SelectItem value="Finalizado">Finalizado</SelectItem>
+                        <SelectItem value="Pausado">Pausado</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

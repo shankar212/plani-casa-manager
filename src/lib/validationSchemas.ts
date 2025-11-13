@@ -22,7 +22,7 @@ export const projectSchema = z.object({
   constructionType: z.string().min(1, 'Tipo de construção é obrigatório'),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
-  status: z.enum(["Pré-projeto", "Projeto", "Obras", "Pós obra", "Financiamento"], { required_error: 'Status é obrigatório' }),
+  status: z.string().min(1, 'Status é obrigatório'),
   client: z.string().trim().min(1, 'Cliente é obrigatório').max(200, 'Nome do cliente muito longo'),
   engineer: z.string().trim().min(1, 'Engenheiro/Arquiteto é obrigatório').max(200, 'Nome muito longo'),
   team: z.string().trim().max(2000, 'Descrição da equipe muito longa').optional(),
