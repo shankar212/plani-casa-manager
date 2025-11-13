@@ -66,19 +66,43 @@ export const useProjectShares = (projectId: string | undefined) => {
     if (!projectId || !user) return;
 
     try {
-      // Find user by email in profiles table
-      const { data: profiles, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(100);
+      // Find user by email using the database function
+      const { data: userId, error: userError } = await supabase
+        .rpc('get_user_id_by_email', { _email: email });
 
-      if (profileError) throw profileError;
-
-      // We can't directly query auth.users, so we'll try to insert and let the database handle validation
-      // The user should provide the UUID of the user they want to share with
-      // For now, we'll show an error message
-      toast.error('Por favor, forneça o ID do usuário (UUID) ao invés do email. Funcionalidade de busca por email requer configuração adicional.');
+      if (userError) throw userError;
       
+      if (!userId) {
+        toast.error('Usuário não encontrado. Eles precisam criar uma conta primeiro.');
+        return;
+      }
+
+      // Check if already shared
+      const { data: existing } = await supabase
+        .from('project_shares')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('shared_with_user_id', userId)
+        .maybeSingle();
+
+      if (existing) {
+        toast.error('Este projeto já está compartilhado com este usuário');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('project_shares')
+        .insert({
+          project_id: projectId,
+          shared_with_user_id: userId,
+          shared_by_user_id: user.id,
+          access_level: accessLevel
+        });
+
+      if (error) throw error;
+
+      toast.success('Projeto compartilhado com sucesso');
+      fetchShares();
     } catch (error: any) {
       console.error('Error adding share:', error);
       toast.error('Erro ao compartilhar projeto');
