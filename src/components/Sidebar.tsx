@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { NotificationBell } from "@/components/NotificationBell";
+import { Badge } from "@/components/ui/badge";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 
 const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
@@ -17,6 +20,7 @@ const navigationItems = [
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut, loading } = useAuth();
+  const { unreadCount } = useRealtimeNotifications();
 
   // Don't render anything if auth is still loading
   if (loading) {
@@ -29,11 +33,14 @@ export const Sidebar = () => {
       collapsed ? "w-16" : "w-60"
     )}>
       <div className="p-4">
-        <div className="flex items-center mb-6">
-          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-            <span className="text-white text-sm font-bold">P</span>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
+              <span className="text-white text-sm font-bold">P</span>
+            </div>
+            {!collapsed && <span className="font-bold text-lg">Plani</span>}
           </div>
-          {!collapsed && <span className="font-bold text-lg">Plani</span>}
+          {!collapsed && <NotificationBell />}
         </div>
         
         <div className="mb-6">
@@ -57,13 +64,21 @@ export const Sidebar = () => {
               to={item.url}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center p-3 rounded-lg transition-colors hover:bg-gray-100",
+                  "flex items-center p-3 rounded-lg transition-colors hover:bg-gray-100 relative",
                   isActive && "bg-gray-100 font-medium"
                 )
               }
             >
               <item.icon className="w-5 h-5 mr-3" />
               {!collapsed && <span>{item.title}</span>}
+              {item.title === "Notificações" && unreadCount > 0 && !collapsed && (
+                <Badge 
+                  variant="destructive" 
+                  className="ml-auto h-5 min-w-5 flex items-center justify-center px-1.5 text-xs"
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Badge>
+              )}
             </NavLink>
           ))}
         </nav>
