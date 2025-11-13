@@ -51,24 +51,44 @@ export const useProjects = () => {
 
       console.log('Attempting to create project:', project);
 
+      // Generate client id so we can navigate even if SELECT on insert is restricted by RLS
+      const id = crypto.randomUUID();
+      const insertObj: any = { id, ...(project as any) };
+
       const { data, error } = await supabase
         .from('projects')
-        // Rely on DB default to set user_id = auth.uid() to satisfy RLS
-        .insert([project as any])
+        // Do not send user_id; let DB default auth.uid() set ownership
+        .insert([insertObj])
         .select()
-        .single();
+        .maybeSingle();
 
       console.log('Create project result:', { data, error });
 
       if (error) throw error;
-      
-      setProjects(prev => [data, ...prev]);
+
+      const fallback: any = {
+        id,
+        name: (project as any).name,
+        description: (project as any).description ?? null,
+        status: (project as any).status,
+        start_date: (project as any).start_date ?? null,
+        end_date: (project as any).end_date ?? null,
+        sale_value: 0,
+        total_budget: (project as any).total_budget ?? null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: user.id,
+      };
+
+      const created = (data as any) ?? fallback;
+
+      setProjects(prev => [created as Project, ...prev]);
       toast({
         title: "Sucesso",
         description: "Projeto criado com sucesso!"
       });
-      
-      return data;
+
+      return created as Project;
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Error creating project:', error);
