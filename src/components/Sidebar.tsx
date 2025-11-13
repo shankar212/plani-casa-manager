@@ -91,14 +91,22 @@ export const Sidebar = () => {
         
         {/* User info and logout */}
         <div className="space-y-2">
-          <div className="flex items-center p-3 text-sm text-muted-foreground">
+          <NavLink
+            to="/conta"
+            className={({ isActive }) =>
+              cn(
+                "flex items-center p-3 rounded-lg transition-colors hover:bg-gray-100",
+                isActive && "bg-gray-100 font-medium"
+              )
+            }
+          >
             <User className="w-4 h-4 mr-3" />
             {!collapsed && (
-              <div className="truncate">
+              <div className="truncate text-sm">
                 {user?.email}
               </div>
             )}
-          </div>
+          </NavLink>
           <Button
             onClick={signOut}
             variant="ghost"
