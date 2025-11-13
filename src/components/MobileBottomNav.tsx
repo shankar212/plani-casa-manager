@@ -1,4 +1,4 @@
-import { Home, Bell, Folder, Archive, User, LogOut, Settings } from "lucide-react";
+import { Home, Bell, Folder, Archive, User, LogOut, Settings, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +11,7 @@ const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
   { title: "Notificações", icon: Bell, url: "/notificacoes" },
   { title: "Projetos", icon: Folder, url: "/projetos" },
+  { title: "Templates", icon: Sparkles, url: "/templates" },
   { title: "Almoxarifado", icon: Archive, url: "/almoxarifado" },
 ];
 

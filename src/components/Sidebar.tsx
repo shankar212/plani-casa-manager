@@ -1,5 +1,5 @@
 
-import { Home, Search, Settings, Bell, Folder, Archive, LogOut, User, Shield } from "lucide-react";
+import { Home, Search, Settings, Bell, Folder, Archive, LogOut, User, Shield, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
   { title: "Notificações", icon: Bell, url: "/notificacoes" },
   { title: "Projetos", icon: Folder, url: "/projetos" },
+  { title: "Templates", icon: Sparkles, url: "/templates" },
   { title: "Almoxarifado Digital", icon: Archive, url: "/almoxarifado" },
 ];
 
