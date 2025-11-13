@@ -631,6 +631,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      notify_project_collaborators: {
+        Args: {
+          _action_type: string
+          _action_user_id: string
+          _entity_name: string
+          _entity_type: string
+          _project_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "customer" | "collaborator"
