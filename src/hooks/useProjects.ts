@@ -48,14 +48,10 @@ export const useProjects = () => {
         throw new Error("User not authenticated");
       }
 
-      const projectWithUserId = {
-        ...project,
-        user_id: user.id,
-      };
-
+      // Don't send user_id - let the database trigger set it automatically
       const { data, error } = await supabase
         .from('projects')
-        .insert([projectWithUserId])
+        .insert([project])
         .select()
         .single();
 
