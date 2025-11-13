@@ -1,9 +1,10 @@
 
-import { Home, Search, Settings, Bell, Folder, Archive, LogOut, User } from "lucide-react";
+import { Home, Search, Settings, Bell, Folder, Archive, LogOut, User, Shield } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -17,6 +18,7 @@ const navigationItems = [
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut, loading } = useAuth();
+  const { isAdmin } = useUserRole();
 
   // Don't render anything if auth is still loading
   if (loading) {
@@ -66,6 +68,22 @@ export const Sidebar = () => {
               {!collapsed && <span>{item.title}</span>}
             </NavLink>
           ))}
+          
+          {/* Admin Panel - only visible to admins */}
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center p-3 rounded-lg transition-colors hover:bg-gray-100",
+                  isActive && "bg-gray-100 font-medium"
+                )
+              }
+            >
+              <Shield className="w-5 h-5 mr-3" />
+              {!collapsed && <span>Admin Panel</span>}
+            </NavLink>
+          )}
         </nav>
         
         <Separator className="my-4" />
