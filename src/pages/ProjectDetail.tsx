@@ -11,23 +11,22 @@ import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
 import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
 import { ChangeStatusDialog } from "@/components/ChangeStatusDialog";
 import { ProjectShareDialog } from "@/components/ProjectShareDialog";
+import { ProjectAccessBadge } from "@/components/ProjectAccessBadge";
 import { useProjects } from "@/hooks/useProjects";
 import { useProjectRealtime } from "@/hooks/useProjectRealtime";
 import { useProjectAccess } from "@/hooks/useProjectAccess";
 import type { Project } from "@/hooks/useProjects";
-import { Badge } from "@/components/ui/badge";
-import { Eye, Edit } from "lucide-react";
 
 const ProjectDetail = () => {
   const { id } = useParams();
   const { getEtapasByStatus, deleteTarefa, deleteEtapa, updateEtapaStatus, setProjectId, loading } = useProject();
   const { getProjectById } = useProjects();
+  const { accessLevel, canEdit, isOwner } = useProjectAccess(id);
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
   const [andamentoOpen, setAndamentoOpen] = useState(true);
   const [proximosOpen, setProximosOpen] = useState(true);
   const [project, setProject] = useState<Project | null>(null);
   const [projectLoading, setProjectLoading] = useState(true);
-  const { accessLevel, canEdit, isOwner } = useProjectAccess(id);
 
   useEffect(() => {
     console.log('ProjectDetail: URL params:', { id });
@@ -97,23 +96,9 @@ const ProjectDetail = () => {
             <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {project.name}
           </div>
           <div className="flex items-center justify-between mb-3 md:mb-4 gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-xl md:text-2xl font-bold break-words">{project.name}</h1>
-              {accessLevel && accessLevel !== 'owner' && (
-                <Badge variant={accessLevel === 'edit' ? 'default' : 'secondary'} className="gap-1">
-                  {accessLevel === 'edit' ? (
-                    <>
-                      <Edit className="w-3 h-3" />
-                      Acesso de Edição
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="w-3 h-3" />
-                      Somente Visualização
-                    </>
-                  )}
-                </Badge>
-              )}
+              <ProjectAccessBadge accessLevel={accessLevel} />
             </div>
             {isOwner && <ProjectShareDialog projectId={id!} projectName={project.name} />}
           </div>

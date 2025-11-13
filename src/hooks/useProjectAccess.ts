@@ -2,23 +2,23 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type AccessLevel = 'owner' | 'edit' | 'view' | null;
+export type ProjectAccessLevel = 'owner' | 'edit' | 'view' | 'none';
 
 export const useProjectAccess = (projectId: string | undefined) => {
   const { user } = useAuth();
-  const [accessLevel, setAccessLevel] = useState<AccessLevel>(null);
+  const [accessLevel, setAccessLevel] = useState<ProjectAccessLevel>('none');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAccess = async () => {
       if (!projectId || !user) {
-        setAccessLevel(null);
+        setAccessLevel('none');
         setLoading(false);
         return;
       }
 
       try {
-        // Check if owner
+        // Check if user is owner
         const { data: project } = await supabase
           .from('projects')
           .select('user_id')
@@ -40,7 +40,7 @@ export const useProjectAccess = (projectId: string | undefined) => {
           .maybeSingle();
 
         if (share) {
-          setAccessLevel(share.access_level as 'edit' | 'view');
+          setAccessLevel(share.access_level as ProjectAccessLevel);
           setLoading(false);
           return;
         }
@@ -48,9 +48,9 @@ export const useProjectAccess = (projectId: string | undefined) => {
         // Check account shares
         const { data: accountShare } = await supabase
           .from('account_shares')
-          .select('account_shares.id, projects!inner(id)')
+          .select('account_shares.id')
           .eq('shared_with_user_id', user.id)
-          .eq('projects.id', projectId)
+          .limit(1)
           .maybeSingle();
 
         if (accountShare) {
@@ -59,10 +59,10 @@ export const useProjectAccess = (projectId: string | undefined) => {
           return;
         }
 
-        setAccessLevel(null);
+        setAccessLevel('none');
       } catch (error) {
         console.error('Error checking access:', error);
-        setAccessLevel(null);
+        setAccessLevel('none');
       } finally {
         setLoading(false);
       }
@@ -71,15 +71,11 @@ export const useProjectAccess = (projectId: string | undefined) => {
     checkAccess();
   }, [projectId, user]);
 
-  const canEdit = accessLevel === 'owner' || accessLevel === 'edit';
-  const canView = accessLevel !== null;
-  const isOwner = accessLevel === 'owner';
-
   return {
     accessLevel,
     loading,
-    canEdit,
-    canView,
-    isOwner
+    canEdit: accessLevel === 'owner' || accessLevel === 'edit',
+    canView: accessLevel !== 'none',
+    isOwner: accessLevel === 'owner',
   };
 };
