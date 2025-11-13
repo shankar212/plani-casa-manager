@@ -1,4 +1,4 @@
-import { Home, Bell, Folder, Archive, User, LogOut } from "lucide-react";
+import { Home, Bell, Folder, Archive, User, LogOut, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -73,6 +73,17 @@ export const MobileBottomNav = () => {
               </div>
               
               <Separator />
+              
+              <NavLink to="/conta" onClick={() => setIsSheetOpen(false)}>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  size="lg"
+                >
+                  <Settings className="w-4 h-4 mr-3" />
+                  Configurações da Conta
+                </Button>
+              </NavLink>
               
               <Button
                 onClick={handleLogout}

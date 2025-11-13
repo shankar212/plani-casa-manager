@@ -21,6 +21,7 @@ import DigitalWarehouse from "./pages/DigitalWarehouse";
 import Notifications from "./pages/Notifications";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
+import AccountSettings from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
@@ -89,6 +90,11 @@ const App = () => (
               <Route path="/notificacoes" element={
                 <ProtectedRoute>
                   <Notifications />
+                </ProtectedRoute>
+              } />
+              <Route path="/conta" element={
+                <ProtectedRoute>
+                  <AccountSettings />
                 </ProtectedRoute>
               } />
               <Route path="/admin/login" element={<AdminLogin />} />
