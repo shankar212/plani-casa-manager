@@ -55,18 +55,14 @@ export const useProjects = () => {
       const id = crypto.randomUUID();
       const insertObj: any = { id, ...(project as any) };
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('projects')
         // Do not send user_id; let DB default auth.uid() set ownership
-        .insert([insertObj])
-        .select()
-        .maybeSingle();
-
-      console.log('Create project result:', { data, error });
+        .insert([insertObj]);
 
       if (error) throw error;
 
-      const fallback: any = {
+      const created: any = {
         id,
         name: (project as any).name,
         description: (project as any).description ?? null,
@@ -79,8 +75,6 @@ export const useProjects = () => {
         updated_at: new Date().toISOString(),
         user_id: user.id,
       };
-
-      const created = (data as any) ?? fallback;
 
       setProjects(prev => [created as Project, ...prev]);
       toast({
