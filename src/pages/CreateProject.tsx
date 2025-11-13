@@ -18,9 +18,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { TemplateSelector } from "@/components/TemplateSelector";
-import { ProjectTemplate } from "@/hooks/useProjectTemplates";
-import { SaveTemplateDialog } from "@/components/SaveTemplateDialog";
 
 const CreateProject = () => {
   const { user } = useAuth();
@@ -42,19 +39,6 @@ const CreateProject = () => {
     },
   });
 
-  const handleSelectTemplate = (template: ProjectTemplate) => {
-    form.setValue("constructionType", template.construction_type || "");
-    form.setValue("status", template.default_status || "Pré-projeto");
-    form.setValue("client", template.default_client || "");
-    form.setValue("engineer", template.default_engineer || "");
-    form.setValue("team", template.default_team || "");
-    
-    toast({
-      title: "Template carregado!",
-      description: `Os campos foram preenchidos com o template "${template.name}".`,
-    });
-  };
-
   const onSubmit = async (values: z.infer<typeof projectSchema>) => {
     if (!user?.id) {
       toast({
@@ -64,8 +48,6 @@ const CreateProject = () => {
       });
       return;
     }
-
-    console.log('Creating project with user:', user.id, 'values:', values);
 
     try {
       const description = `Tipo: ${values.constructionType}\nCliente: ${values.client}\nEngenheiro: ${values.engineer}${values.team ? `\nEquipe: ${values.team}` : ''}`;
@@ -77,6 +59,7 @@ const CreateProject = () => {
         end_date: values.endDate ? values.endDate.toISOString().split('T')[0] : null,
         status: values.status as any,
         total_budget: null,
+        user_id: user.id,
       });
       
       toast({
@@ -106,10 +89,7 @@ const CreateProject = () => {
         </div>
 
         <Card className="p-6 md:p-8 max-w-4xl">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <h2 className="text-lg font-semibold">Dados gerais do projeto</h2>
-            <TemplateSelector onSelectTemplate={handleSelectTemplate} />
-          </div>
+          <h2 className="text-lg font-semibold mb-6">Dados gerais do projeto</h2>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

@@ -1,4 +1,4 @@
-import { Home, Bell, Folder, Archive, User, LogOut, Settings, Sparkles } from "lucide-react";
+import { Home, Bell, Folder, Archive, User, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,7 +11,6 @@ const navigationItems = [
   { title: "Home", icon: Home, url: "/" },
   { title: "Notificações", icon: Bell, url: "/notificacoes" },
   { title: "Projetos", icon: Folder, url: "/projetos" },
-  { title: "Templates", icon: Sparkles, url: "/templates" },
   { title: "Almoxarifado", icon: Archive, url: "/almoxarifado" },
 ];
 
@@ -20,6 +19,11 @@ export const MobileBottomNav = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleLogout = async () => {
+    // Haptic feedback for mobile devices
+    if (navigator.vibrate) {
+      navigator.vibrate(50); // 50ms vibration
+    }
+    
     await signOut();
     setIsSheetOpen(false);
   };
@@ -75,21 +79,10 @@ export const MobileBottomNav = () => {
               
               <Separator />
               
-              <NavLink to="/conta" onClick={() => setIsSheetOpen(false)}>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  size="lg"
-                >
-                  <Settings className="w-4 h-4 mr-3" />
-                  Configurações da Conta
-                </Button>
-              </NavLink>
-              
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="w-full justify-start bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border-red-200"
+                className="w-full justify-start bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border-red-200 active:scale-95 transition-transform duration-150"
                 size="lg"
               >
                 <LogOut className="w-4 h-4 mr-3" />

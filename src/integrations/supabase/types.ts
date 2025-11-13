@@ -14,33 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      account_shares: {
-        Row: {
-          access_level: string
-          created_at: string | null
-          granted_by_user_id: string
-          id: string
-          owner_user_id: string
-          shared_with_user_id: string
-        }
-        Insert: {
-          access_level: string
-          created_at?: string | null
-          granted_by_user_id: string
-          id?: string
-          owner_user_id: string
-          shared_with_user_id: string
-        }
-        Update: {
-          access_level?: string
-          created_at?: string | null
-          granted_by_user_id?: string
-          id?: string
-          owner_user_id?: string
-          shared_with_user_id?: string
-        }
-        Relationships: []
-      }
       follow_up_notes: {
         Row: {
           created_at: string
@@ -331,41 +304,6 @@ export type Database = {
         }
         Relationships: []
       }
-      project_shares: {
-        Row: {
-          access_level: string
-          created_at: string | null
-          id: string
-          project_id: string
-          shared_by_user_id: string
-          shared_with_user_id: string
-        }
-        Insert: {
-          access_level: string
-          created_at?: string | null
-          id?: string
-          project_id: string
-          shared_by_user_id: string
-          shared_with_user_id: string
-        }
-        Update: {
-          access_level?: string
-          created_at?: string | null
-          id?: string
-          project_id?: string
-          shared_by_user_id?: string
-          shared_with_user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_shares_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       project_stages: {
         Row: {
           actual_cost: number | null
@@ -456,54 +394,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      project_templates: {
-        Row: {
-          construction_type: string | null
-          created_at: string
-          default_client: string | null
-          default_engineer: string | null
-          default_status: string | null
-          default_team: string | null
-          description: string | null
-          estimated_duration_days: number | null
-          id: string
-          name: string
-          template_stages: Json | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          construction_type?: string | null
-          created_at?: string
-          default_client?: string | null
-          default_engineer?: string | null
-          default_status?: string | null
-          default_team?: string | null
-          description?: string | null
-          estimated_duration_days?: number | null
-          id?: string
-          name: string
-          template_stages?: Json | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          construction_type?: string | null
-          created_at?: string
-          default_client?: string | null
-          default_engineer?: string | null
-          default_status?: string | null
-          default_team?: string | null
-          description?: string | null
-          estimated_duration_days?: number | null
-          id?: string
-          name?: string
-          template_stages?: Json | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       projects: {
         Row: {
@@ -640,66 +530,14 @@ export type Database = {
         }
         Relationships: []
       }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_user_email_by_id: { Args: { _user_id: string }; Returns: string }
-      get_user_id_by_email: { Args: { _email: string }; Returns: string }
-      has_project_access: {
-        Args: { _project_id: string; _user_id: string }
-        Returns: boolean
-      }
-      has_project_edit_access: {
-        Args: { _project_id: string; _user_id: string }
-        Returns: boolean
-      }
-      has_project_view_access: {
-        Args: { _project_id: string; _user_id: string }
-        Returns: boolean
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      notify_project_collaborators: {
-        Args: {
-          _action_type: string
-          _action_user_id: string
-          _entity_name: string
-          _entity_type: string
-          _project_id: string
-        }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "customer" | "collaborator"
       material_status: "requested" | "delivered" | "used"
       project_status:
         | "Pré-projeto"
@@ -835,7 +673,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "customer", "collaborator"],
       material_status: ["requested", "delivered", "used"],
       project_status: [
         "Pré-projeto",
