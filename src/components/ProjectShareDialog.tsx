@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Share2, UserPlus, Trash2, Eye, Edit, Shield } from 'lucide-react';
+import { Share2, UserPlus, Trash2, Eye, Edit } from 'lucide-react';
 import { useProjectShares } from '@/hooks/useProjectShares';
 import { z } from 'zod';
 
@@ -43,7 +43,7 @@ const emailSchema = z.string().email({ message: 'Email inválido' });
 export const ProjectShareDialog = ({ projectId, projectName }: ProjectShareDialogProps) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
-  const [accessLevel, setAccessLevel] = useState<'view' | 'edit' | 'admin'>('view');
+  const [accessLevel, setAccessLevel] = useState<'view' | 'edit'>('view');
   const [emailError, setEmailError] = useState('');
   const [deleteShareId, setDeleteShareId] = useState<string | null>(null);
   
@@ -69,8 +69,6 @@ export const ProjectShareDialog = ({ projectId, projectName }: ProjectShareDialo
         return <Eye className="w-4 h-4" />;
       case 'edit':
         return <Edit className="w-4 h-4" />;
-      case 'admin':
-        return <Shield className="w-4 h-4" />;
       default:
         return null;
     }
@@ -82,23 +80,8 @@ export const ProjectShareDialog = ({ projectId, projectName }: ProjectShareDialo
         return 'Visualizar';
       case 'edit':
         return 'Editar';
-      case 'admin':
-        return 'Admin';
       default:
         return level;
-    }
-  };
-
-  const getAccessLevelBadgeVariant = (level: string) => {
-    switch (level) {
-      case 'view':
-        return 'secondary';
-      case 'edit':
-        return 'default';
-      case 'admin':
-        return 'destructive';
-      default:
-        return 'outline';
     }
   };
 
@@ -174,17 +157,6 @@ export const ProjectShareDialog = ({ projectId, projectName }: ProjectShareDialo
                             </div>
                           </div>
                         </SelectItem>
-                        <SelectItem value="admin">
-                          <div className="flex items-center gap-2">
-                            <Shield className="w-4 h-4" />
-                            <div>
-                              <div className="font-medium">Admin</div>
-                              <div className="text-xs text-muted-foreground">
-                                Controle total do projeto
-                              </div>
-                            </div>
-                          </div>
-                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -250,12 +222,6 @@ export const ProjectShareDialog = ({ projectId, projectName }: ProjectShareDialo
                                 <div className="flex items-center gap-2">
                                   <Edit className="w-4 h-4" />
                                   Editar
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="admin">
-                                <div className="flex items-center gap-2">
-                                  <Shield className="w-4 h-4" />
-                                  Admin
                                 </div>
                               </SelectItem>
                             </SelectContent>

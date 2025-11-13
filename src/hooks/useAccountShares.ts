@@ -3,29 +3,29 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export interface ProjectShare {
+export interface AccountShare {
   id: string;
-  project_id: string;
+  owner_user_id: string;
   shared_with_user_id: string;
-  shared_by_user_id: string;
-  access_level: 'view' | 'edit';
+  granted_by_user_id: string;
+  access_level: string;
   created_at: string;
   shared_with_email?: string;
   shared_with_name?: string;
 }
 
-export const useProjectShares = (projectId: string | undefined) => {
+export const useAccountShares = () => {
   const { user } = useAuth();
-  const [shares, setShares] = useState<ProjectShare[]>([]);
+  const [shares, setShares] = useState<AccountShare[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchShares = async () => {
-    if (!projectId || !user) return;
+    if (!user) return;
 
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('project_shares')
+        .from('account_shares')
         .select(`
           *,
           profiles:shared_with_user_id (
@@ -33,7 +33,7 @@ export const useProjectShares = (projectId: string | undefined) => {
             full_name
           )
         `)
-        .eq('project_id', projectId);
+        .eq('owner_user_id', user.id);
 
       if (error) throw error;
 
@@ -44,12 +44,7 @@ export const useProjectShares = (projectId: string | undefined) => {
             .rpc('get_user_email_by_id', { _user_id: share.shared_with_user_id });
           
           return {
-            id: share.id,
-            project_id: share.project_id,
-            shared_with_user_id: share.shared_with_user_id,
-            shared_by_user_id: share.shared_by_user_id,
-            access_level: share.access_level as 'view' | 'edit',
-            created_at: share.created_at,
+            ...share,
             shared_with_email: email || 'Email não disponível',
             shared_with_name: share.profiles?.full_name
           };
@@ -58,8 +53,8 @@ export const useProjectShares = (projectId: string | undefined) => {
 
       setShares(sharesWithEmails);
     } catch (error: any) {
-      console.error('Error fetching shares:', error);
-      toast.error('Erro ao carregar compartilhamentos');
+      console.error('Error fetching account shares:', error);
+      toast.error('Erro ao carregar compartilhamentos da conta');
     } finally {
       setLoading(false);
     }
@@ -67,13 +62,13 @@ export const useProjectShares = (projectId: string | undefined) => {
 
   useEffect(() => {
     fetchShares();
-  }, [projectId, user]);
+  }, [user]);
 
-  const addShare = async (email: string, accessLevel: 'view' | 'edit') => {
-    if (!projectId || !user) return;
+  const addShare = async (email: string) => {
+    if (!user) return;
 
     try {
-      // Find user by email using the database function
+      // Find user by email
       const { data: userId, error: userError } = await supabase
         .rpc('get_user_id_by_email', { _email: email });
 
@@ -86,66 +81,49 @@ export const useProjectShares = (projectId: string | undefined) => {
 
       // Check if already shared
       const { data: existing } = await supabase
-        .from('project_shares')
+        .from('account_shares')
         .select('id')
-        .eq('project_id', projectId)
+        .eq('owner_user_id', user.id)
         .eq('shared_with_user_id', userId)
         .maybeSingle();
 
       if (existing) {
-        toast.error('Este projeto já está compartilhado com este usuário');
+        toast.error('Sua conta já está compartilhada com este usuário');
         return;
       }
 
       const { error } = await supabase
-        .from('project_shares')
+        .from('account_shares')
         .insert({
-          project_id: projectId,
+          owner_user_id: user.id,
           shared_with_user_id: userId,
-          shared_by_user_id: user.id,
-          access_level: accessLevel
+          granted_by_user_id: user.id,
+          access_level: 'view'
         });
 
       if (error) throw error;
 
-      toast.success('Projeto compartilhado com sucesso');
+      toast.success('Conta compartilhada com sucesso. O usuário agora tem acesso a todos os seus projetos.');
       fetchShares();
     } catch (error: any) {
-      console.error('Error adding share:', error);
-      toast.error('Erro ao compartilhar projeto');
-    }
-  };
-
-  const updateAccessLevel = async (shareId: string, accessLevel: 'view' | 'edit') => {
-    try {
-      const { error } = await supabase
-        .from('project_shares')
-        .update({ access_level: accessLevel })
-        .eq('id', shareId);
-
-      if (error) throw error;
-
-      toast.success('Nível de acesso atualizado');
-      fetchShares();
-    } catch (error: any) {
-      console.error('Error updating access level:', error);
-      toast.error('Erro ao atualizar nível de acesso');
+      console.error('Error adding account share:', error);
+      toast.error('Erro ao compartilhar conta');
     }
   };
 
   const removeShare = async (shareId: string) => {
     try {
       const { error } = await supabase
-        .from('project_shares')
+        .from('account_shares')
         .delete()
         .eq('id', shareId);
 
       if (error) throw error;
 
-      toast.success('Compartilhamento removido');
+      toast.success('Compartilhamento de conta removido');
       fetchShares();
     } catch (error: any) {
-      console.error('Error removing share:', error);
+      console.error('Error removing account share:', error);
       toast.error('Erro ao remover compartilhamento');
     }
   };
@@ -154,7 +132,6 @@ export const useProjectShares = (projectId: string | undefined) => {
     shares,
     loading,
     addShare,
-    updateAccessLevel,
     removeShare,
     refetch: fetchShares
   };
