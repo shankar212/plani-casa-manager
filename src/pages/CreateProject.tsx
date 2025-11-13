@@ -59,7 +59,6 @@ const CreateProject = () => {
         end_date: values.endDate ? values.endDate.toISOString().split('T')[0] : null,
         status: values.status as any,
         total_budget: null,
-        user_id: user.id,
       });
       
       toast({
