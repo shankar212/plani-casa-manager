@@ -17,7 +17,7 @@ export const PDFViewer = ({ filePath }: PDFViewerProps) => {
     try {
       const { data, error } = await supabase.storage
         .from('technical-documents')
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .createSignedUrl(filePath, 900); // 15 minutes expiry
 
       if (error) throw error;
       setPdfUrl(data.signedUrl);
