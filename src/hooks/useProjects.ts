@@ -53,7 +53,7 @@ export const useProjects = () => {
 
       const { data, error } = await supabase
         .from('projects')
-        .insert([project as any])
+        .insert([{ ...(project as any), user_id: user.id }])
         .select()
         .single();
 
