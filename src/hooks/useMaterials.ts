@@ -136,6 +136,27 @@ export const useMaterials = () => {
 
   useEffect(() => {
     fetchMaterials();
+    
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('materials-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'materials'
+        },
+        (payload) => {
+          console.log('Material change detected:', payload);
+          fetchMaterials(); // Refetch to get updated data
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
