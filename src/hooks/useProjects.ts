@@ -54,11 +54,15 @@ export const useProjects = () => {
         user_id: user.id,
       };
 
+      console.log('Attempting to create project:', projectWithUserId);
+
       const { data, error } = await supabase
         .from('projects')
         .insert([projectWithUserId])
         .select()
         .single();
+
+      console.log('Create project result:', { data, error });
 
       if (error) throw error;
       

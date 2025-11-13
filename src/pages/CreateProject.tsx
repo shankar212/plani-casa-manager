@@ -49,6 +49,8 @@ const CreateProject = () => {
       return;
     }
 
+    console.log('Creating project with user:', user.id, 'values:', values);
+
     try {
       const description = `Tipo: ${values.constructionType}\nCliente: ${values.client}\nEngenheiro: ${values.engineer}${values.team ? `\nEquipe: ${values.team}` : ''}`;
       
