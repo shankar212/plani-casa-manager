@@ -22,6 +22,7 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
+  X,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +80,10 @@ export const EditableMaterialsTable: React.FC = () => {
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [addMaterialDialogOpen, setAddMaterialDialogOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [permissionsBannerCollapsed, setPermissionsBannerCollapsed] = useState(() => {
+    const saved = localStorage.getItem('almoxarifado-permissions-banner-collapsed');
+    return saved === 'true';
+  });
 
   // Fetch all stages accessible to the user
   useEffect(() => {
@@ -713,15 +718,42 @@ export const EditableMaterialsTable: React.FC = () => {
 
         {/* Permissions Banner */}
         {projects.length > 0 && (
-          <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/50 rounded-xl p-4 shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 mt-0.5">
-                  <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/50 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1">
+                  <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 mt-0.5">
+                    <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-foreground">Permissões de Acesso</h3>
+                    {permissionsBannerCollapsed && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Clique para ver os níveis de acesso por projeto
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 space-y-2">
-                  <h3 className="text-sm font-semibold text-foreground">Permissões de Acesso</h3>
-                  
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const newState = !permissionsBannerCollapsed;
+                    setPermissionsBannerCollapsed(newState);
+                    localStorage.setItem('almoxarifado-permissions-banner-collapsed', String(newState));
+                  }}
+                  className="h-8 w-8 p-0 hover:bg-blue-500/10"
+                >
+                  {permissionsBannerCollapsed ? (
+                    <ChevronDown className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  ) : (
+                    <ChevronUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  )}
+                </Button>
+              </div>
+
+              {!permissionsBannerCollapsed && (
+                <div className="mt-4 space-y-2">
                   {/* Projects with edit access */}
                   {Array.from(projectAccessMap.entries())
                     .filter(([_, access]) => access === 'owner' || access === 'edit')
@@ -786,7 +818,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
