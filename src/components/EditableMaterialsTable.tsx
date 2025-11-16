@@ -21,6 +21,7 @@ import {
   Plus,
   ChevronDown,
   ChevronUp,
+  Eye,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -709,6 +710,86 @@ export const EditableMaterialsTable: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Permissions Banner */}
+        {projects.length > 0 && (
+          <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/50 rounded-xl p-4 shadow-sm">
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 mt-0.5">
+                  <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <h3 className="text-sm font-semibold text-foreground">Permissões de Acesso</h3>
+                  
+                  {/* Projects with edit access */}
+                  {Array.from(projectAccessMap.entries())
+                    .filter(([_, access]) => access === 'owner' || access === 'edit')
+                    .length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                        <Check className="h-3.5 w-3.5" />
+                        Acesso de Edição
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 ml-5">
+                        {Array.from(projectAccessMap.entries())
+                          .filter(([_, access]) => access === 'owner' || access === 'edit')
+                          .map(([projectId, access]) => {
+                            const project = projects.find(p => p.id === projectId);
+                            if (!project) return null;
+                            return (
+                              <Badge 
+                                key={projectId} 
+                                variant="outline" 
+                                className="text-xs bg-green-100/50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-800 dark:text-green-300"
+                              >
+                                {project.name} {access === 'owner' && '(Proprietário)'}
+                              </Badge>
+                            );
+                          })}
+                      </div>
+                      <p className="text-xs text-muted-foreground ml-5">
+                        Você pode adicionar, editar e excluir materiais destes projetos
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Projects with view access */}
+                  {Array.from(projectAccessMap.entries())
+                    .filter(([_, access]) => access === 'view')
+                    .length > 0 && (
+                    <div className="space-y-1 mt-3">
+                      <p className="text-xs font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                        <Eye className="h-3.5 w-3.5" />
+                        Apenas Visualização
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 ml-5">
+                        {Array.from(projectAccessMap.entries())
+                          .filter(([_, access]) => access === 'view')
+                          .map(([projectId]) => {
+                            const project = projects.find(p => p.id === projectId);
+                            if (!project) return null;
+                            return (
+                              <Badge 
+                                key={projectId} 
+                                variant="outline" 
+                                className="text-xs bg-amber-100/50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300"
+                              >
+                                {project.name}
+                              </Badge>
+                            );
+                          })}
+                      </div>
+                      <p className="text-xs text-muted-foreground ml-5">
+                        Materiais destes projetos são bloqueados para edição
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters and Actions */}
         <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-sm">
