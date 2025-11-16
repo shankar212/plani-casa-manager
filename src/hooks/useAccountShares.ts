@@ -105,7 +105,8 @@ export const useAccountShares = () => {
 
       if (error) throw error;
 
-      toast.success('Conta compartilhada com sucesso. O usuário agora tem acesso a todos os seus projetos.');
+      const accessText = accessLevel === 'edit' ? 'edição' : 'visualização';
+      toast.success(`Conta compartilhada com sucesso. O usuário agora tem acesso de ${accessText} a todos os seus projetos.`);
       fetchShares();
     } catch (error: any) {
       console.error('Error adding account share:', error);
@@ -122,7 +123,8 @@ export const useAccountShares = () => {
 
       if (error) throw error;
 
-      toast.success('Nível de acesso atualizado');
+      const accessText = accessLevel === 'edit' ? 'edição' : 'visualização';
+      toast.success(`Nível de acesso alterado para ${accessText}`);
       fetchShares();
     } catch (error: any) {
       console.error('Error updating account share:', error);
