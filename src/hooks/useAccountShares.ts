@@ -66,7 +66,7 @@ export const useAccountShares = () => {
     fetchShares();
   }, [user]);
 
-  const addShare = async (email: string) => {
+  const addShare = async (email: string, accessLevel: 'view' | 'edit' = 'view') => {
     if (!user) return;
 
     try {
@@ -100,7 +100,7 @@ export const useAccountShares = () => {
           owner_user_id: user.id,
           shared_with_user_id: userId,
           granted_by_user_id: user.id,
-          access_level: 'view'
+          access_level: accessLevel
         });
 
       if (error) throw error;
@@ -110,6 +110,23 @@ export const useAccountShares = () => {
     } catch (error: any) {
       console.error('Error adding account share:', error);
       toast.error('Erro ao compartilhar conta');
+    }
+  };
+
+  const updateShareAccess = async (shareId: string, accessLevel: 'view' | 'edit') => {
+    try {
+      const { error } = await supabase
+        .from('account_shares')
+        .update({ access_level: accessLevel })
+        .eq('id', shareId);
+
+      if (error) throw error;
+
+      toast.success('Nível de acesso atualizado');
+      fetchShares();
+    } catch (error: any) {
+      console.error('Error updating account share:', error);
+      toast.error('Erro ao atualizar acesso');
     }
   };
 
@@ -134,6 +151,7 @@ export const useAccountShares = () => {
     shares,
     loading,
     addShare,
+    updateShareAccess,
     removeShare,
     refetch: fetchShares
   };

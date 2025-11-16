@@ -11,6 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -22,7 +29,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Users, UserPlus, Trash2, Info } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Users, UserPlus, Trash2, Info, Eye, Edit } from 'lucide-react';
 import { useAccountShares } from '@/hooks/useAccountShares';
 import { z } from 'zod';
 
@@ -32,9 +40,10 @@ export const AccountShareDialog = () => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [accessLevel, setAccessLevel] = useState<'view' | 'edit'>('view');
   const [deleteShareId, setDeleteShareId] = useState<string | null>(null);
   
-  const { shares, loading, addShare, removeShare } = useAccountShares();
+  const { shares, loading, addShare, updateShareAccess, removeShare } = useAccountShares();
 
   const handleAddShare = async () => {
     // Validate email
@@ -45,8 +54,9 @@ export const AccountShareDialog = () => {
     }
     
     setEmailError('');
-    await addShare(email);
+    await addShare(email, accessLevel);
     setEmail('');
+    setAccessLevel('view');
   };
 
   return (
@@ -70,7 +80,7 @@ export const AccountShareDialog = () => {
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Ao compartilhar sua conta, o usuário terá acesso de visualização a <strong>todos os seus projetos atuais e futuros</strong>.
+                Ao compartilhar sua conta, o usuário terá acesso a <strong>todos os seus projetos atuais e futuros</strong> com o nível de acesso escolhido.
               </AlertDescription>
             </Alert>
 
@@ -94,6 +104,35 @@ export const AccountShareDialog = () => {
                     {emailError && (
                       <p className="text-sm text-destructive">{emailError}</p>
                     )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="access-level">Nível de Acesso</Label>
+                    <Select value={accessLevel} onValueChange={(value: 'view' | 'edit') => setAccessLevel(value)}>
+                      <SelectTrigger id="access-level">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="view">
+                          <div className="flex items-center gap-2">
+                            <Eye className="h-4 w-4" />
+                            <div>
+                              <div className="font-medium">Visualizar</div>
+                              <div className="text-xs text-muted-foreground">Pode ver todos os projetos</div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="edit">
+                          <div className="flex items-center gap-2">
+                            <Edit className="h-4 w-4" />
+                            <div>
+                              <div className="font-medium">Editar</div>
+                              <div className="text-xs text-muted-foreground">Pode ver e editar todos os projetos</div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <Button onClick={handleAddShare} className="w-full">
@@ -127,18 +166,39 @@ export const AccountShareDialog = () => {
                           <div className="text-sm text-muted-foreground truncate">
                             {share.shared_with_email}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Acesso a todos os projetos
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant={share.access_level === 'edit' ? 'default' : 'secondary'}>
+                              {share.access_level === 'view' ? (
+                                <><Eye className="w-3 h-3 mr-1" /> Visualizar</>
+                              ) : (
+                                <><Edit className="w-3 h-3 mr-1" /> Editar</>
+                              )}
+                            </Badge>
                           </div>
                         </div>
 
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteShareId(share.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={share.access_level}
+                            onValueChange={(value: 'view' | 'edit') => updateShareAccess(share.id, value)}
+                          >
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="view">Visualizar</SelectItem>
+                              <SelectItem value="edit">Editar</SelectItem>
+                            </SelectContent>
+                          </Select>
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteShareId(share.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
                       </div>
                     </Card>
                   ))}
