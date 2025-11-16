@@ -23,6 +23,7 @@ import {
   ChevronUp,
   Eye,
   X,
+  Info,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -753,7 +754,7 @@ export const EditableMaterialsTable: React.FC = () => {
               </div>
 
               {!permissionsBannerCollapsed && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 space-y-2 animate-in slide-in-from-top-2 duration-300">
                   {/* Projects with edit access */}
                   {Array.from(projectAccessMap.entries())
                     .filter(([_, access]) => access === 'owner' || access === 'edit')
@@ -994,11 +995,26 @@ export const EditableMaterialsTable: React.FC = () => {
                           className={`group hover:bg-muted/40 transition-all duration-200 ${materialIndex % 2 === 0 ? "bg-background" : "bg-muted/20"} ${isExpanded ? "border-l-4 border-l-primary shadow-sm" : ""}`}
                         >
                           <TableCell className="p-2">
-                            <Checkbox
-                              checked={selectedMaterials.has(material.id)}
-                              onCheckedChange={(checked) => handleSelectMaterial(material.id, checked as boolean)}
-                              disabled={!canEditMaterial(material)}
-                            />
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                checked={selectedMaterials.has(material.id)}
+                                onCheckedChange={(checked) => handleSelectMaterial(material.id, checked as boolean)}
+                                disabled={!canEditMaterial(material)}
+                              />
+                              {!canEditMaterial(material) && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-3.5 w-3.5 text-muted-foreground/60 cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs">
+                                    <p className="text-xs">
+                                      <strong>Acesso de visualização apenas.</strong><br />
+                                      Solicite permissão de edição ao proprietário do projeto para modificar este material.
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="p-0">
                             <EditableCell
@@ -1046,15 +1062,30 @@ export const EditableMaterialsTable: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell className="p-0">
-                            <EditableCell
-                              id={`cell-${rowIndex}-4`}
-                              value={material.material_name}
-                              onSave={(value) => handleUpdateField(material.id, "material_name", value)}
-                              onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
-                              placeholder="Nome do material"
-                              tabIndex={getTabIndex(rowIndex, 4)}
-                              disabled={!canEditMaterial(material)}
-                            />
+                            <div className="flex items-center gap-1">
+                              <EditableCell
+                                id={`cell-${rowIndex}-4`}
+                                value={material.material_name}
+                                onSave={(value) => handleUpdateField(material.id, "material_name", value)}
+                                onNavigate={(direction) => handleCellNavigation(rowIndex, 4, direction)}
+                                placeholder="Nome do material"
+                                tabIndex={getTabIndex(rowIndex, 4)}
+                                disabled={!canEditMaterial(material)}
+                              />
+                              {!canEditMaterial(material) && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-3.5 w-3.5 text-muted-foreground/60 cursor-help flex-shrink-0 mr-2" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs">
+                                    <p className="text-xs">
+                                      <strong>Sem permissão de edição.</strong><br />
+                                      Este material pertence a um projeto onde você tem acesso apenas de visualização.
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="p-0">
                             <EditableCell
