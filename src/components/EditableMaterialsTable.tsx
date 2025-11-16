@@ -131,14 +131,13 @@ export const EditableMaterialsTable: React.FC = () => {
           // Check account shares
           const { data: accountShare } = await supabase
             .from('account_shares')
-            .select('account_shares.id')
+            .select('access_level')
             .eq('owner_user_id', project.user_id)
             .eq('shared_with_user_id', user.id)
-            .limit(1)
             .maybeSingle();
 
           if (accountShare) {
-            accessMap.set(project.id, 'view');
+            accessMap.set(project.id, accountShare.access_level as ProjectAccessLevel);
           } else {
             accessMap.set(project.id, 'none');
           }
