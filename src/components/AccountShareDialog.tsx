@@ -80,7 +80,7 @@ export const AccountShareDialog = () => {
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Ao compartilhar sua conta, o usuário terá acesso a <strong>todos os seus projetos atuais e futuros</strong> com o nível de acesso escolhido.
+                Ao compartilhar sua conta, o usuário terá acesso a <strong>todos os seus projetos atuais e futuros</strong> conforme o nível de acesso selecionado.
               </AlertDescription>
             </Alert>
 
