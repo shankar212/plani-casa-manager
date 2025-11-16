@@ -15,6 +15,7 @@ import ProjectFinancial from "./pages/ProjectFinancial";
 import ProjectTechnical from "./pages/ProjectTechnical";
 import ProjectLegal from "./pages/ProjectLegal";
 import ProjectReports from "./pages/ProjectReports";
+import ProjectTimeline from "./pages/ProjectTimeline";
 import AddStep from "./pages/AddStep";
 import DigitalWarehouse from "./pages/DigitalWarehouse";
 import Notifications from "./pages/Notifications";
@@ -72,6 +73,11 @@ const App = () => (
             <Route path="/projetos/:id/relatorios" element={
               <ProtectedRoute>
                 <ProjectReports />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id/cronograma" element={
+              <ProtectedRoute>
+                <ProjectTimeline />
               </ProtectedRoute>
             } />
             <Route path="/projetos/:id/adicionar-etapa" element={

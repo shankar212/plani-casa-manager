@@ -17,7 +17,7 @@ export const ProjectHeader = ({ projectId, projectName, loading }: ProjectHeader
         <div className="bg-gray-200 animate-pulse rounded h-8 w-48 mb-4"></div>
         
       <div className="flex flex-wrap gap-2 md:space-x-4 border-b border-gray-200">
-        {['gestão', 'financeiro', 'técnico', 'conformidade legal', 'relatórios e indicadores'].map((tab, index) => (
+        {['gestão', 'financeiro', 'técnico', 'conformidade legal', 'cronograma', 'relatórios e indicadores'].map((tab, index) => (
           <div key={index} className="pb-2 px-2 md:px-1">
             <div className="bg-gray-200 animate-pulse rounded h-4 w-20"></div>
           </div>
@@ -67,6 +67,14 @@ export const ProjectHeader = ({ projectId, projectName, loading }: ProjectHeader
           }
         >
           conformidade legal
+        </NavLink>
+        <NavLink 
+          to={`/projetos/${projectId}/cronograma`}
+          className={({ isActive }) => 
+            `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+          }
+        >
+          cronograma
         </NavLink>
         <NavLink 
           to={`/projetos/${projectId}/relatorios`}
