@@ -49,13 +49,13 @@ export const useProjectAccess = (projectId: string | undefined) => {
         // Check account shares for this project's owner
         const { data: accountShare } = await supabase
           .from('account_shares')
-          .select('account_shares.id')
+          .select('access_level')
           .eq('shared_with_user_id', user.id)
           .eq('owner_user_id', project.user_id)
           .maybeSingle();
 
         if (accountShare) {
-          setAccessLevel('view');
+          setAccessLevel(accountShare.access_level as ProjectAccessLevel);
           setLoading(false);
           return;
         }
