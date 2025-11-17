@@ -4,6 +4,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a73e8" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-512.png" />
     <title>PlaniTec - Gestão de Obras</title>
     <meta name="description" content="Sistema de gestão de obras para o programa Minha Casa Minha Vida" />
     <meta name="author" content="PlaniTec" />
@@ -21,5 +26,19 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/service-worker.js").then(
+            (registration) => {
+              console.log("SW registered:", registration);
+            },
+            (error) => {
+              console.log("SW registration failed:", error);
+            }
+          );
+        });
+      }
+    </script>
   </body>
 </html>
