@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.planitec.app",
+      "sha256_cert_fingerprints": [
+        "9C:1A:7F:00:C9:B8:78:C6:34:B1:A6:1B:BD:B2:E1:4B:CE:52:EB:3E:00:55:B9:8E:8D:DE:29:BB:23:41:E2:9F"
+      ]
+    }
+  }
+]
