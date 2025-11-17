@@ -53,21 +53,20 @@ const BottomSheetContent = React.forwardRef<
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-          "touch-none",
           className
         )}
         {...props}
-        {...swipeProps}
       >
         {/* Drag handle */}
-        <div className="sticky top-0 z-10 flex justify-center pt-4 pb-2 bg-background rounded-t-3xl shrink-0">
+        <div 
+          className="sticky top-0 z-10 flex justify-center pt-4 pb-2 bg-background rounded-t-3xl shrink-0"
+          {...swipeProps}
+        >
           <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
         </div>
         
-        <div className="overflow-y-auto overscroll-contain flex-1 px-6 pb-safe safe-area-pb">
-          <div className="pb-6">
-            {children}
-          </div>
+        <div className="overflow-y-auto overscroll-contain flex-1 px-6 pb-6 safe-area-pb -webkit-overflow-scrolling-touch">
+          {children}
         </div>
         
         <DialogPrimitive.Close className="absolute right-4 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
