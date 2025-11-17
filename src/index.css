@@ -209,7 +209,7 @@ All colors MUST be HSL.
   
   /* Safe area utilities for mobile */
   .safe-area-pb {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   }
   
   .safe-area-pt {
@@ -222,5 +222,15 @@ All colors MUST be HSL.
   
   .safe-area-pr {
     padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Prevent overscroll on mobile dialogs */
+  .overscroll-contain {
+    overscroll-behavior: contain;
+  }
+  
+  /* Additional padding for bottom sheets */
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
   }
 }
