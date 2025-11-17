@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import {
-  SwipeableDialog as Dialog,
-  SwipeableDialogContent as DialogContent,
-  SwipeableDialogDescription as DialogDescription,
-  SwipeableDialogHeader as DialogHeader,
-  SwipeableDialogTitle as DialogTitle,
-  SwipeableDialogTrigger as DialogTrigger,
-} from '@/components/ui/swipeable-dialog';
+  ResponsiveDialog as Dialog,
+  ResponsiveDialogContent as DialogContent,
+  ResponsiveDialogDescription as DialogDescription,
+  ResponsiveDialogHeader as DialogHeader,
+  ResponsiveDialogTitle as DialogTitle,
+  ResponsiveDialogTrigger as DialogTrigger,
+} from '@/components/ui/responsive-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -94,7 +94,7 @@ export const ProjectShareDialog = ({ projectId, projectName }: ProjectShareDialo
             Compartilhar
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto" onOpenChange={setOpen}>
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Compartilhar Projeto</DialogTitle>
             <DialogDescription>

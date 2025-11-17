@@ -100,66 +100,66 @@ const Projects = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div className="min-h-screen pb-20 sm:pb-8">
         {/* Hero Section with Gradient */}
         <div className="gradient-hero border-b border-border/50">
-          <div className="p-4 md:p-8 lg:p-12 space-y-6 max-w-7xl mx-auto">
-            <div className="space-y-4 animate-fade-in-up">
-              <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+          <div className="p-6 sm:p-8 lg:p-12 space-y-4 sm:space-y-6 max-w-7xl mx-auto">
+            <div className="space-y-3 sm:space-y-4 animate-fade-in-up">
+              <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-medium">
                 Gestão de Projetos
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                 Seus <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Projetos</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl">
                 Visualize, organize e gerencie todos os seus projetos de construção
               </p>
             </div>
           </div>
         </div>
 
-        <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
+        <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
           {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in-up">
-            <div className="p-6 rounded-xl bg-gradient-to-br from-card to-muted/20 border border-border/50 hover:border-primary/30 transition-all hover:shadow-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 animate-fade-in-up">
+            <div className="p-5 sm:p-6 rounded-xl bg-gradient-to-br from-card to-muted/20 border border-border/50 hover:border-primary/30 transition-all hover:shadow-lg touch-manipulation active:scale-[0.98]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Total</p>
-                  <p className="text-3xl font-bold text-foreground mt-2">{filteredProjects.length}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">Total</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground mt-2">{filteredProjects.length}</p>
                   <p className="text-xs text-muted-foreground mt-1">Projetos</p>
                 </div>
-                <div className="p-4 rounded-xl bg-primary/10 text-primary">
-                  <Package className="w-6 h-6" />
+                <div className="p-3 sm:p-4 rounded-xl bg-primary/10 text-primary">
+                  <Package className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
               </div>
             </div>
             
-            <div className="p-6 rounded-xl bg-gradient-to-br from-card to-muted/20 border border-border/50 hover:border-primary/30 transition-all hover:shadow-lg">
+            <div className="p-5 sm:p-6 rounded-xl bg-gradient-to-br from-card to-muted/20 border border-border/50 hover:border-primary/30 transition-all hover:shadow-lg touch-manipulation active:scale-[0.98]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Em Obras</p>
-                  <p className="text-3xl font-bold text-foreground mt-2">
+                  <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">Em Obras</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground mt-2">
                     {filteredProjects.filter(p => p.status === "Obras").length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">Ativos</p>
                 </div>
-                <div className="p-4 rounded-xl bg-amber-500/10 text-amber-600">
-                  <TrendingUp className="w-6 h-6" />
+                <div className="p-3 sm:p-4 rounded-xl bg-amber-500/10 text-amber-600">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
               </div>
             </div>
             
-            <div className="p-6 rounded-xl bg-gradient-to-br from-card to-muted/20 border border-border/50 hover:border-primary/30 transition-all hover:shadow-lg">
+            <div className="p-5 sm:p-6 rounded-xl bg-gradient-to-br from-card to-muted/20 border border-border/50 hover:border-primary/30 transition-all hover:shadow-lg touch-manipulation active:scale-[0.98]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Pós Obra</p>
-                  <p className="text-3xl font-bold text-foreground mt-2">
+                  <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">Pós Obra</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-foreground mt-2">
                     {filteredProjects.filter(p => p.status === "Pós obra").length}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">Finalizados</p>
                 </div>
-                <div className="p-4 rounded-xl bg-green-500/10 text-green-600">
-                  <CheckCircle2 className="w-6 h-6" />
+                <div className="p-3 sm:p-4 rounded-xl bg-green-500/10 text-green-600">
+                  <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
               </div>
             </div>
@@ -185,7 +185,7 @@ const Projects = () => {
               </div>
               
               <Select value={ownershipFilter} onValueChange={setOwnershipFilter}>
-                <SelectTrigger className="w-[180px] shadow-sm">
+                <SelectTrigger className="w-full sm:w-[180px] shadow-sm touch-manipulation min-h-[44px]">
                   <SelectValue placeholder="Propriedade" />
                 </SelectTrigger>
                 <SelectContent>
@@ -194,9 +194,9 @@ const Projects = () => {
                   <SelectItem value="shared">Compartilhados</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px] shadow-sm">
+                <SelectTrigger className="w-full sm:w-[180px] shadow-sm touch-manipulation min-h-[44px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -210,7 +210,7 @@ const Projects = () => {
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px] shadow-sm">
+                <SelectTrigger className="w-full sm:w-[180px] shadow-sm touch-manipulation min-h-[44px]">
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,7 +230,7 @@ const Projects = () => {
                     setSortBy("recent");
                     setSearchTerm("");
                   }}
-                  className="text-sm hover:bg-destructive/10 hover:text-destructive"
+                  className="text-sm hover:bg-destructive/10 hover:text-destructive touch-manipulation min-h-[44px]"
                 >
                   Limpar filtros
                 </Button>
@@ -240,23 +240,24 @@ const Projects = () => {
 
           {/* Projects Grid */}
           <div>
-            <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
-              <h2 className="text-2xl font-bold text-foreground">
+            <div className="flex items-center justify-between mb-4 sm:mb-6 gap-3 flex-wrap">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                 {filteredProjects.length > 0 ? `${filteredProjects.length} ${filteredProjects.length === 1 ? 'Projeto' : 'Projetos'}` : 'Projetos'}
               </h2>
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto">
                 <AccountShareDialog />
                 <Button 
                   onClick={() => navigate('/projetos/criar')}
-                  className="gap-2 shadow-md hover:shadow-lg"
+                  className="gap-2 shadow-md hover:shadow-lg touch-manipulation flex-1 sm:flex-initial min-h-[44px]"
                 >
                   <Plus className="w-4 h-4" />
-                  Novo Projeto
+                  <span className="hidden xs:inline">Novo Projeto</span>
+                  <span className="xs:hidden">Novo</span>
                 </Button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {loading ? (
                 // Loading skeletons with stagger
                 Array.from({ length: 6 }).map((_, i) => (
