@@ -122,6 +122,8 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Support for devices with notches */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   /* Smooth scrolling */
@@ -132,6 +134,12 @@ All colors MUST be HSL.
   /* Global smooth transitions */
   button, a, input, textarea, select {
     @apply transition-all duration-200;
+  }
+
+  /* Touch-friendly interactions */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Focus states */
@@ -197,5 +205,22 @@ All colors MUST be HSL.
   
   .animate-stagger-4 {
     animation-delay: 0.2s;
+  }
+  
+  /* Safe area utilities for mobile */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-pl {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-area-pr {
+    padding-right: env(safe-area-inset-right);
   }
 }
