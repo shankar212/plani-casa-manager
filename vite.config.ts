@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'pwa-192x192.png', 'pwa-512x512.png', '.well-known/assetlinks.json'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'pwa-192x192.png', 'pwa-512x512.png', '.well-known/assetlinks.json', 'splash-*.png'],
       manifest: {
         name: 'PlaniTec - Gestão de Obras',
         short_name: 'PlaniTec',
