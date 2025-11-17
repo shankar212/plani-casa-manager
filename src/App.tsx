@@ -22,6 +22,7 @@ import Notifications from "./pages/Notifications";
 import AccountSettings from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import Install from "./pages/Install";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,7 @@ const App = () => (
                   <AccountSettings />
                 </ProtectedRoute>
               } />
+              <Route path="/install" element={<Install />} />
               <Route path="*" element={<NotFound />} />
           </Routes>
           </BrowserRouter>
