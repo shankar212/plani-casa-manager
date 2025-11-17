@@ -68,7 +68,7 @@ export const AccountShareDialog = () => {
             Compartilhar Conta
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Compartilhar Todos os Projetos</DialogTitle>
             <DialogDescription>
@@ -86,9 +86,9 @@ export const AccountShareDialog = () => {
 
             {/* Add new share */}
             <Card className="p-4">
-              <div className="flex items-start gap-4">
-                <UserPlus className="w-5 h-5 mt-2 text-muted-foreground" />
-                <div className="flex-1 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                <UserPlus className="w-5 h-5 mt-2 text-muted-foreground hidden sm:block" />
+                <div className="flex-1 w-full space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email do usuário</Label>
                     <Input
@@ -158,8 +158,8 @@ export const AccountShareDialog = () => {
                 <div className="space-y-2">
                   {shares.map((share) => (
                     <Card key={share.id} className="p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0 w-full">
                           <div className="font-medium truncate">
                             {share.shared_with_name || 'Usuário'}
                           </div>
@@ -177,12 +177,12 @@ export const AccountShareDialog = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
                           <Select
                             value={share.access_level}
                             onValueChange={(value: 'view' | 'edit') => updateShareAccess(share.id, value)}
                           >
-                            <SelectTrigger className="w-[140px]">
+                            <SelectTrigger className="w-full sm:w-[140px]">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
