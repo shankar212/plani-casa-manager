@@ -212,15 +212,31 @@ export const AccountShareDialog = () => {
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={!!deleteShareId} onOpenChange={() => setDeleteShareId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Remover acesso à conta?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Este usuário perderá acesso a todos os seus projetos. Esta ação não pode ser desfeita.
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                {deleteShareId && shares.find(s => s.id === deleteShareId)?.shared_with_name && (
+                  <span className="font-medium text-foreground">
+                    {shares.find(s => s.id === deleteShareId)?.shared_with_name}
+                  </span>
+                )}
+                {deleteShareId && shares.find(s => s.id === deleteShareId)?.shared_with_email && (
+                  <span className="block text-sm text-muted-foreground mt-1">
+                    ({shares.find(s => s.id === deleteShareId)?.shared_with_email})
+                  </span>
+                )}
+              </p>
+              <p className="text-sm">
+                Este usuário perderá acesso a <strong>todos os seus projetos</strong>. Esta ação não pode ser desfeita.
+              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto touch-manipulation min-h-[44px]">
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (deleteShareId) {
@@ -228,8 +244,9 @@ export const AccountShareDialog = () => {
                   setDeleteShareId(null);
                 }
               }}
+              className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90 touch-manipulation min-h-[44px]"
             >
-              Remover
+              Remover Acesso
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
