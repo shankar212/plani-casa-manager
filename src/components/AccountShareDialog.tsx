@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+  SwipeableDialog as Dialog,
+  SwipeableDialogContent as DialogContent,
+  SwipeableDialogDescription as DialogDescription,
+  SwipeableDialogHeader as DialogHeader,
+  SwipeableDialogTitle as DialogTitle,
+  SwipeableDialogTrigger as DialogTrigger,
+} from '@/components/ui/swipeable-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -68,7 +68,7 @@ export const AccountShareDialog = () => {
             Compartilhar Conta
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto" onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>Compartilhar Todos os Projetos</DialogTitle>
             <DialogDescription>

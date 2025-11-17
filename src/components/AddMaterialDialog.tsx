@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { 
+  SwipeableDialog as Dialog, 
+  SwipeableDialogContent as DialogContent, 
+  SwipeableDialogDescription as DialogDescription, 
+  SwipeableDialogFooter as DialogFooter, 
+  SwipeableDialogHeader as DialogHeader, 
+  SwipeableDialogTitle as DialogTitle 
+} from "@/components/ui/swipeable-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -151,7 +158,7 @@ export const AddMaterialDialog: React.FC<AddMaterialDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto" onOpenChange={onOpenChange}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
