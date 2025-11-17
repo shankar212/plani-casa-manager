@@ -155,19 +155,19 @@ export const AccountShareDialog = () => {
                   Nenhum compartilhamento de conta ainda
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 sm:space-y-3">
                   {shares.map((share) => (
-                    <Card key={share.id} className="p-4">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex-1 min-w-0 w-full">
-                          <div className="font-medium truncate">
+                    <Card key={share.id} className="p-3 sm:p-4">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate text-sm sm:text-base">
                             {share.shared_with_name || 'Usuário'}
                           </div>
-                          <div className="text-sm text-muted-foreground truncate">
+                          <div className="text-xs sm:text-sm text-muted-foreground truncate break-all">
                             {share.shared_with_email}
                           </div>
                           <div className="flex items-center gap-2 mt-2">
-                            <Badge variant={share.access_level === 'edit' ? 'default' : 'secondary'}>
+                            <Badge variant={share.access_level === 'edit' ? 'default' : 'secondary'} className="text-xs">
                               {share.access_level === 'view' ? (
                                 <><Eye className="w-3 h-3 mr-1" /> Visualizar</>
                               ) : (
@@ -177,12 +177,12 @@ export const AccountShareDialog = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="flex items-stretch gap-2">
                           <Select
                             value={share.access_level}
                             onValueChange={(value: 'view' | 'edit') => updateShareAccess(share.id, value)}
                           >
-                            <SelectTrigger className="w-full sm:w-[140px]">
+                            <SelectTrigger className="flex-1 h-10 touch-manipulation">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -194,6 +194,7 @@ export const AccountShareDialog = () => {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-10 w-10 shrink-0 touch-manipulation"
                             onClick={() => setDeleteShareId(share.id)}
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
