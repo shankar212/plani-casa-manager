@@ -103,7 +103,7 @@ const ProjectDetail = () => {
             {isOwner && <ProjectShareDialog projectId={id!} projectName={project.name} />}
           </div>
           
-          <div className="flex overflow-x-auto gap-2 md:space-x-4 border-b border-gray-200 scrollbar-hide">
+          <div className="flex flex-wrap gap-2 md:gap-0 md:space-x-4 border-b border-gray-200">
             <NavLink 
               to={`/projetos/${id}`} 
               end
@@ -136,14 +136,6 @@ const ProjectDetail = () => {
               }
             >
               conformidade legal
-            </NavLink>
-            <NavLink 
-              to={`/projetos/${id}/cronograma`}
-              className={({ isActive }) => 
-                `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base whitespace-nowrap ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
-              }
-            >
-              cronograma
             </NavLink>
             <NavLink 
               to={`/projetos/${id}/relatorios`}
