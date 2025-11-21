@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
-import { Plus, Folder } from "lucide-react";
+import { Plus, Folder, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -101,6 +101,15 @@ const Home = () => {
                 >
                   <Folder className="w-5 h-5" />
                   Ver Todos
+                </Button>
+                <Button 
+                  onClick={() => navigate("/install")} 
+                  variant="outline"
+                  size="lg"
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm"
+                >
+                  <Download className="w-5 h-5" />
+                  Instalar App
                 </Button>
               </div>
             </div>
