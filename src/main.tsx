@@ -3,6 +3,17 @@ import App from './App.tsx'
 import './index.css'
 import { registerSW } from 'virtual:pwa-register'
 
+// Store install prompt globally
+let deferredPrompt: any = null;
+
+// Capture the install prompt event early
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Store in window for access from components
+  (window as any).deferredPrompt = e;
+});
+
 // Register service worker with auto-update
 const updateSW = registerSW({
   immediate: true,

@@ -21,9 +21,16 @@ export default function Install() {
       setIsInstalled(true);
     }
 
+    // Check if prompt was already captured
+    if ((window as any).deferredPrompt) {
+      setDeferredPrompt((window as any).deferredPrompt);
+    }
+
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      const prompt = e as BeforeInstallPromptEvent;
+      setDeferredPrompt(prompt);
+      (window as any).deferredPrompt = prompt;
     };
 
     window.addEventListener('beforeinstallprompt', handler);
