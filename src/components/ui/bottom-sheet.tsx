@@ -49,7 +49,7 @@ const BottomSheetContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-0 right-0 bottom-0 z-50 max-h-[85vh] flex flex-col border-t bg-background rounded-t-3xl shadow-lg duration-200",
+          "fixed left-0 right-0 bottom-0 z-50 h-[95vh] flex flex-col border-t bg-background rounded-t-3xl shadow-lg duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
