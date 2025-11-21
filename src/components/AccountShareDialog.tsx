@@ -68,7 +68,7 @@ export const AccountShareDialog = () => {
             Compartilhar Conta
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Compartilhar Todos os Projetos</DialogTitle>
             <DialogDescription>
