@@ -85,7 +85,7 @@ export const AccountShareDialog = () => {
             </Alert>
 
             {/* Add new share */}
-            <Card className="p-3 sm:p-4">
+            <Card className="p-4">
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <UserPlus className="w-5 h-5 mt-2 text-muted-foreground hidden sm:block" />
                 <div className="flex-1 w-full space-y-4">
@@ -157,7 +157,7 @@ export const AccountShareDialog = () => {
               ) : (
                 <div className="space-y-2 sm:space-y-3">
                   {shares.map((share) => (
-                    <Card key={share.id} className="p-3 sm:p-4">
+                    <Card key={share.id} className="p-4">
                       <div className="flex flex-col gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate text-sm sm:text-base">
