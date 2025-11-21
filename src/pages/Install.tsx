@@ -111,6 +111,14 @@ export default function Install() {
                       <p><strong>No iPhone/iPad:</strong> Toque no botão "Compartilhar" e selecione "Adicionar à Tela Inicial"</p>
                       <p><strong>No Android:</strong> Abra o menu do navegador e selecione "Instalar aplicativo" ou "Adicionar à tela inicial"</p>
                     </div>
+                    <Button
+                      onClick={() => window.dispatchEvent(new Event('showIOSInstallModal'))}
+                      variant="outline"
+                      size="lg"
+                      className="w-full md:w-auto"
+                    >
+                      Ver Guia para iPhone
+                    </Button>
                   </div>
                 )}
 
