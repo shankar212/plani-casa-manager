@@ -59,7 +59,7 @@ const BottomSheetContent = React.forwardRef<
       >
         {/* Drag handle */}
         <div 
-          className="sticky top-0 z-10 flex justify-between items-center pt-4 pb-2 px-6 bg-background rounded-t-3xl shrink-0"
+          className="sticky top-0 z-10 flex justify-between items-center pt-4 pb-2 px-4 bg-background rounded-t-3xl shrink-0"
           {...swipeProps}
         >
           <div className="flex-1 flex justify-center">
@@ -71,7 +71,7 @@ const BottomSheetContent = React.forwardRef<
           </DialogPrimitive.Close>
         </div>
         
-        <div className="overflow-y-auto overscroll-contain flex-1 px-6 pb-6 safe-area-pb -webkit-overflow-scrolling-touch">
+        <div className="overflow-y-auto overscroll-contain flex-1 px-4 pb-6 safe-area-pb -webkit-overflow-scrolling-touch">
           {children}
         </div>
       </DialogPrimitive.Content>
