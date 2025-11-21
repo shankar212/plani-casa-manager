@@ -62,44 +62,86 @@ const Home = () => {
     <Layout>
       <div className="min-h-screen">
         {/* Hero Section with Gradient */}
-        <div className="gradient-hero border-b border-border/50">
-          <div className="p-4 md:p-8 lg:p-12 space-y-6 max-w-7xl mx-auto">
-            <div className="space-y-4 animate-fade-in-up">
-              <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+        <div className="relative gradient-hero border-b border-border/50 overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          
+          <div className="relative p-4 md:p-8 lg:p-12 space-y-8 max-w-7xl mx-auto">
+            <div className="space-y-6 animate-fade-in-up">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold border border-primary/20 hover:bg-primary/15 transition-colors">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 Plataforma de Gestão de Projetos
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground leading-[1.1] tracking-tight">
                 Bem-vindo de volta,<br />
-                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent inline-block animate-fade-in" style={{ animationDelay: '0.2s' }}>
                   {user?.email?.split("@")[0] || "Usuário"}
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 Gerencie seus projetos de construção de forma eficiente e moderna, tudo em um só lugar
               </p>
+              
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-3 pt-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <Button 
+                  onClick={() => navigate("/projetos/criar")} 
+                  size="lg"
+                  className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                >
+                  <Plus className="w-5 h-5" />
+                  Criar Projeto
+                </Button>
+                <Button 
+                  onClick={() => navigate("/projetos")} 
+                  variant="outline"
+                  size="lg"
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm"
+                >
+                  <Folder className="w-5 h-5" />
+                  Ver Todos
+                </Button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Stats Dashboard */}
-        <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
-          <DashboardStats {...stats} />
+        <div className="p-4 md:p-8 space-y-10 max-w-7xl mx-auto">
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <DashboardStats {...stats} />
+          </div>
 
           {/* Recent Projects Section */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">Projetos Recentes</h2>
-                <p className="text-sm md:text-base text-muted-foreground mt-2">
-                  {projects.length > 0
-                    ? `Você tem ${projects.length} ${projects.length === 1 ? "projeto" : "projetos"}`
-                    : "Nenhum projeto cadastrado"}
+          <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div className="space-y-1">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                  Projetos Recentes
+                </h2>
+                <p className="text-base md:text-lg text-muted-foreground flex items-center gap-2">
+                  {projects.length > 0 ? (
+                    <>
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                        {projects.length}
+                      </span>
+                      {projects.length === 1 ? "projeto ativo" : "projetos ativos"}
+                    </>
+                  ) : (
+                    "Nenhum projeto cadastrado"
+                  )}
                 </p>
               </div>
-              <Button onClick={() => navigate("/projetos/criar")} className="gap-2 shadow-md hover:shadow-lg">
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Novo Projeto</span>
-              </Button>
+              {projects.length > 0 && (
+                <Button 
+                  onClick={() => navigate("/projetos/criar")} 
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4" />
+                  Novo Projeto
+                </Button>
+              )}
             </div>
 
             {loading ? (
@@ -130,18 +172,28 @@ const Home = () => {
                 ))}
               </div>
             ) : (
-              <Card className="border-dashed border-2 border-border/50 bg-muted/20 hover:border-primary/30 transition-all duration-300">
-                <CardContent className="flex flex-col items-center justify-center py-16 space-y-6">
-                  <div className="p-6 rounded-full bg-primary/5">
-                    <Folder className="w-16 h-16 text-primary/40" />
+              <Card className="relative border-dashed border-2 border-border/50 bg-gradient-to-br from-muted/20 to-background hover:border-primary/30 transition-all duration-500 overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardContent className="relative flex flex-col items-center justify-center py-20 md:py-24 space-y-8">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '3s' }} />
+                    <div className="relative p-8 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 group-hover:scale-110 transition-transform duration-300">
+                      <Folder className="w-20 h-20 text-primary/60" />
+                    </div>
                   </div>
-                  <div className="text-center space-y-3">
-                    <p className="text-xl font-semibold text-foreground">Nenhum projeto ainda</p>
-                    <p className="text-base text-muted-foreground max-w-md">
-                      Comece sua jornada criando seu primeiro projeto de construção
+                  <div className="text-center space-y-4 max-w-lg">
+                    <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                      Comece Agora
+                    </h3>
+                    <p className="text-base md:text-lg text-muted-foreground leading-relaxed px-4">
+                      Dê o primeiro passo e crie seu projeto de construção. Gerencie etapas, materiais, documentos e muito mais.
                     </p>
                   </div>
-                  <Button onClick={() => navigate("/criar-projeto")} className="gap-2 mt-4 shadow-md hover:shadow-lg" size="lg">
+                  <Button 
+                    onClick={() => navigate("/projetos/criar")} 
+                    className="gap-2 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
+                    size="lg"
+                  >
                     <Plus className="w-5 h-5" />
                     Criar Primeiro Projeto
                   </Button>
@@ -150,37 +202,58 @@ const Home = () => {
             )}
 
             {projects.length > 6 && (
-              <div className="text-center pt-4">
-                <Button variant="outline" onClick={() => navigate("/projetos")} size="lg" className="shadow-sm hover:shadow-md">
-                  Ver Todos os Projetos
+              <div className="text-center pt-6 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/projetos")} 
+                  size="lg" 
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  <Folder className="w-4 h-4" />
+                  Ver Todos os {projects.length} Projetos
                 </Button>
               </div>
             )}
           </div>
 
           {/* Contact Support Section */}
-          <div className="mt-16 pt-8 border-t border-border">
-            <Card className="gradient-accent border-border/50 shadow-md hover:shadow-lg transition-all duration-300">
-              <CardContent className="p-8 text-center space-y-4">
-                <h3 className="text-xl font-semibold text-foreground">Precisa de Ajuda?</h3>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
+          <div className="mt-20 pt-12 border-t border-border/50 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <Card className="relative gradient-accent border-border/50 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="relative p-8 md:p-12 text-center space-y-6">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold mb-2">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    Suporte Ativo
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-foreground">Precisa de Ajuda?</h3>
+                </div>
+                <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                   Entre em contato com o suporte via{" "}
                   <a
                     href="mailto:gustavo.corbucci@gmail.com?subject=[Plani] Assunto"
-                    className="text-primary hover:underline font-semibold transition-colors"
+                    className="text-primary hover:text-primary/80 underline font-semibold transition-colors inline-flex items-center gap-1"
                   >
                     gustavo.corbucci@gmail.com
-                  </a>{" "}
-                  com o título [Plani] Assunto
+                  </a>
+                  {" "}com o título <span className="font-mono text-sm bg-muted px-2 py-1 rounded">[Plani] Assunto</span>
                 </p>
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  <div className="h-1 w-1 rounded-full bg-primary/40"></div>
-                  <p className="text-sm text-muted-foreground font-medium">Aceitamos sugestões!</p>
-                  <div className="h-1 w-1 rounded-full bg-primary/40"></div>
+                <div className="flex flex-col items-center gap-4 pt-4">
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="h-px w-8 bg-gradient-to-r from-transparent to-border"></div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+                      <span className="text-primary">✨</span>
+                      Aceitamos sugestões e feedback
+                      <span className="text-primary">✨</span>
+                    </div>
+                    <div className="h-px w-8 bg-gradient-to-l from-transparent to-border"></div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Obrigado por usar{" "}
+                    <span className="font-bold text-primary text-base">Plani</span>
+                    {" "}— construindo com você! 🏗️
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground pt-2">
-                  Obrigado por usar <span className="font-semibold text-primary">Plani</span>, construindo com você!
-                </p>
               </CardContent>
             </Card>
           </div>
