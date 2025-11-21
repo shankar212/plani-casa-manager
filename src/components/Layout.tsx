@@ -2,6 +2,7 @@
 import { Sidebar } from "./Sidebar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { FloatingInstallButton } from "./FloatingInstallButton";
+import { IOSInstallModal } from "./IOSInstallModal";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,6 +25,7 @@ export const Layout = ({ children }: LayoutProps) => {
       </main>
       <MobileBottomNav />
       <FloatingInstallButton />
+      <IOSInstallModal />
     </div>
   );
 };
