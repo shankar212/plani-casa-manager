@@ -18,6 +18,7 @@ import { MaterialsFinancialSummary } from "@/components/MaterialsFinancialSummar
 import { useProjectData } from "@/hooks/useProjectData";
 import { ProjectHeader } from "@/components/ProjectHeader";
 import { useAuth } from "@/contexts/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 const ProjectFinancial = () => {
@@ -256,7 +257,18 @@ const ProjectFinancial = () => {
             <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4 break-words">pagamentos e contratos confirmados</h2>
             <div className="overflow-x-auto -mx-4 md:mx-0">
               {loading ? (
-                <div className="text-center py-8 px-4">Carregando...</div>
+                <div className="space-y-3 px-4 md:px-0">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-4 p-3 border rounded-lg">
+                      <Skeleton className="h-12 w-12 rounded" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                      <Skeleton className="h-8 w-24" />
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="border rounded-lg overflow-x-auto min-w-0">
                   <table className="w-full min-w-[640px]">

@@ -211,6 +211,19 @@ html {
       transform: translateY(0);
     }
   }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
   
   .animate-stagger-1 {
     animation-delay: 0.05s;
