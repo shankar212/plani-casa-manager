@@ -17,7 +17,7 @@ export const Layout = ({ children }: LayoutProps) => {
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       <Sidebar />
       <main className={cn(
-        "min-h-screen animate-fade-in max-w-full overflow-x-hidden",
+        "min-h-screen animate-fade-in max-w-full overflow-x-hidden transition-all duration-300 ease-in-out",
         isMobile ? "ml-0 pb-20" : "ml-60"
       )}>
         {children}
