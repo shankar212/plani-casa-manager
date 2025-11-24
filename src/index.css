@@ -246,13 +246,13 @@ html {
     transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
-  /* Performance optimizations */
-  .will-change-transform {
-    will-change: transform;
-  }
-
-  .will-change-opacity {
-    will-change: opacity;
+  /* Parallax scroll smoothing */
+  @supports (will-change: transform) {
+    .parallax-layer {
+      will-change: transform;
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
   }
   
   /* Safe area utilities for mobile */
