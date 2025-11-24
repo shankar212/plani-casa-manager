@@ -254,15 +254,6 @@ html {
       perspective: 1000px;
     }
   }
-
-  /* Page transition smoothing */
-  body {
-    overflow-x: hidden;
-  }
-
-  #root {
-    position: relative;
-  }
   
   /* Safe area utilities for mobile */
   .safe-area-pb {

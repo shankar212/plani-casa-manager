@@ -3,12 +3,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "./contexts/ProjectContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { PageTransition } from "./components/PageTransition";
-import { AnimatePresence } from "framer-motion";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import CreateProject from "./pages/CreateProject";
@@ -28,123 +26,6 @@ import Install from "./pages/Install";
 
 const queryClient = new QueryClient();
 
-const AnimatedRoutes = () => {
-  const location = useLocation();
-
-  return (
-    <AnimatePresence mode="wait" initial={false}>
-      <Routes location={location} key={location.pathname}>
-        <Route path="/auth" element={
-          <PageTransition>
-            <Auth />
-          </PageTransition>
-        } />
-        <Route path="/" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <Home />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <Projects />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/criar" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <CreateProject />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/:id" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <ProjectDetail />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/:id/financeiro" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <ProjectFinancial />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/:id/tecnico" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <ProjectTechnical />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/:id/conformidade-legal" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <ProjectLegal />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/:id/relatorios" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <ProjectReports />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/:id/cronograma" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <ProjectTimeline />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/projetos/:id/adicionar-etapa" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <AddStep />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/almoxarifado" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <DigitalWarehouse />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/notificacoes" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <Notifications />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/conta" element={
-          <ProtectedRoute>
-            <PageTransition>
-              <AccountSettings />
-            </PageTransition>
-          </ProtectedRoute>
-        } />
-        <Route path="/install" element={
-          <PageTransition>
-            <Install />
-          </PageTransition>
-        } />
-        <Route path="*" element={
-          <PageTransition>
-            <NotFound />
-          </PageTransition>
-        } />
-      </Routes>
-    </AnimatePresence>
-  );
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -153,7 +34,76 @@ const App = () => (
       <AuthProvider>
         <ProjectProvider>
           <BrowserRouter>
-            <AnimatedRoutes />
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos" element={
+              <ProtectedRoute>
+                <Projects />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/criar" element={
+              <ProtectedRoute>
+                <CreateProject />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id" element={
+              <ProtectedRoute>
+                <ProjectDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id/financeiro" element={
+              <ProtectedRoute>
+                <ProjectFinancial />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id/tecnico" element={
+              <ProtectedRoute>
+                <ProjectTechnical />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id/conformidade-legal" element={
+              <ProtectedRoute>
+                <ProjectLegal />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id/relatorios" element={
+              <ProtectedRoute>
+                <ProjectReports />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id/cronograma" element={
+              <ProtectedRoute>
+                <ProjectTimeline />
+              </ProtectedRoute>
+            } />
+            <Route path="/projetos/:id/adicionar-etapa" element={
+              <ProtectedRoute>
+                <AddStep />
+              </ProtectedRoute>
+            } />
+            <Route path="/almoxarifado" element={
+              <ProtectedRoute>
+                <DigitalWarehouse />
+              </ProtectedRoute>
+            } />
+              <Route path="/notificacoes" element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              } />
+              <Route path="/conta" element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              } />
+              <Route path="/install" element={<Install />} />
+              <Route path="*" element={<NotFound />} />
+          </Routes>
           </BrowserRouter>
         </ProjectProvider>
       </AuthProvider>
