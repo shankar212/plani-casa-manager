@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { AnimatedBreadcrumbs } from "@/components/AnimatedBreadcrumbs";
 
 const CreateProject = () => {
   const { user } = useAuth();
@@ -89,6 +90,7 @@ const CreateProject = () => {
   return (
     <Layout>
       <div className="p-4 md:p-8">
+        <AnimatedBreadcrumbs />
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl font-bold mb-4">Criar novo projeto</h1>
           <hr className="border-border" />

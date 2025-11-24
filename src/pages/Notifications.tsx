@@ -9,6 +9,7 @@ import { ptBR } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { useNavigate } from "react-router-dom";
+import { AnimatedBreadcrumbs } from "@/components/AnimatedBreadcrumbs";
 
 interface Notification {
   id: string;
@@ -80,6 +81,7 @@ export default function Notifications() {
   return (
     <Layout>
       <div className="p-4 md:p-6 lg:p-8">
+        <AnimatedBreadcrumbs />
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6 mb-6">
           <div className="flex items-center gap-3">
             <Bell className="h-6 w-6 md:h-8 md:w-8 text-primary flex-shrink-0" />

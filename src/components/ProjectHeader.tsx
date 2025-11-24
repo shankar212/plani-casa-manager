@@ -1,4 +1,6 @@
 import { NavLink } from "react-router-dom";
+import { AnimatedBreadcrumbs } from "./AnimatedBreadcrumbs";
+import { Skeleton } from "./ui/skeleton";
 
 interface ProjectHeaderProps {
   projectId: string;
@@ -10,28 +12,29 @@ export const ProjectHeader = ({ projectId, projectName, loading }: ProjectHeader
   if (loading) {
     return (
       <div className="mb-6">
-        <div className="text-sm text-gray-600 mb-2">
-          <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › 
-          <span className="ml-1 bg-gray-200 animate-pulse rounded h-4 w-32 inline-block"></span>
+        <div className="mb-4 flex items-center gap-2">
+          <Skeleton className="h-4 w-12" />
+          <span className="text-muted-foreground">/</span>
+          <Skeleton className="h-4 w-20" />
+          <span className="text-muted-foreground">/</span>
+          <Skeleton className="h-4 w-32" />
         </div>
-        <div className="bg-gray-200 animate-pulse rounded h-8 w-48 mb-4"></div>
+        <Skeleton className="h-8 w-48 mb-4" />
         
-      <div className="flex overflow-x-auto gap-2 md:space-x-4 border-b border-gray-200 scrollbar-hide">
-        {['gestão', 'financeiro', 'técnico', 'conformidade legal', 'cronograma', 'relatórios e indicadores'].map((tab, index) => (
-          <div key={index} className="pb-2 px-2 md:px-1">
-            <div className="bg-gray-200 animate-pulse rounded h-4 w-20 whitespace-nowrap"></div>
-          </div>
-        ))}
-      </div>
+        <div className="flex overflow-x-auto gap-2 md:space-x-4 border-b border-gray-200 scrollbar-hide">
+          {['gestão', 'financeiro', 'técnico', 'conformidade legal', 'cronograma', 'relatórios e indicadores'].map((tab, index) => (
+            <div key={index} className="pb-2 px-2 md:px-1">
+              <Skeleton className="h-4 w-20 whitespace-nowrap" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="mb-6">
-      <div className="text-sm text-gray-600 mb-2">
-        <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {projectName}
-      </div>
+      <AnimatedBreadcrumbs />
       <h1 className="text-2xl font-bold mb-4">{projectName}</h1>
       
       <div className="flex overflow-x-auto gap-2 md:space-x-4 border-b border-gray-200 scrollbar-hide">

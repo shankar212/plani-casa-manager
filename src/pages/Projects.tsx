@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ProjectAccessLevel } from "@/hooks/useProjectAccess";
 import { ProjectAccessBadge } from "@/components/ProjectAccessBadge";
+import { AnimatedBreadcrumbs } from "@/components/AnimatedBreadcrumbs";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -104,6 +105,7 @@ const Projects = () => {
         {/* Hero Section with Gradient */}
         <div className="gradient-hero border-b border-border/50">
           <div className="p-6 sm:p-8 lg:p-12 space-y-4 sm:space-y-6 max-w-7xl mx-auto">
+            <AnimatedBreadcrumbs />
             <div className="space-y-3 sm:space-y-4 animate-fade-in-up">
               <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-medium">
                 Gestão de Projetos

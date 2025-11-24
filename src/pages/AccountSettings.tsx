@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { User, Users, Mail, Building2, Save } from "lucide-react";
+import { AnimatedBreadcrumbs } from "@/components/AnimatedBreadcrumbs";
 
 export default function AccountSettings() {
   const { user } = useAuth();
@@ -76,6 +77,7 @@ export default function AccountSettings() {
         {/* Header */}
         <div className="gradient-hero border-b border-border/50">
           <div className="p-4 md:p-8 lg:p-12 space-y-6 max-w-7xl mx-auto">
+            <AnimatedBreadcrumbs />
             <div className="space-y-4 animate-fade-in-up">
               <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
                 Configurações
