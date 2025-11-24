@@ -263,9 +263,9 @@ const Projects = () => {
                 Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className={`animate-fade-in-up animate-stagger-${Math.min(i % 3 + 1, 3)}`}>
                     <Card className="p-6 border-border/50">
-                      <Skeleton className="h-7 w-3/4 mb-4 animate-pulse" style={{ animationDuration: '0.8s' }} />
-                      <Skeleton className="h-4 w-1/2 mb-2 animate-pulse" style={{ animationDuration: '0.8s' }} />
-                      <Skeleton className="h-4 w-2/3 animate-pulse" style={{ animationDuration: '0.8s' }} />
+                      <Skeleton className="h-7 w-3/4 mb-4" />
+                      <Skeleton className="h-4 w-1/2 mb-2" />
+                      <Skeleton className="h-4 w-2/3" />
                     </Card>
                   </div>
                 ))

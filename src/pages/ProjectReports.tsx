@@ -13,6 +13,7 @@ import { useProjectData } from "@/hooks/useProjectData";
 import { ProjectHeader } from "@/components/ProjectHeader";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { logError } from "@/lib/errorHandler";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProjectPhoto {
   id: string;
@@ -210,15 +211,12 @@ const ProjectReports = () => {
             <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Resultados Financeiros</h2>
             {financialLoading ? (
               <div className="space-y-3">
-                <div className="bg-gray-100 p-3 rounded animate-pulse">
-                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                </div>
-                <div className="bg-gray-100 p-3 rounded animate-pulse">
-                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                </div>
-                <div className="bg-gray-100 p-3 rounded animate-pulse">
-                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                </div>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-6 w-48" />
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="space-y-2 md:space-y-3">

@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -147,8 +148,17 @@ export const AccountShareDialog = () => {
               <h3 className="text-sm font-medium">Usuários com acesso à sua conta</h3>
               
               {loading ? (
-                <div className="text-sm text-muted-foreground text-center py-4">
-                  Carregando...
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                      <Skeleton className="h-8 w-20" />
+                    </div>
+                  ))}
                 </div>
               ) : shares.length === 0 ? (
                 <div className="text-sm text-muted-foreground text-center py-4">
