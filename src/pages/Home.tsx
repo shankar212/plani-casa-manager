@@ -65,30 +65,30 @@ const Home = () => {
         <div className="relative gradient-hero border-b border-border/50 overflow-hidden">
           {/* Background decoration */}
           <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse will-change-opacity" style={{ animationDuration: '3s' }} />
           
           <div className="relative p-4 md:p-8 lg:p-12 space-y-8 max-w-7xl mx-auto">
-            <div className="space-y-6 animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold border border-primary/20 hover:bg-primary/15 transition-colors">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <div className="space-y-6 animate-fade-in-up will-change-transform">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold border border-primary/20 hover:bg-primary/15 transition-all duration-300">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse will-change-opacity" />
                 Plataforma de Gestão de Projetos
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground leading-[1.1] tracking-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground leading-[1.1] tracking-tight will-change-transform">
                 Bem-vindo de volta,<br />
-                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent inline-block animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent inline-block animate-fade-in will-change-opacity" style={{ animationDelay: '0.1s' }}>
                   {user?.email?.split("@")[0] || "Usuário"}
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed animate-fade-in-up will-change-opacity" style={{ animationDelay: '0.15s' }}>
                 Gerencie seus projetos de construção de forma eficiente e moderna, tudo em um só lugar
               </p>
               
               {/* Quick Actions */}
-              <div className="flex flex-wrap gap-3 pt-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <div className="flex flex-wrap gap-3 pt-4 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.2s' }}>
                 <Button 
                   onClick={() => navigate("/projetos/criar")} 
                   size="lg"
-                  className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform"
                 >
                   <Plus className="w-5 h-5" />
                   Criar Projeto
@@ -97,7 +97,7 @@ const Home = () => {
                   onClick={() => navigate("/projetos")} 
                   variant="outline"
                   size="lg"
-                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm"
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-background/50 backdrop-blur-sm will-change-transform"
                 >
                   <Folder className="w-5 h-5" />
                   Ver Todos
@@ -106,7 +106,7 @@ const Home = () => {
                   onClick={() => navigate("/install")} 
                   variant="outline"
                   size="lg"
-                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 bg-background/50 backdrop-blur-sm"
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-background/50 backdrop-blur-sm will-change-transform"
                 >
                   <Download className="w-5 h-5" />
                   Instalar App
@@ -116,14 +116,14 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Stats Dashboard */}
-        <div className="p-4 md:p-8 space-y-10 max-w-7xl mx-auto">
-          <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <DashboardStats {...stats} />
-          </div>
+          {/* Stats Dashboard */}
+          <div className="p-4 md:p-8 space-y-10 max-w-7xl mx-auto">
+            <div className="animate-fade-in-up will-change-transform" style={{ animationDelay: '0.05s' }}>
+              <DashboardStats {...stats} />
+            </div>
 
-          {/* Recent Projects Section */}
-          <div className="space-y-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            {/* Recent Projects Section */}
+            <div className="space-y-6 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.1s' }}>
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div className="space-y-1">
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
@@ -145,7 +145,7 @@ const Home = () => {
               {projects.length > 0 && (
                 <Button 
                   onClick={() => navigate("/projetos/criar")} 
-                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto will-change-transform"
                 >
                   <Plus className="w-4 h-4" />
                   Novo Projeto
@@ -185,8 +185,8 @@ const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="relative flex flex-col items-center justify-center py-20 md:py-24 space-y-8">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '3s' }} />
-                    <div className="relative p-8 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 group-hover:scale-110 transition-transform duration-300">
+                    <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl animate-pulse will-change-opacity" style={{ animationDuration: '2.5s' }} />
+                    <div className="relative p-8 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 group-hover:scale-110 transition-all duration-300 will-change-transform">
                       <Folder className="w-20 h-20 text-primary/60" />
                     </div>
                   </div>
@@ -200,7 +200,7 @@ const Home = () => {
                   </div>
                   <Button 
                     onClick={() => navigate("/projetos/criar")} 
-                    className="gap-2 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
+                    className="gap-2 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform" 
                     size="lg"
                   >
                     <Plus className="w-5 h-5" />
@@ -211,12 +211,12 @@ const Home = () => {
             )}
 
             {projects.length > 6 && (
-              <div className="text-center pt-6 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <div className="text-center pt-6 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.25s' }}>
                 <Button 
                   variant="outline" 
                   onClick={() => navigate("/projetos")} 
                   size="lg" 
-                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
+                  className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform"
                 >
                   <Folder className="w-4 h-4" />
                   Ver Todos os {projects.length} Projetos
@@ -226,7 +226,7 @@ const Home = () => {
           </div>
 
           {/* Contact Support Section */}
-          <div className="mt-20 pt-12 border-t border-border/50 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="mt-20 pt-12 border-t border-border/50 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.3s' }}>
             <Card className="relative gradient-accent border-border/50 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <CardContent className="relative p-8 md:p-12 text-center space-y-6">
