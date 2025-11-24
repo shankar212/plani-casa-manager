@@ -1,6 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { EditableMaterialsTable } from "@/components/EditableMaterialsTable";
 import { Package, TrendingUp } from "lucide-react";
+import { AnimatedBreadcrumbs } from "@/components/AnimatedBreadcrumbs";
 
 const DigitalWarehouse = () => {
   return (
@@ -10,6 +11,7 @@ const DigitalWarehouse = () => {
         <div className="relative overflow-hidden border-b border-border/40 bg-gradient-to-br from-primary/5 via-background to-accent/5">
           <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
           <div className="relative p-4 md:p-8 lg:p-12 max-w-7xl mx-auto">
+            <AnimatedBreadcrumbs />
             <div className="space-y-6 animate-fade-in-up" style={{ animationDuration: "0.4s" }}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">

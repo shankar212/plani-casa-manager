@@ -33,7 +33,10 @@ const BreadcrumbItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <li
     ref={ref}
-    className={cn("inline-flex items-center gap-1.5", className)}
+    className={cn(
+      "inline-flex items-center gap-1.5 animate-fade-in",
+      className
+    )}
     {...props}
   />
 ))
@@ -50,7 +53,10 @@ const BreadcrumbLink = React.forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn("transition-colors hover:text-foreground", className)}
+      className={cn(
+        "transition-all duration-300 ease-in-out hover:text-foreground hover:scale-105 active:scale-95 will-change-transform inline-block",
+        className
+      )}
       {...props}
     />
   )
@@ -80,7 +86,10 @@ const BreadcrumbSeparator = ({
   <li
     role="presentation"
     aria-hidden="true"
-    className={cn("[&>svg]:size-3.5", className)}
+    className={cn(
+      "[&>svg]:size-3.5 animate-fade-in transition-opacity duration-300",
+      className
+    )}
     {...props}
   >
     {children ?? <ChevronRight />}
