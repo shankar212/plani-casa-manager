@@ -3,7 +3,7 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { DashboardStats } from "@/components/DashboardStats";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,22 @@ type Project = Tables<"projects">;
 const Home = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const fetchProjects = async () => {
@@ -58,33 +69,106 @@ const Home = () => {
   };
 
 
+  const parallaxBg = scrollY * 0.5;
+  const parallaxContent = scrollY * 0.2;
+  const parallaxOrb = scrollY * 0.3;
+
   return (
     <Layout>
       <div className="min-h-screen">
         {/* Hero Section with Gradient */}
-        <div className="relative gradient-hero border-b border-border/50 overflow-hidden">
+        <div 
+          ref={heroRef}
+          className="relative gradient-hero border-b border-border/50 overflow-hidden"
+          style={{
+            transform: `translateY(${parallaxBg}px)`,
+            willChange: 'transform'
+          }}
+        >
           {/* Background decoration */}
-          <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse will-change-opacity" style={{ animationDuration: '3s' }} />
+          <div 
+            className="absolute inset-0 bg-grid-pattern opacity-[0.02]"
+            style={{
+              transform: `translateY(${-parallaxBg * 0.3}px)`,
+              willChange: 'transform'
+            }}
+          />
+          <div 
+            className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse will-change-opacity" 
+            style={{ 
+              animationDuration: '3s',
+              transform: `translate(${parallaxOrb * 0.5}px, ${parallaxOrb * 0.8}px) scale(${1 + scrollY * 0.0003})`,
+              willChange: 'transform'
+            }} 
+          />
+          <div 
+            className="absolute bottom-0 left-0 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-pulse will-change-opacity" 
+            style={{ 
+              animationDuration: '4s',
+              animationDelay: '1s',
+              transform: `translate(${-parallaxOrb * 0.4}px, ${parallaxOrb * 0.6}px) scale(${1 + scrollY * 0.0002})`,
+              willChange: 'transform'
+            }} 
+          />
           
-          <div className="relative p-4 md:p-8 lg:p-12 space-y-8 max-w-7xl mx-auto">
+          <div 
+            className="relative p-4 md:p-8 lg:p-12 space-y-8 max-w-7xl mx-auto"
+            style={{
+              transform: `translateY(${-parallaxContent}px)`,
+              opacity: Math.max(0, 1 - scrollY * 0.003),
+              willChange: 'transform, opacity'
+            }}
+          >
             <div className="space-y-6 animate-fade-in-up will-change-transform">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold border border-primary/20 hover:bg-primary/15 transition-all duration-300">
+              <div 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold border border-primary/20 hover:bg-primary/15 transition-all duration-300"
+                style={{
+                  transform: `translateY(${-scrollY * 0.15}px)`,
+                  willChange: 'transform'
+                }}
+              >
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse will-change-opacity" />
                 Plataforma de Gestão de Projetos
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground leading-[1.1] tracking-tight will-change-transform">
+              <h1 
+                className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground leading-[1.1] tracking-tight will-change-transform"
+                style={{
+                  transform: `translateY(${-scrollY * 0.12}px)`,
+                  willChange: 'transform'
+                }}
+              >
                 Bem-vindo de volta,<br />
-                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent inline-block animate-fade-in will-change-opacity" style={{ animationDelay: '0.1s' }}>
+                <span 
+                  className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent inline-block animate-fade-in will-change-opacity" 
+                  style={{ 
+                    animationDelay: '0.1s',
+                    transform: `translateY(${-scrollY * 0.1}px)`,
+                    willChange: 'transform'
+                  }}
+                >
                   {user?.email?.split("@")[0] || "Usuário"}
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed animate-fade-in-up will-change-opacity" style={{ animationDelay: '0.15s' }}>
+              <p 
+                className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed animate-fade-in-up will-change-opacity" 
+                style={{ 
+                  animationDelay: '0.15s',
+                  transform: `translateY(${-scrollY * 0.08}px)`,
+                  willChange: 'transform'
+                }}
+              >
                 Gerencie seus projetos de construção de forma eficiente e moderna, tudo em um só lugar
               </p>
               
               {/* Quick Actions */}
-              <div className="flex flex-wrap gap-3 pt-4 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.2s' }}>
+              <div 
+                className="flex flex-wrap gap-3 pt-4 animate-fade-in-up will-change-transform" 
+                style={{ 
+                  animationDelay: '0.2s',
+                  transform: `translateY(${-scrollY * 0.05}px)`,
+                  willChange: 'transform'
+                }}
+              >
                 <Button 
                   onClick={() => navigate("/projetos/criar")} 
                   size="lg"
