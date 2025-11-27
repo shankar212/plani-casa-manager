@@ -379,11 +379,11 @@ const Projects = () => {
                       )}
 
                       <div 
-                        className="space-y-4 cursor-pointer"
+                        className="space-y-4 cursor-pointer pr-12"
                         onClick={() => navigate(`/projetos/${project.id}`)}
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
                             <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
                               {project.name}
                             </h3>
@@ -391,7 +391,9 @@ const Projects = () => {
                               {project.status}
                             </div>
                           </div>
-                          <ProjectAccessBadge accessLevel={projectAccessMap.get(project.id) || 'none'} />
+                          <div className="flex-shrink-0">
+                            <ProjectAccessBadge accessLevel={projectAccessMap.get(project.id) || 'none'} />
+                          </div>
                         </div>
                         
                         <div className="pt-4 border-t border-border/30 space-y-2">
