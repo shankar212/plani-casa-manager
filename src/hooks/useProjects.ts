@@ -138,6 +138,15 @@ export const useProjects = () => {
 
   const deleteProject = async (id: string) => {
     try {
+      // First delete all related notifications
+      const { error: notifError } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('project_id', id);
+
+      if (notifError) throw notifError;
+
+      // Then delete the project
       const { error } = await supabase
         .from('projects')
         .delete()
