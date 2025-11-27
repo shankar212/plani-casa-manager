@@ -21,13 +21,18 @@ const Home = () => {
   const navigate = useNavigate();
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // Count user's own projects (not shared)
+  // Count user's own active (non-archived) projects
   const ownProjectsCount = useMemo(() => {
     if (!user?.id) return 0;
-    return projects.filter(p => p.user_id === user.id).length;
+    return projects.filter(p => p.user_id === user.id && !p.archived).length;
   }, [projects, user?.id]);
   
   const hasReachedProjectLimit = ownProjectsCount >= 3;
+
+  // Filter out archived projects from display
+  const activeProjects = useMemo(() => {
+    return projects.filter(p => !p.archived);
+  }, [projects]);
 
   useEffect(() => {
     fetchProjects();
@@ -46,7 +51,7 @@ const Home = () => {
     try {
       const { data, error } = await supabase
         .from("projects")
-        .select("id, name, description, status, start_date, end_date, sale_value, total_budget, created_at, updated_at, user_id")
+        .select("id, name, description, status, start_date, end_date, sale_value, total_budget, created_at, updated_at, user_id, archived, archived_at")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -59,10 +64,10 @@ const Home = () => {
   };
 
   const stats = {
-    totalProjects: projects.length,
-    activeProjects: projects.filter((p) => p.status === "Obras").length,
-    completedProjects: projects.filter((p) => p.status === "Pré-projeto").length,
-    totalBudget: projects.reduce((sum, p) => sum + Number(p.total_budget || 0), 0),
+    totalProjects: activeProjects.length,
+    activeProjects: activeProjects.filter((p) => p.status === "Obras").length,
+    completedProjects: activeProjects.filter((p) => p.status === "Pré-projeto").length,
+    totalBudget: activeProjects.reduce((sum, p) => sum + Number(p.total_budget || 0), 0),
   };
 
   const formatCurrency = (value: number) => {
@@ -224,19 +229,19 @@ const Home = () => {
                   Projetos Recentes
                 </h2>
                 <p className="text-base md:text-lg text-muted-foreground flex items-center gap-2">
-                  {projects.length > 0 ? (
+                  {activeProjects.length > 0 ? (
                     <>
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                        {projects.length}
+                        {activeProjects.length}
                       </span>
-                      {projects.length === 1 ? "projeto ativo" : "projetos ativos"}
+                      {activeProjects.length === 1 ? "projeto ativo" : "projetos ativos"}
                     </>
                   ) : (
                     "Nenhum projeto cadastrado"
                   )}
                 </p>
               </div>
-              {projects.length > 0 && (
+              {activeProjects.length > 0 && (
                 <Button 
                   onClick={() => navigate("/projetos/criar")} 
                   className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto will-change-transform"
@@ -262,9 +267,9 @@ const Home = () => {
                   </div>
                 ))}
               </div>
-            ) : projects.length > 0 ? (
+              ) : activeProjects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects.slice(0, 6).map((project, index) => (
+                {activeProjects.slice(0, 6).map((project, index) => (
                   <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 3 + 1, 3)}`}>
                     <ProjectCard
                       id={project.id}
@@ -308,7 +313,7 @@ const Home = () => {
               </Card>
             )}
 
-            {projects.length > 6 && (
+            {activeProjects.length > 6 && (
               <div className="text-center pt-6 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.25s' }}>
                 <Button 
                   variant="outline" 
@@ -317,7 +322,7 @@ const Home = () => {
                   className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform"
                 >
                   <Folder className="w-4 h-4" />
-                  Ver Todos os {projects.length} Projetos
+                  Ver Todos os {activeProjects.length} Projetos
                 </Button>
               </div>
             )}

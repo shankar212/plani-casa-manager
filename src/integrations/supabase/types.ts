@@ -507,6 +507,8 @@ export type Database = {
       }
       projects: {
         Row: {
+          archived: boolean
+          archived_at: string | null
           created_at: string | null
           description: string | null
           end_date: string | null
@@ -520,6 +522,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          archived?: boolean
+          archived_at?: string | null
           created_at?: string | null
           description?: string | null
           end_date?: string | null
@@ -533,6 +537,8 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          archived?: boolean
+          archived_at?: string | null
           created_at?: string | null
           description?: string | null
           end_date?: string | null
