@@ -21,6 +21,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +38,8 @@ const Projects = () => {
   const [sortBy, setSortBy] = useState<string>("recent");
   const [ownershipFilter, setOwnershipFilter] = useState<string>("all");
   const [showArchived, setShowArchived] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const navigate = useNavigate();
   const { projects, loading, archiveProject, unarchiveProject, deleteProject } = useProjects();
   const { user } = useAuth();
@@ -358,7 +370,8 @@ const Projects = () => {
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  deleteProject(project.id);
+                                  setProjectToDelete(project.id);
+                                  setDeleteDialogOpen(true);
                                 }}
                                 className="text-destructive focus:text-destructive"
                               >
@@ -444,6 +457,32 @@ const Projects = () => {
         </div>
       </div>
 
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente o projeto
+              e todos os dados associados a ele (etapas, tarefas, materiais, documentos).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (projectToDelete) {
+                  await deleteProject(projectToDelete);
+                  setProjectToDelete(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };
