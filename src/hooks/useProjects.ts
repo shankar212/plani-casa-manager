@@ -24,7 +24,7 @@ export const useProjects = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('projects')
-        .select('id, name, description, status, start_date, end_date, sale_value, total_budget, created_at, updated_at, user_id')
+        .select('id, name, description, status, start_date, end_date, sale_value, total_budget, created_at, updated_at, user_id, archived, archived_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -163,6 +163,74 @@ export const useProjects = () => {
     }
   };
 
+  const archiveProject = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .update({ 
+          archived: true, 
+          archived_at: new Date().toISOString() 
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      setProjects(prev => prev.map(p => p.id === id ? data : p));
+      toast({
+        title: "Sucesso",
+        description: "Projeto arquivado com sucesso!"
+      });
+      
+      return data;
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Error archiving project:', error);
+      }
+      toast({
+        title: "Erro",
+        description: "Não foi possível arquivar o projeto",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const unarchiveProject = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .update({ 
+          archived: false, 
+          archived_at: null 
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      setProjects(prev => prev.map(p => p.id === id ? data : p));
+      toast({
+        title: "Sucesso",
+        description: "Projeto desarquivado com sucesso!"
+      });
+      
+      return data;
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('Error unarchiving project:', error);
+      }
+      toast({
+        title: "Erro",
+        description: "Não foi possível desarquivar o projeto",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -196,6 +264,8 @@ export const useProjects = () => {
     createProject,
     updateProject,
     deleteProject,
+    archiveProject,
+    unarchiveProject,
     getProjectById,
     refetch: fetchProjects
   };

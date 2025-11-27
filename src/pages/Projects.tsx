@@ -2,7 +2,7 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, SlidersHorizontal, Package, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Search, Plus, SlidersHorizontal, Package, TrendingUp, CheckCircle2, Archive, ArchiveRestore, MoreVertical } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjects } from '@/hooks/useProjects';
@@ -14,21 +14,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProjectAccessLevel } from "@/hooks/useProjectAccess";
 import { ProjectAccessBadge } from "@/components/ProjectAccessBadge";
 import { AnimatedBreadcrumbs } from "@/components/AnimatedBreadcrumbs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("recent");
   const [ownershipFilter, setOwnershipFilter] = useState<string>("all");
+  const [showArchived, setShowArchived] = useState(false);
   const navigate = useNavigate();
-  const { projects, loading } = useProjects();
+  const { projects, loading, archiveProject, unarchiveProject } = useProjects();
   const { user } = useAuth();
   const [projectAccessMap, setProjectAccessMap] = useState<Map<string, ProjectAccessLevel>>(new Map());
 
-  // Count user's own projects (not shared)
+  // Count user's own active (non-archived) projects
   const ownProjectsCount = useMemo(() => {
     if (!user?.id) return 0;
-    return projects.filter(p => p.user_id === user.id).length;
+    return projects.filter(p => p.user_id === user.id && !p.archived).length;
   }, [projects, user?.id]);
   
   const hasReachedProjectLimit = ownProjectsCount >= 3;
@@ -85,6 +92,10 @@ const Projects = () => {
   const filteredProjects = useMemo(() => {
     return projects
       .filter(project => {
+        // Filter by archived status
+        if (!showArchived && project.archived) return false;
+        if (showArchived && !project.archived) return false;
+        
         const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === "all" || project.status === statusFilter;
         const accessLevel = projectAccessMap.get(project.id);
@@ -105,7 +116,7 @@ const Projects = () => {
             return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
         }
       });
-  }, [projects, searchTerm, statusFilter, sortBy, ownershipFilter, projectAccessMap]);
+  }, [projects, searchTerm, statusFilter, sortBy, ownershipFilter, projectAccessMap, showArchived]);
 
   return (
     <Layout>
@@ -230,7 +241,7 @@ const Projects = () => {
                 </SelectContent>
               </Select>
 
-              {(ownershipFilter !== "all" || statusFilter !== "all" || sortBy !== "recent" || searchTerm) && (
+              {(ownershipFilter !== "all" || statusFilter !== "all" || sortBy !== "recent" || searchTerm || showArchived) && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -239,6 +250,7 @@ const Projects = () => {
                     setStatusFilter("all");
                     setSortBy("recent");
                     setSearchTerm("");
+                    setShowArchived(false);
                   }}
                   className="text-sm hover:bg-destructive/10 hover:text-destructive touch-manipulation min-h-[44px]"
                 >
@@ -251,9 +263,19 @@ const Projects = () => {
           {/* Projects Grid */}
           <div>
             <div className="flex items-center justify-between mb-4 sm:mb-6 gap-3 flex-wrap">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                {filteredProjects.length > 0 ? `${filteredProjects.length} ${filteredProjects.length === 1 ? 'Projeto' : 'Projetos'}` : 'Projetos'}
-              </h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                  {filteredProjects.length > 0 ? `${filteredProjects.length} ${filteredProjects.length === 1 ? 'Projeto' : 'Projetos'}` : 'Projetos'}
+                </h2>
+                <Button
+                  variant={showArchived ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowArchived(!showArchived)}
+                  className="gap-2 min-h-[36px]"
+                >
+                  {showArchived ? "Ativos" : "Arquivados"}
+                </Button>
+              </div>
               <div className="flex gap-2 w-full sm:w-auto">
                 <AccountShareDialog />
                 <Button 
@@ -267,9 +289,9 @@ const Projects = () => {
                   <span className="xs:hidden">Novo</span>
                 </Button>
               </div>
-              {hasReachedProjectLimit && (
+              {hasReachedProjectLimit && !showArchived && (
                 <p className="text-xs sm:text-sm text-muted-foreground w-full text-right">
-                  Limite de 3 projetos atingido. Exclua um projeto para criar um novo.
+                  Limite de 3 projetos ativos atingido. Arquive um projeto para criar um novo.
                 </p>
               )}
             </div>
@@ -290,10 +312,51 @@ const Projects = () => {
                 filteredProjects.map((project, index) => (
                   <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 3 + 1, 3)}`}>
                      <Card 
-                      className="group p-6 hover:shadow-xl transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/30 bg-gradient-to-br from-card to-muted/10 hover:scale-[1.02] active:scale-[0.98]"
-                      onClick={() => navigate(`/projetos/${project.id}`)}
+                      className="group p-6 hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/30 bg-gradient-to-br from-card to-muted/10 hover:scale-[1.02] active:scale-[0.98] relative"
                     >
-                      <div className="space-y-4">
+                      {/* Archive Menu */}
+                      {projectAccessMap.get(project.id) === 'owner' && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="absolute top-4 right-4 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {project.archived ? (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  unarchiveProject(project.id);
+                                }}
+                              >
+                                <ArchiveRestore className="mr-2 h-4 w-4" />
+                                Desarquivar
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  archiveProject(project.id);
+                                }}
+                              >
+                                <Archive className="mr-2 h-4 w-4" />
+                                Arquivar
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+
+                      <div 
+                        className="space-y-4 cursor-pointer"
+                        onClick={() => navigate(`/projetos/${project.id}`)}
+                      >
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
