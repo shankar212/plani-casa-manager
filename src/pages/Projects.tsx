@@ -2,7 +2,7 @@
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, SlidersHorizontal, Package, TrendingUp, CheckCircle2, Archive, ArchiveRestore, MoreVertical } from "lucide-react";
+import { Search, Plus, SlidersHorizontal, Package, TrendingUp, CheckCircle2, Archive, ArchiveRestore, MoreVertical, Trash2 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjects } from '@/hooks/useProjects';
@@ -18,8 +18,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,8 +38,10 @@ const Projects = () => {
   const [sortBy, setSortBy] = useState<string>("recent");
   const [ownershipFilter, setOwnershipFilter] = useState<string>("all");
   const [showArchived, setShowArchived] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { projects, loading, archiveProject, unarchiveProject } = useProjects();
+  const { projects, loading, archiveProject, unarchiveProject, deleteProject } = useProjects();
   const { user } = useAuth();
   const [projectAccessMap, setProjectAccessMap] = useState<Map<string, ProjectAccessLevel>>(new Map());
 
@@ -349,6 +362,18 @@ const Projects = () => {
                                 Arquivar
                               </DropdownMenuItem>
                             )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setProjectToDelete(project.id);
+                                setDeleteDialogOpen(true);
+                              }}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}
@@ -424,6 +449,33 @@ const Projects = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente o projeto
+              e todos os dados associados a ele (etapas, tarefas, materiais, documentos).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (projectToDelete) {
+                  await deleteProject(projectToDelete);
+                  setProjectToDelete(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };
