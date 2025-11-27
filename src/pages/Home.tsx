@@ -3,7 +3,7 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { DashboardStats } from "@/components/DashboardStats";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,14 @@ const Home = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const heroRef = useRef<HTMLDivElement>(null);
+
+  // Count user's own projects (not shared)
+  const ownProjectsCount = useMemo(() => {
+    if (!user?.id) return 0;
+    return projects.filter(p => p.user_id === user.id).length;
+  }, [projects, user?.id]);
+  
+  const hasReachedProjectLimit = ownProjectsCount >= 3;
 
   useEffect(() => {
     fetchProjects();
@@ -173,6 +181,8 @@ const Home = () => {
                   onClick={() => navigate("/projetos/criar")} 
                   size="lg"
                   className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform"
+                  disabled={hasReachedProjectLimit}
+                  title={hasReachedProjectLimit ? "Você atingiu o limite de 3 projetos" : "Criar novo projeto"}
                 >
                   <Plus className="w-5 h-5" />
                   Criar Projeto
@@ -230,6 +240,8 @@ const Home = () => {
                 <Button 
                   onClick={() => navigate("/projetos/criar")} 
                   className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto will-change-transform"
+                  disabled={hasReachedProjectLimit}
+                  title={hasReachedProjectLimit ? "Você atingiu o limite de 3 projetos" : "Criar novo projeto"}
                 >
                   <Plus className="w-4 h-4" />
                   Novo Projeto
@@ -286,6 +298,8 @@ const Home = () => {
                     onClick={() => navigate("/projetos/criar")} 
                     className="gap-2 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform" 
                     size="lg"
+                    disabled={hasReachedProjectLimit}
+                    title={hasReachedProjectLimit ? "Você atingiu o limite de 3 projetos" : "Criar seu primeiro projeto"}
                   >
                     <Plus className="w-5 h-5" />
                     Criar Primeiro Projeto

@@ -25,6 +25,14 @@ const Projects = () => {
   const { user } = useAuth();
   const [projectAccessMap, setProjectAccessMap] = useState<Map<string, ProjectAccessLevel>>(new Map());
 
+  // Count user's own projects (not shared)
+  const ownProjectsCount = useMemo(() => {
+    if (!user?.id) return 0;
+    return projects.filter(p => p.user_id === user.id).length;
+  }, [projects, user?.id]);
+  
+  const hasReachedProjectLimit = ownProjectsCount >= 3;
+
   // Fetch project access levels
   useEffect(() => {
     const fetchProjectAccess = async () => {
@@ -251,12 +259,19 @@ const Projects = () => {
                 <Button 
                   onClick={() => navigate('/projetos/criar')}
                   className="gap-2 shadow-md hover:shadow-lg touch-manipulation flex-1 sm:flex-initial min-h-[44px]"
+                  disabled={hasReachedProjectLimit}
+                  title={hasReachedProjectLimit ? "Você atingiu o limite de 3 projetos" : "Criar novo projeto"}
                 >
                   <Plus className="w-4 h-4" />
                   <span className="hidden xs:inline">Novo Projeto</span>
                   <span className="xs:hidden">Novo</span>
                 </Button>
               </div>
+              {hasReachedProjectLimit && (
+                <p className="text-xs sm:text-sm text-muted-foreground w-full text-right">
+                  Limite de 3 projetos atingido. Exclua um projeto para criar um novo.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

@@ -83,13 +83,22 @@ export const useProjects = () => {
       });
 
       return created as Project;
-    } catch (error) {
+    } catch (error: any) {
       if (import.meta.env.DEV) {
         console.error('Error creating project:', error);
       }
+      
+      // Check if error is due to project limit
+      const errorMessage = error?.message || '';
+      const isLimitError = errorMessage.includes('row-level security') || 
+                           errorMessage.includes('policy') ||
+                           errorMessage.includes('violates');
+      
       toast({
         title: "Erro",
-        description: "Não foi possível criar o projeto",
+        description: isLimitError 
+          ? "Você atingiu o limite de 3 projetos. Exclua um projeto existente para criar um novo."
+          : "Não foi possível criar o projeto",
         variant: "destructive"
       });
       throw error;

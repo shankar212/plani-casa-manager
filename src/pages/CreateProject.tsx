@@ -71,19 +71,10 @@ const CreateProject = () => {
       
       navigate(`/projetos/${project.id}`);
     } catch (error: any) {
-      const e = error?.error ?? error;
-      const code = e?.code;
-      const message = e?.message ?? String(e);
-      const details = e?.details;
-      const hint = e?.hint;
+      // Error toast is already shown by useProjects hook
       if (import.meta.env.DEV) {
-        console.error('Error creating project:', error, { code, message, details, hint });
+        console.error('Error creating project:', error);
       }
-      toast({
-        title: "Erro ao criar projeto",
-        description: `${message}${code ? ` (código ${code})` : ''}${details ? ` — ${details}` : ''}${hint ? ` — ${hint}` : ''}`,
-        variant: "destructive"
-      });
     }
   };
 
