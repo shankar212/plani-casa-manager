@@ -332,9 +332,9 @@ const Projects = () => {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="icon"
-                              className="absolute top-4 right-4 h-8 w-8 transition-all hover:bg-accent z-10"
+                              className="absolute top-4 right-4 h-9 w-9 bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent hover:border-primary/30 transition-all z-10 shadow-sm"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <MoreVertical className="h-4 w-4" />
