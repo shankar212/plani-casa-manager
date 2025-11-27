@@ -329,53 +329,58 @@ const Projects = () => {
                     >
                       {/* Archive/Delete Menu */}
                       {projectAccessMap.get(project.id) === 'owner' && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="absolute top-4 right-4 h-9 w-9 bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent hover:border-primary/30 transition-all z-10 shadow-sm"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {project.archived ? (
+                        <div className="absolute top-4 right-4 flex items-center gap-3 z-10">
+                          {/* Vertical Divider */}
+                          <div className="h-8 w-px bg-border/50" />
+                          
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-9 w-9 bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent hover:border-primary/30 transition-all shadow-sm"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {project.archived ? (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    unarchiveProject(project.id);
+                                  }}
+                                >
+                                  <ArchiveRestore className="mr-2 h-4 w-4" />
+                                  Desarquivar
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    archiveProject(project.id);
+                                  }}
+                                >
+                                  <Archive className="mr-2 h-4 w-4" />
+                                  Arquivar
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  unarchiveProject(project.id);
+                                  setProjectToDelete(project.id);
+                                  setDeleteDialogOpen(true);
                                 }}
+                                className="text-destructive focus:text-destructive"
                               >
-                                <ArchiveRestore className="mr-2 h-4 w-4" />
-                                Desarquivar
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
                               </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  archiveProject(project.id);
-                                }}
-                              >
-                                <Archive className="mr-2 h-4 w-4" />
-                                Arquivar
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setProjectToDelete(project.id);
-                                setDeleteDialogOpen(true);
-                              }}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       )}
 
                       <div 
