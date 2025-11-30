@@ -22,7 +22,7 @@ export const ProjectHeader = ({ projectId, projectName, loading }: ProjectHeader
         <Skeleton className="h-8 w-48 mb-4" />
         
         <div className="flex overflow-x-auto gap-2 md:space-x-4 border-b border-gray-200 scrollbar-hide">
-          {['gestão', 'financeiro', 'técnico', 'conformidade legal', 'cronograma', 'relatórios e indicadores'].map((tab, index) => (
+          {['gestão', 'financeiro', 'técnico', 'conformidade legal', 'cronograma', 'relatórios e indicadores', 'histórico'].map((tab, index) => (
             <div key={index} className="pb-2 px-2 md:px-1">
               <Skeleton className="h-4 w-20 whitespace-nowrap" />
             </div>
@@ -86,6 +86,14 @@ export const ProjectHeader = ({ projectId, projectName, loading }: ProjectHeader
           }
         >
           relatórios e indicadores
+        </NavLink>
+        <NavLink 
+          to={`/projetos/${projectId}/atividades`}
+          className={({ isActive }) => 
+            `pb-2 px-2 md:px-1 text-xs sm:text-sm md:text-base whitespace-nowrap ${isActive ? 'border-b-2 border-black font-medium' : 'text-gray-600 hover:text-black'}`
+          }
+        >
+          histórico
         </NavLink>
       </div>
     </div>
