@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProjectAccessLevel } from "@/hooks/useProjectAccess";
 import { ProjectAccessBadge } from "@/components/ProjectAccessBadge";
 import { AnimatedBreadcrumbs } from "@/components/AnimatedBreadcrumbs";
+import { AnimatedProjectCard } from "@/components/AnimatedProjectCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -338,20 +339,20 @@ const Projects = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {loading ? (
-                // Loading skeletons with stagger
+                // Loading skeletons with animation
                 Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className={`animate-fade-in-up animate-stagger-${Math.min(i % 3 + 1, 3)}`}>
+                  <AnimatedProjectCard key={i}>
                     <Card className="p-6 border-border/50">
                       <Skeleton className="h-7 w-3/4 mb-4" />
                       <Skeleton className="h-4 w-1/2 mb-2" />
                       <Skeleton className="h-4 w-2/3" />
                     </Card>
-                  </div>
+                  </AnimatedProjectCard>
                 ))
               ) : filteredProjects.length > 0 ? (
-                filteredProjects.map((project, index) => (
-                  <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 3 + 1, 3)}`}>
-                     <Card 
+                filteredProjects.map((project) => (
+                  <AnimatedProjectCard key={project.id}>
+                     <Card
                       className="group p-6 hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/30 bg-gradient-to-br from-card to-muted/10 hover:scale-[1.02] active:scale-[0.98] relative"
                     >
                       {/* Archive/Delete Menu */}
@@ -444,10 +445,10 @@ const Projects = () => {
                             </div>
                           )}
                         </div>
-                      </div>
-                    </Card>
-                  </div>
-                ))
+                       </div>
+                     </Card>
+                   </AnimatedProjectCard>
+                 ))
               ) : (
                 <div className="col-span-full">
                   <Card className="border-dashed border-2 border-border/50 bg-muted/20 hover:border-primary/30 transition-all duration-300">
