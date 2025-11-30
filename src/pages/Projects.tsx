@@ -40,6 +40,7 @@ const Projects = () => {
   const [showArchived, setShowArchived] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [scrollY, setScrollY] = useState(0);
   const navigate = useNavigate();
   const { projects, loading, archiveProject, unarchiveProject, deleteProject } = useProjects();
   const { user } = useAuth();
@@ -52,6 +53,16 @@ const Projects = () => {
   }, [projects, user?.id]);
   
   const hasReachedProjectLimit = ownProjectsCount >= 3;
+
+  // Parallax scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Fetch project access levels
   useEffect(() => {
@@ -134,11 +145,22 @@ const Projects = () => {
   return (
     <Layout>
       <div className="min-h-screen pb-20 sm:pb-8">
-        {/* Hero Section with Gradient */}
-        <div className="gradient-hero border-b border-border/50">
+        {/* Hero Section with Gradient and Parallax */}
+        <div 
+          className="gradient-hero border-b border-border/50 relative overflow-hidden"
+          style={{
+            transform: `translateY(${scrollY * 0.5}px)`,
+            opacity: Math.max(1 - scrollY / 400, 0)
+          }}
+        >
           <div className="p-6 sm:p-8 lg:p-12 space-y-4 sm:space-y-6 max-w-7xl mx-auto">
             <AnimatedBreadcrumbs />
-            <div className="space-y-3 sm:space-y-4 animate-fade-in-up">
+            <div 
+              className="space-y-3 sm:space-y-4 animate-fade-in-up"
+              style={{
+                transform: `translateY(${scrollY * 0.3}px)`
+              }}
+            >
               <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-medium">
                 Gestão de Projetos
               </div>
@@ -153,8 +175,13 @@ const Projects = () => {
         </div>
 
         <div className="p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 animate-fade-in-up">
+          {/* Summary Stats with Parallax */}
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 animate-fade-in-up"
+            style={{
+              transform: `translateY(${scrollY * 0.15}px)`
+            }}
+          >
             <div className="p-5 sm:p-6 rounded-xl bg-gradient-to-br from-card to-muted/20 border border-border/50 hover:border-primary/30 transition-all hover:shadow-lg touch-manipulation active:scale-[0.98]">
               <div className="flex items-center justify-between">
                 <div>
