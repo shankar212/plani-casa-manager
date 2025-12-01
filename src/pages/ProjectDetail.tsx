@@ -3,9 +3,9 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useParams, NavLink } from "react-router-dom";
+import { useParams, NavLink, useNavigate } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
 import { DeleteTarefaDialog } from "@/components/DeleteTarefaDialog";
 import { DeleteEtapaDialog } from "@/components/DeleteEtapaDialog";
@@ -19,6 +19,7 @@ import type { Project } from "@/hooks/useProjects";
 
 const ProjectDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { getEtapasByStatus, deleteTarefa, deleteEtapa, updateEtapaStatus, setProjectId, loading } = useProject();
   const { getProjectById } = useProjects();
   const { accessLevel, canEdit, isOwner } = useProjectAccess(id);
@@ -92,6 +93,15 @@ const ProjectDetail = () => {
     <Layout>
       <div className="p-4 md:p-6 lg:p-8 max-w-full">
         <div className="mb-4 md:mb-6 max-w-full">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/projetos')}
+            className="mb-3 -ml-2 hover:bg-accent"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar para Projetos
+          </Button>
           <div className="text-xs md:text-sm text-gray-600 mb-2">
             <NavLink to="/projetos" className="hover:text-black">projetos</NavLink> › {project.name}
           </div>
