@@ -47,6 +47,14 @@ const Projects = () => {
   const { user } = useAuth();
   const [projectAccessMap, setProjectAccessMap] = useState<Map<string, ProjectAccessLevel>>(new Map());
 
+  // Check for active project and redirect
+  useEffect(() => {
+    const activeProjectId = localStorage.getItem('activeProjectId');
+    if (activeProjectId) {
+      navigate(`/projetos/${activeProjectId}`);
+    }
+  }, [navigate]);
+
   // Count user's own active (non-archived) projects
   const ownProjectsCount = useMemo(() => {
     if (!user?.id) return 0;
