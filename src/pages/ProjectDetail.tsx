@@ -21,6 +21,13 @@ const ProjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getEtapasByStatus, deleteTarefa, deleteEtapa, updateEtapaStatus, setProjectId, loading } = useProject();
+  
+  // Store active project in localStorage
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem('activeProjectId', id);
+    }
+  }, [id]);
   const { getProjectById } = useProjects();
   const { accessLevel, canEdit, isOwner } = useProjectAccess(id);
   const [finalizadosOpen, setFinalizadosOpen] = useState(true);
@@ -96,7 +103,10 @@ const ProjectDetail = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/projetos')}
+            onClick={() => {
+              localStorage.removeItem('activeProjectId');
+              navigate('/projetos');
+            }}
             className="mb-3 -ml-2 hover:bg-accent"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
