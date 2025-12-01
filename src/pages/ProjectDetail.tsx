@@ -3,7 +3,8 @@ import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Plus, ArrowLeft } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChevronDown, ChevronUp, Plus, ArrowLeft, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useParams, NavLink, useNavigate } from "react-router-dom";
 import { useProject } from "@/contexts/ProjectContext";
@@ -35,6 +36,22 @@ const ProjectDetail = () => {
   const [proximosOpen, setProximosOpen] = useState(true);
   const [project, setProject] = useState<Project | null>(null);
   const [projectLoading, setProjectLoading] = useState(true);
+  const [showFAB, setShowFAB] = useState(false);
+
+  // Track scroll position for FAB visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowFAB(window.scrollY > 200);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleExitProject = () => {
+    localStorage.removeItem('activeProjectId');
+    navigate('/projetos');
+  };
 
   useEffect(() => {
     console.log('ProjectDetail: URL params:', { id });
@@ -103,10 +120,7 @@ const ProjectDetail = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              localStorage.removeItem('activeProjectId');
-              navigate('/projetos');
-            }}
+            onClick={handleExitProject}
             className="mb-3 -ml-2 hover:bg-accent"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -340,6 +354,26 @@ const ProjectDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Floating Action Button */}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={handleExitProject}
+              className={`fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 ${
+                showFAB ? 'animate-scale-in opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+              size="icon"
+            >
+              <X className="w-6 h-6" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>Sair do projeto</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </Layout>
   );
 };
