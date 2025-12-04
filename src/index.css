@@ -42,7 +42,7 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(222.2 47.4% 11.2%) 0%, hsl(215 25% 27%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(210 40% 96.1%) 0%, hsl(214.3 31.8% 91.4%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 100%);
-    
+
     /* Shadow tokens */
     --shadow-sm: 0 1px 2px 0 hsl(222.2 84% 4.9% / 0.05);
     --shadow-md: 0 4px 6px -1px hsl(222.2 84% 4.9% / 0.1);
@@ -109,103 +109,52 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-  
+
   /* Hide scrollbar for mobile horizontal scrolling */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
 
-  body {
-    @apply bg-background text-foreground;
-    /* Support for devices with notches */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
+  body {}
 
-  /* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-  /* Global smooth transitions */
-  button, a, input, textarea, select {
-    @apply transition-all duration-300 ease-in-out;
-  }
-
-  button:active,
-  a:active {
-    @apply scale-95;
-    transition-duration: 150ms;
-  }
-
-  /* Touch-friendly interactions */
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Focus states */
-  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2;
-  }
-
-  /* Button hover effects */
-  button:not(:disabled):hover {
-    @apply scale-[1.02];
-  }
-
-  button:not(:disabled):active {
-    @apply scale-[0.98];
-  }
-}
-
-@layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-  
   .gradient-accent {
     background: var(--gradient-accent);
   }
-  
+
   .gradient-hero {
     background: var(--gradient-hero);
   }
-  
+
   /* Grid background pattern */
   .bg-grid-white {
     background-image: linear-gradient(to right, hsl(0 0% 100% / 0.02) 1px, transparent 1px),
-                      linear-gradient(to bottom, hsl(0 0% 100% / 0.02) 1px, transparent 1px);
+      linear-gradient(to bottom, hsl(0 0% 100% / 0.02) 1px, transparent 1px);
   }
-  
+
   .bg-grid-pattern {
-    background-image: 
+    background-image:
       linear-gradient(to right, hsl(222.2 47.4% 11.2% / 0.05) 1px, transparent 1px),
       linear-gradient(to bottom, hsl(222.2 47.4% 11.2% / 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
   }
-  
+
   .animate-fade-in-up {
     animation: fadeInUp 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     opacity: 0;
     will-change: transform, opacity;
   }
-  
+
   @keyframes fadeInUp {
     from {
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -216,6 +165,7 @@ html {
     0% {
       transform: translateX(-100%);
     }
+
     100% {
       transform: translateX(100%);
     }
@@ -224,19 +174,19 @@ html {
   .animate-shimmer {
     animation: shimmer 2s infinite;
   }
-  
+
   .animate-stagger-1 {
     animation-delay: 0.05s;
   }
-  
+
   .animate-stagger-2 {
     animation-delay: 0.1s;
   }
-  
+
   .animate-stagger-3 {
     animation-delay: 0.15s;
   }
-  
+
   .animate-stagger-4 {
     animation-delay: 0.2s;
   }
@@ -254,29 +204,29 @@ html {
       perspective: 1000px;
     }
   }
-  
+
   /* Safe area utilities for mobile */
   .safe-area-pb {
     padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   }
-  
+
   .safe-area-pt {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   .safe-area-pl {
     padding-left: env(safe-area-inset-left);
   }
-  
+
   .safe-area-pr {
     padding-right: env(safe-area-inset-right);
   }
-  
+
   /* Prevent overscroll on mobile dialogs */
   .overscroll-contain {
     overscroll-behavior: contain;
   }
-  
+
   /* Additional padding for bottom sheets */
   .pb-safe {
     padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);

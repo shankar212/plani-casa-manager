@@ -29,7 +29,7 @@ export const Sidebar = () => {
 
   return (
     <div className={cn(
-      "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 z-50 hidden md:block",
+      "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50 hidden md:block",
       collapsed ? "w-16" : "w-60"
     )}>
       <div className="p-4">

@@ -6,6 +6,8 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import { PageTransition } from "./PageTransition";
+
 interface LayoutProps {
   children: ReactNode;
 }
@@ -20,7 +22,9 @@ export const Layout = ({ children }: LayoutProps) => {
         "min-h-screen animate-fade-in max-w-full overflow-x-hidden transition-all duration-300 ease-in-out",
         isMobile ? "ml-0 pb-20" : "ml-60"
       )}>
-        {children}
+        <PageTransition>
+          {children}
+        </PageTransition>
       </main>
       <MobileBottomNav />
       <FloatingInstallButton />
