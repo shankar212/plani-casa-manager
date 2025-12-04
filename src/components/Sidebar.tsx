@@ -35,14 +35,12 @@ export const Sidebar = () => {
       <div className="p-4">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center mr-3">
-              <span className="text-white text-sm font-bold">P</span>
-            </div>
+            <img src="/pwa-192x192.png" alt="PlaniTec Logo" className="w-8 h-8 rounded-full mr-3 object-cover" />
             {!collapsed && <span className="font-bold text-lg">Plani</span>}
           </div>
           {!collapsed && <NotificationBell />}
         </div>
-        
+
         <div className="mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -72,8 +70,8 @@ export const Sidebar = () => {
               <item.icon className="w-5 h-5 mr-3" />
               {!collapsed && <span>{item.title}</span>}
               {item.title === "Notificações" && unreadCount > 0 && !collapsed && (
-                <Badge 
-                  variant="destructive" 
+                <Badge
+                  variant="destructive"
                   className="ml-auto h-5 min-w-5 flex items-center justify-center px-1.5 text-xs"
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -82,9 +80,9 @@ export const Sidebar = () => {
             </NavLink>
           ))}
         </nav>
-        
+
         <Separator className="my-4" />
-        
+
         {/* User info and logout */}
         <div className="space-y-2">
           <NavLink
@@ -113,7 +111,7 @@ export const Sidebar = () => {
           </Button>
         </div>
       </div>
-      
+
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="absolute -right-3 top-20 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50"

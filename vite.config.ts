@@ -68,7 +68,8 @@ export default defineConfig(({ mode }) => ({
             }
           },
           {
-            urlPattern: /^https:\/\/.*\.lovableproject\.com\/.*/i,
+            urlPattern: /^https:\/\/(www\.)?plani-tec\.com\/.*/i,
+
             handler: 'NetworkFirst',
             options: {
               cacheName: 'app-cache',
