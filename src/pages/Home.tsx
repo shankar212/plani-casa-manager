@@ -26,7 +26,7 @@ const Home = () => {
     if (!user?.id) return 0;
     return projects.filter(p => p.user_id === user.id && !p.archived).length;
   }, [projects, user?.id]);
-  
+
   const hasReachedProjectLimit = ownProjectsCount >= 3;
 
   // Filter out archived projects from display
@@ -90,7 +90,7 @@ const Home = () => {
     <Layout>
       <div className="min-h-screen">
         {/* Hero Section with Gradient */}
-        <div 
+        <div
           ref={heroRef}
           className="relative gradient-hero border-b border-border/50 overflow-hidden"
           style={{
@@ -99,32 +99,32 @@ const Home = () => {
           }}
         >
           {/* Background decoration */}
-          <div 
+          <div
             className="absolute inset-0 bg-grid-pattern opacity-[0.02]"
             style={{
               transform: `translateY(${-parallaxBg * 0.3}px)`,
               willChange: 'transform'
             }}
           />
-          <div 
-            className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse will-change-opacity" 
-            style={{ 
+          <div
+            className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse will-change-opacity"
+            style={{
               animationDuration: '3s',
               transform: `translate(${parallaxOrb * 0.5}px, ${parallaxOrb * 0.8}px) scale(${1 + scrollY * 0.0003})`,
               willChange: 'transform'
-            }} 
+            }}
           />
-          <div 
-            className="absolute bottom-0 left-0 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-pulse will-change-opacity" 
-            style={{ 
+          <div
+            className="absolute bottom-0 left-0 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-pulse will-change-opacity"
+            style={{
               animationDuration: '4s',
               animationDelay: '1s',
               transform: `translate(${-parallaxOrb * 0.4}px, ${parallaxOrb * 0.6}px) scale(${1 + scrollY * 0.0002})`,
               willChange: 'transform'
-            }} 
+            }}
           />
-          
-          <div 
+
+          <div
             className="relative p-4 md:p-8 lg:p-12 space-y-8 max-w-7xl mx-auto"
             style={{
               transform: `translateY(${-parallaxContent}px)`,
@@ -133,7 +133,7 @@ const Home = () => {
             }}
           >
             <div className="space-y-6 animate-fade-in-up will-change-transform">
-              <div 
+              <div
                 className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold border border-primary/20 hover:bg-primary/15 transition-all duration-300"
                 style={{
                   transform: `translateY(${-scrollY * 0.15}px)`,
@@ -143,7 +143,7 @@ const Home = () => {
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse will-change-opacity" />
                 Plataforma de Gestão de Projetos
               </div>
-              <h1 
+              <h1
                 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground leading-[1.1] tracking-tight will-change-transform"
                 style={{
                   transform: `translateY(${-scrollY * 0.12}px)`,
@@ -151,9 +151,9 @@ const Home = () => {
                 }}
               >
                 Bem-vindo de volta,<br />
-                <span 
-                  className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent inline-block animate-fade-in will-change-opacity" 
-                  style={{ 
+                <span
+                  className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent inline-block animate-fade-in will-change-opacity"
+                  style={{
                     animationDelay: '0.1s',
                     transform: `translateY(${-scrollY * 0.1}px)`,
                     willChange: 'transform'
@@ -162,9 +162,9 @@ const Home = () => {
                   {user?.email?.split("@")[0] || "Usuário"}
                 </span>
               </h1>
-              <p 
-                className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed animate-fade-in-up will-change-opacity" 
-                style={{ 
+              <p
+                className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed animate-fade-in-up will-change-opacity"
+                style={{
                   animationDelay: '0.15s',
                   transform: `translateY(${-scrollY * 0.08}px)`,
                   willChange: 'transform'
@@ -172,18 +172,18 @@ const Home = () => {
               >
                 Gerencie seus projetos de construção de forma eficiente e moderna, tudo em um só lugar
               </p>
-              
+
               {/* Quick Actions */}
-              <div 
-                className="flex flex-wrap gap-3 pt-4 animate-fade-in-up will-change-transform" 
-                style={{ 
+              <div
+                className="flex flex-wrap gap-3 pt-4 animate-fade-in-up will-change-transform"
+                style={{
                   animationDelay: '0.2s',
                   transform: `translateY(${-scrollY * 0.05}px)`,
                   willChange: 'transform'
                 }}
               >
-                <Button 
-                  onClick={() => navigate("/projetos/criar")} 
+                <Button
+                  onClick={() => navigate("/projetos/criar")}
                   size="lg"
                   className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform"
                   disabled={hasReachedProjectLimit}
@@ -192,8 +192,8 @@ const Home = () => {
                   <Plus className="w-5 h-5" />
                   Criar Projeto
                 </Button>
-                <Button 
-                  onClick={() => navigate("/projetos")} 
+                <Button
+                  onClick={() => navigate("/projetos")}
                   variant="outline"
                   size="lg"
                   className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-background/50 backdrop-blur-sm will-change-transform"
@@ -201,8 +201,8 @@ const Home = () => {
                   <Folder className="w-5 h-5" />
                   Ver Todos
                 </Button>
-                <Button 
-                  onClick={() => navigate("/install")} 
+                <Button
+                  onClick={() => navigate("/install")}
                   variant="outline"
                   size="lg"
                   className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-background/50 backdrop-blur-sm will-change-transform"
@@ -215,14 +215,14 @@ const Home = () => {
           </div>
         </div>
 
-          {/* Stats Dashboard */}
-          <div className="p-4 md:p-8 space-y-10 max-w-7xl mx-auto">
-            <div className="animate-fade-in-up will-change-transform" style={{ animationDelay: '0.05s' }}>
-              <DashboardStats {...stats} />
-            </div>
+        {/* Stats Dashboard */}
+        <div className="p-4 md:p-8 space-y-10 max-w-7xl mx-auto">
+          <div className="animate-fade-in-up will-change-transform" style={{ animationDelay: '0.05s' }}>
+            <DashboardStats {...stats} />
+          </div>
 
-            {/* Recent Projects Section */}
-            <div className="space-y-6 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.1s' }}>
+          {/* Recent Projects Section */}
+          <div className="space-y-6 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.1s' }}>
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <div className="space-y-1">
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
@@ -242,8 +242,8 @@ const Home = () => {
                 </p>
               </div>
               {activeProjects.length > 0 && (
-                <Button 
-                  onClick={() => navigate("/projetos/criar")} 
+                <Button
+                  onClick={() => navigate("/projetos/criar")}
                   className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto will-change-transform"
                   disabled={hasReachedProjectLimit}
                   title={hasReachedProjectLimit ? "Você atingiu o limite de 3 projetos" : "Criar novo projeto"}
@@ -267,7 +267,7 @@ const Home = () => {
                   </div>
                 ))}
               </div>
-              ) : activeProjects.length > 0 ? (
+            ) : activeProjects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activeProjects.slice(0, 6).map((project, index) => (
                   <div key={project.id} className={`animate-fade-in-up animate-stagger-${Math.min(index % 3 + 1, 3)}`}>
@@ -299,9 +299,9 @@ const Home = () => {
                       Dê o primeiro passo e crie seu projeto de construção. Gerencie etapas, materiais, documentos e muito mais.
                     </p>
                   </div>
-                  <Button 
-                    onClick={() => navigate("/projetos/criar")} 
-                    className="gap-2 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform" 
+                  <Button
+                    onClick={() => navigate("/projetos/criar")}
+                    className="gap-2 mt-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform"
                     size="lg"
                     disabled={hasReachedProjectLimit}
                     title={hasReachedProjectLimit ? "Você atingiu o limite de 3 projetos" : "Criar seu primeiro projeto"}
@@ -315,10 +315,10 @@ const Home = () => {
 
             {activeProjects.length > 6 && (
               <div className="text-center pt-6 animate-fade-in-up will-change-transform" style={{ animationDelay: '0.25s' }}>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/projetos")} 
-                  size="lg" 
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/projetos")}
+                  size="lg"
                   className="gap-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 will-change-transform"
                 >
                   <Folder className="w-4 h-4" />
@@ -348,7 +348,7 @@ const Home = () => {
                   >
                     gustavo.corbucci@gmail.com
                   </a>
-                  {" "}com o título <span className="font-mono text-sm bg-muted px-2 py-1 rounded">[Plani] Assunto</span>
+                  {" "}com o título <span className="font-mono text-sm bg-muted px-2 py-1 rounded">[shanker] Assunto</span>
                 </p>
                 <div className="flex flex-col items-center gap-4 pt-4">
                   <div className="flex items-center justify-center gap-3">
