@@ -348,7 +348,7 @@ const Home = () => {
                   >
                     gustavo.corbucci@gmail.com
                   </a>
-                  {" "}com o título <span className="font-mono text-sm bg-muted px-2 py-1 rounded">[shanker] Assunto</span>
+                  {" "}com o título <span className="font-mono text-sm bg-muted px-2 py-1 rounded">[Plani] Assunto</span>
                 </p>
                 <div className="flex flex-col items-center gap-4 pt-4">
                   <div className="flex items-center justify-center gap-3">
