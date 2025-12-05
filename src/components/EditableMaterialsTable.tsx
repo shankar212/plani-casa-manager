@@ -909,7 +909,7 @@ export const EditableMaterialsTable: React.FC = () => {
                     className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm hover:shadow-md transition-shadow border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary"
                   >
                     <Sparkles className="h-4 w-4" />
-                    <span className="hidden sm:inline">IA Assistente</span>
+                    <span>IA Assistente</span>
                   </Button>
                   <Button
                     onClick={() => setAddMaterialDialogOpen(true)}

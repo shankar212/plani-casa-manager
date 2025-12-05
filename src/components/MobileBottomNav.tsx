@@ -1,7 +1,8 @@
-import { Home, Bell, Folder, Archive, User, LogOut, Settings } from "lucide-react";
+import { Home, Bell, Folder, Archive, User, LogOut, Settings, ShieldCheck } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -16,6 +17,7 @@ const navigationItems = [
 
 export const MobileBottomNav = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -33,8 +35,8 @@ export const MobileBottomNav = () => {
             className={({ isActive }) =>
               cn(
                 "flex flex-col items-center p-2 rounded-lg transition-colors min-w-0 flex-1",
-                isActive 
-                  ? "text-primary" 
+                isActive
+                  ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )
             }
@@ -43,7 +45,24 @@ export const MobileBottomNav = () => {
             <span className="text-xs truncate">{item.title}</span>
           </NavLink>
         ))}
-        
+
+        {isAdmin && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              cn(
+                "flex flex-col items-center p-2 rounded-lg transition-colors min-w-0 flex-1",
+                isActive
+                  ? "text-purple-600"
+                  : "text-muted-foreground hover:text-purple-600"
+              )
+            }
+          >
+            <ShieldCheck className="w-5 h-5 mb-1" />
+            <span className="text-xs truncate">Admin</span>
+          </NavLink>
+        )}
+
         {/* Profile/Settings with Logout */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
@@ -71,9 +90,9 @@ export const MobileBottomNav = () => {
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <NavLink to="/conta" onClick={() => setIsSheetOpen(false)}>
                 <Button
                   variant="outline"
@@ -84,7 +103,7 @@ export const MobileBottomNav = () => {
                   Configurações da Conta
                 </Button>
               </NavLink>
-              
+
               <Button
                 onClick={handleLogout}
                 variant="outline"
