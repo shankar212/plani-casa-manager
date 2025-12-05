@@ -1,73 +1,62 @@
-# Welcome to your Lovable project
+# PlaniTec - Gestão de Obras
 
-## Project info
+Sistema de gestão de obras desenvolvido para o programa **Minha Casa Minha Vida**. O PlaniTec é uma aplicação web progressiva (PWA) moderna que facilita o acompanhamento e gerenciamento de projetos de construção.
 
-**URL**: https://lovable.dev/projects/467bf41a-9d20-4a17-a115-be9d7c72ede9
+## 🚀 Tecnologias Utilizadas
 
-## How can I edit this code?
+Este projeto foi construído com uma stack moderna focada em performance e experiência do desenvolvedor:
 
-There are several ways of editing your application.
+- **Frontend Core**: [React](https://react.dev/) + [Vite](https://vitejs.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Estilização**: [Tailwind CSS](https://tailwindcss.com/)
+- **Componentes UI**: [shadcn/ui](https://ui.shadcn.com/) (baseado em Radix UI)
+- **Gerenciamento de Estado/Data Fetching**: [TanStack Query](https://tanstack.com/query/latest)
+- **Backend/Banco de Dados**: [Supabase](https://supabase.com/)
+- **PWA**: [Vite PWA Plugin](https://vite-pwa-org.netlify.app/) para suporte offline e instalabilidade.
+- **Gráficos e Animações**: [Recharts](https://recharts.org/) & [Framer Motion](https://www.framer.com/motion/)
 
-**Use Lovable**
+## 📋 Pré-requisitos
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/467bf41a-9d20-4a17-a115-be9d7c72ede9) and start prompting.
+Antes de começar, certifique-se de ter instalado em sua máquina:
+- [Node.js](https://nodejs.org/) (versão 18 ou superior recomendada)
+- npm (geralmente vem com o Node.js)
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🔧 Instalação e Execução
 
-**Use your preferred IDE**
+Siga os passos abaixo para rodar o projeto localmente:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone o repositório**
+   ```bash
+   git clone <URL_DO_SEU_REPOSITORIO>
+   cd PlaniTec
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Instale as dependências**
+   ```bash
+   npm install
+   ```
 
-Follow these steps:
+3. **Configure as Variáveis de Ambiente**
+   Crie um arquivo `.env` na raiz do projeto (se necessário) com as credenciais do Supabase.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Inicie o servidor de desenvolvimento**
+   ```bash
+   npm run dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+5. **Acesse a aplicação**
+   Abra seu navegador em `http://localhost:8080`.
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📦 Scripts Disponíveis
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- `npm run dev`: Inicia o servidor de desenvolvimento.
+- `npm run build`: Cria a versão de produção na pasta `dist`.
+- `npm run preview`: Visualiza a versão de produção localmente.
+- `npm run lint`: Executa a verificação de código com ESLint.
 
-**Edit a file directly in GitHub**
+## 📱 Funcionalidades PWA
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+O PlaniTec é um PWA totalmente configurado. Isso significa que ele pode ser instalado como um aplicativo nativo em dispositivos móveis e desktops, além de possuir estratégias de cache para funcionamento offline ou em redes instáveis.
 
-**Use GitHub Codespaces**
+## 🤝 Contribuição
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/467bf41a-9d20-4a17-a115-be9d7c72ede9) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.

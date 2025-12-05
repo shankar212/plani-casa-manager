@@ -511,7 +511,7 @@ export const AIChatDialog: React.FC<AIChatDialogProps> = ({
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="fixed left-0 top-0 translate-x-0 translate-y-0 w-full h-full border-0 rounded-none sm:left-[50%] sm:top-[50%] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-[500px] sm:h-[650px] sm:rounded-lg sm:border flex flex-col p-0 gap-0 overflow-hidden">
+            <DialogContent className="fixed left-0 top-0 translate-x-0 translate-y-0 w-full h-[100dvh] border-0 rounded-none sm:left-[50%] sm:top-[50%] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-[500px] sm:h-[650px] sm:max-h-[90vh] sm:rounded-lg sm:border flex flex-col p-0 gap-0 overflow-hidden shadow-xl z-50">
                 <DialogHeader className="px-6 py-4 border-b bg-muted/30">
                     <DialogTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-primary">
