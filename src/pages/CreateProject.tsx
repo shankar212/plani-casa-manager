@@ -1,4 +1,5 @@
 import { Layout } from "@/components/Layout";
+import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,11 +51,33 @@ const CreateProject = () => {
       return;
     }
 
-    console.log('Creating project with user:', user.id, 'values:', values);
-
     try {
+      // Check project limit
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("max_projects")
+        .eq("id", user.id)
+        .single();
+
+      const { count } = await supabase
+        .from("projects")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id);
+
+      const maxProjects = profile?.max_projects ?? 3;
+      const currentProjects = count || 0;
+
+      if (currentProjects >= maxProjects) {
+        toast({
+          title: "Limite atingido",
+          description: `Você atingiu o limite de ${maxProjects} projetos. Entre em contato com o suporte para aumentar seu limite.`,
+          variant: "destructive"
+        });
+        return;
+      }
+
       const description = `Tipo: ${values.constructionType}\nCliente: ${values.client}\nEngenheiro: ${values.engineer}${values.team ? `\nEquipe: ${values.team}` : ''}`;
-      
+
       const project = await createProject({
         name: values.name,
         description,
@@ -63,12 +86,12 @@ const CreateProject = () => {
         status: values.status as any,
         total_budget: null,
       });
-      
+
       toast({
         title: "Sucesso!",
         description: "Projeto criado com sucesso",
       });
-      
+
       navigate(`/projetos/${project.id}`);
     } catch (error: any) {
       // Error toast is already shown by useProjects hook
@@ -89,7 +112,7 @@ const CreateProject = () => {
 
         <Card className="p-6 md:p-8 max-w-4xl">
           <h2 className="text-lg font-semibold mb-6">Dados gerais do projeto</h2>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -99,8 +122,8 @@ const CreateProject = () => {
                   <FormItem>
                     <FormLabel>Nome do projeto *</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Ex: Residência Silva" 
+                      <Input
+                        placeholder="Ex: Residência Silva"
                         {...field}
                         autoFocus
                       />
@@ -273,7 +296,7 @@ const CreateProject = () => {
                   <FormItem>
                     <FormLabel>Equipe (opcional)</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <Textarea
                         placeholder="Liste os membros da equipe, incluindo contratos e subcontratos"
                         rows={4}
                         {...field}
@@ -284,7 +307,7 @@ const CreateProject = () => {
                 )}
               />
 
-              <Button 
+              <Button
                 type="submit"
                 className="w-full"
                 disabled={form.formState.isSubmitting}

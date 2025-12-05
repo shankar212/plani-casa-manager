@@ -24,6 +24,7 @@ import {
   Eye,
   X,
   Info,
+  Sparkles,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AddMaterialDialog } from "./AddMaterialDialog";
+import { AIChatDialog } from "./AIChatDialog";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -80,6 +82,7 @@ export const EditableMaterialsTable: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [addMaterialDialogOpen, setAddMaterialDialogOpen] = useState(false);
+  const [aiChatOpen, setAiChatOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [permissionsBannerCollapsed, setPermissionsBannerCollapsed] = useState(() => {
     const saved = localStorage.getItem('almoxarifado-permissions-banner-collapsed');
@@ -759,65 +762,65 @@ export const EditableMaterialsTable: React.FC = () => {
                   {Array.from(projectAccessMap.entries())
                     .filter(([_, access]) => access === 'owner' || access === 'edit')
                     .length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
-                        <Check className="h-3.5 w-3.5" />
-                        Acesso de Edição
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 ml-5">
-                        {Array.from(projectAccessMap.entries())
-                          .filter(([_, access]) => access === 'owner' || access === 'edit')
-                          .map(([projectId, access]) => {
-                            const project = projects.find(p => p.id === projectId);
-                            if (!project) return null;
-                            return (
-                              <Badge 
-                                key={projectId} 
-                                variant="outline" 
-                                className="text-xs bg-green-100/50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-800 dark:text-green-300"
-                              >
-                                {project.name} {access === 'owner' && '(Proprietário)'}
-                              </Badge>
-                            );
-                          })}
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
+                          <Check className="h-3.5 w-3.5" />
+                          Acesso de Edição
+                        </p>
+                        <div className="flex flex-wrap gap-1.5 ml-5">
+                          {Array.from(projectAccessMap.entries())
+                            .filter(([_, access]) => access === 'owner' || access === 'edit')
+                            .map(([projectId, access]) => {
+                              const project = projects.find(p => p.id === projectId);
+                              if (!project) return null;
+                              return (
+                                <Badge
+                                  key={projectId}
+                                  variant="outline"
+                                  className="text-xs bg-green-100/50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-800 dark:text-green-300"
+                                >
+                                  {project.name} {access === 'owner' && '(Proprietário)'}
+                                </Badge>
+                              );
+                            })}
+                        </div>
+                        <p className="text-xs text-muted-foreground ml-5">
+                          Você pode adicionar, editar e excluir materiais destes projetos
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground ml-5">
-                        Você pode adicionar, editar e excluir materiais destes projetos
-                      </p>
-                    </div>
-                  )}
+                    )}
 
                   {/* Projects with view access */}
                   {Array.from(projectAccessMap.entries())
                     .filter(([_, access]) => access === 'view')
                     .length > 0 && (
-                    <div className="space-y-1 mt-3">
-                      <p className="text-xs font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                        <Eye className="h-3.5 w-3.5" />
-                        Apenas Visualização
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 ml-5">
-                        {Array.from(projectAccessMap.entries())
-                          .filter(([_, access]) => access === 'view')
-                          .map(([projectId]) => {
-                            const project = projects.find(p => p.id === projectId);
-                            if (!project) return null;
-                            return (
-                              <Badge 
-                                key={projectId} 
-                                variant="outline" 
-                                className="text-xs bg-amber-100/50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300"
-                              >
-                                {project.name}
-                              </Badge>
-                            );
-                          })}
+                      <div className="space-y-1 mt-3">
+                        <p className="text-xs font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                          <Eye className="h-3.5 w-3.5" />
+                          Apenas Visualização
+                        </p>
+                        <div className="flex flex-wrap gap-1.5 ml-5">
+                          {Array.from(projectAccessMap.entries())
+                            .filter(([_, access]) => access === 'view')
+                            .map(([projectId]) => {
+                              const project = projects.find(p => p.id === projectId);
+                              if (!project) return null;
+                              return (
+                                <Badge
+                                  key={projectId}
+                                  variant="outline"
+                                  className="text-xs bg-amber-100/50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300"
+                                >
+                                  {project.name}
+                                </Badge>
+                              );
+                            })}
+                        </div>
+                        <p className="text-xs text-muted-foreground ml-5">
+                          Materiais destes projetos são bloqueados para edição
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground ml-5">
-                        Materiais destes projetos são bloqueados para edição
-                      </p>
-                    </div>
-                  )}
+                    )}
                 </div>
               )}
             </div>
@@ -899,13 +902,23 @@ export const EditableMaterialsTable: React.FC = () => {
                 </>
               )}
               {hasAnyEditAccess && (
-                <Button
-                  onClick={() => setAddMaterialDialogOpen(true)}
-                  className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <Plus className="h-4 w-4" />
-                  Novo Material
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setAiChatOpen(true)}
+                    variant="outline"
+                    className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm hover:shadow-md transition-shadow border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    <span className="hidden sm:inline">IA Assistente</span>
+                  </Button>
+                  <Button
+                    onClick={() => setAddMaterialDialogOpen(true)}
+                    className="flex items-center gap-2 flex-1 md:flex-initial shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Novo Material
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -951,12 +964,12 @@ export const EditableMaterialsTable: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-border/60 bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="w-[50px] font-semibold">
-                    <Checkbox
-                      checked={selectedMaterials.size === filteredMaterials.filter(canEditMaterial).length && filteredMaterials.filter(canEditMaterial).length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
+                    <TableHead className="w-[50px] font-semibold">
+                      <Checkbox
+                        checked={selectedMaterials.size === filteredMaterials.filter(canEditMaterial).length && filteredMaterials.filter(canEditMaterial).length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead className="font-semibold text-foreground">Projeto</TableHead>
                     <TableHead className="font-semibold text-foreground">Etapa</TableHead>
                     <TableHead className="font-semibold text-foreground">Status</TableHead>
@@ -1137,7 +1150,7 @@ export const EditableMaterialsTable: React.FC = () => {
                           <TableRow className="bg-gradient-to-br from-muted/60 to-muted/30 border-l-4 border-l-primary">
                             <TableCell colSpan={7} className="p-0">
                               <div className="p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                   <div>
                                     <Label className="text-xs text-muted-foreground">Unidade</Label>
                                     <EditableCell
@@ -1333,15 +1346,27 @@ export const EditableMaterialsTable: React.FC = () => {
         open={addMaterialDialogOpen}
         onOpenChange={setAddMaterialDialogOpen}
         onSubmit={createNewMaterial}
-        projects={projects.map(p => ({ 
-          id: p.id, 
-          name: p.name, 
-          accessLevel: projectAccessMap.get(p.id) 
+        projects={projects.map(p => ({
+          id: p.id,
+          name: p.name,
+          accessLevel: projectAccessMap.get(p.id)
         }))}
         stages={stages}
         suppliers={materialSuppliers}
         userId={user?.id}
         onCreateSupplier={handleOpenCreateSupplierFromDialog}
+      />
+
+      {/* AI Chat Dialog */}
+      <AIChatDialog
+        open={aiChatOpen}
+        onOpenChange={setAiChatOpen}
+        onMaterialCreate={createNewMaterial}
+        userId={user?.id}
+        projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+        stages={stages.map((s) => ({ id: s.id, name: s.name, project_id: s.project_id }))}
+        suppliers={materialSuppliers.map((s) => ({ id: s.id, name: s.name }))}
+        materials={materials}
       />
     </TooltipProvider>
   );
